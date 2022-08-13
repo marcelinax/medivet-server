@@ -1,8 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { MedivetAppModule } from './medivet-app/medivet-app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  const appListenPort = process.env.LISTEN_PORT || 3002;
+
+  const app = await NestFactory.create(MedivetAppModule);
+  await app.listen(appListenPort);
 }
 bootstrap();
