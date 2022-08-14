@@ -1,5 +1,4 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../guards/jwt-auth.guard";
+import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { MedivetSecurityAuthService } from "../services/medivet-security-auth.service";
 import { MedivetAuthLoginDto } from '@/medivet-security/dto/medivet-auth-login.dto';
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
@@ -16,11 +15,5 @@ export default class MedivetSecurityAuthController {
         authLoginDto: MedivetAuthLoginDto
     ) {
         return this.securityAuthService.login(authLoginDto);
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Get(PathConstants.ME)
-    getMe(@Request() req) {
-        return req.user;
     }
 }

@@ -2,6 +2,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport'; 
 import { Injectable } from '@nestjs/common';
 import { envConfig } from '@/medivet-commons/configurations/env-config';
+import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 
 const env = envConfig();
 
@@ -15,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
-    return { userId: payload.id };
+  async validate(payload: MedivetUser) {
+    return { ...payload };
   }
 }

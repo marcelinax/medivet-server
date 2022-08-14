@@ -4,6 +4,7 @@ import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
 import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { MedivetUsersMeController } from "./controllers/medivet-users-me.controller";
 
 @Module({
     imports: [
@@ -12,7 +13,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
         ]),
         forwardRef(() => MedivetSecurityModule),
     ],
-    controllers: [MedivetUsersController],
+    controllers: [MedivetUsersController, MedivetUsersMeController],
     providers: [MedivetUsersService],
     exports: [MedivetUsersService]
 })
