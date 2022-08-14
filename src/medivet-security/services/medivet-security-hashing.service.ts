@@ -8,7 +8,7 @@ export class MedivetSecurityHashingService {
        return bcrypt.hash(value, saltOrRounds);
     }
 
-    validateHashingValue(value: string, hash: string): Promise<boolean> {
+    async validateHashingValue(value: string, hash: string): Promise<boolean> {
         return bcrypt.compare(value, hash);
     }
 }

@@ -2,7 +2,7 @@ import { MedivetSecurityModule } from "@/medivet-security/medivet-security.modul
 import { MedivetUsersController } from "@/medivet-users/controllers/medivet-users.controller";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({
@@ -10,7 +10,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
         TypeOrmModule.forFeature([
             MedivetUser
         ]),
-        MedivetSecurityModule
+        forwardRef(() => MedivetSecurityModule),
     ],
     controllers: [MedivetUsersController],
     providers: [MedivetUsersService],

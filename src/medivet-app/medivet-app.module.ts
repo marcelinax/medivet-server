@@ -1,3 +1,4 @@
+import { envConfig } from '@/medivet-commons/configurations/env-config';
 import { MedivetSecurityModule } from '@/medivet-security/medivet-security.module';
 import { MedivetUsersModule } from '@/medivet-users/medivet-users.module';
 import { Module } from '@nestjs/common';
@@ -7,7 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
+      load: [envConfig]
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
