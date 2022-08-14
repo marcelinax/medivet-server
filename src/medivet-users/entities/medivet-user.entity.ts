@@ -2,11 +2,6 @@ import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
 import {  MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-interface Address { 
-    street: string
-    buildingNumber: number
-}
-
 @Entity()
 export class MedivetUser {
     @PrimaryGeneratedColumn()

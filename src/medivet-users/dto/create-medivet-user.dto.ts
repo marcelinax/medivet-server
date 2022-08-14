@@ -2,8 +2,6 @@ import { ValidationMessagesConstants } from "@/medivet-commons/constants/validat
 import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from "class-validator";
-
-
 export class CreateMedivetUserDto {
     @IsEmail()
     @IsNotEmpty()
@@ -30,6 +28,4 @@ export class CreateMedivetUserDto {
     @IsNotEmpty()
     @IsEnum(MedivetUserRole)
     role: MedivetUserRole;
-
-    
 }

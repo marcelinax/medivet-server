@@ -1,3 +1,4 @@
+import { MedivetSecurityModule } from '@/medivet-security/medivet-security.module';
 import { MedivetUsersModule } from '@/medivet-users/medivet-users.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -18,7 +19,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       entities: ["dist/**/*.entity{.ts,.js}"],
       synchronize: true
     }),
-    MedivetUsersModule
+    MedivetUsersModule,
+    MedivetSecurityModule
   ]
 })
 export class MedivetAppModule {}
