@@ -16,9 +16,9 @@ export class MedivetUsersService {
 
     async createUser(user: CreateMedivetUserDto) : Promise<MedivetUser> {
         const userWithExistingEmail = await this.findOneByEmail(user.email);
-        console.log(userWithExistingEmail)
 
         if (userWithExistingEmail) throw new BadRequestException(ErrorMessagesConstants.USER_WITH_THIS_EMAIL_ALREADY_EXISTS);
+        this.validateUserBirthDate(user);
 
         const hashedPassword = await this.hashingService.hashValue(user.password);
 
@@ -49,4 +49,12 @@ export class MedivetUsersService {
         return await this.usersRepository.findOne({ where: { email } });
     }
 
+    validateUserBirthDate(user: CreateMedivetUserDto): void  {
+        const {birthDate} = user;
+        const date18YearsAgo = new Date();
+        date18YearsAgo.setFullYear(date18YearsAgo.getFullYear() - 18);
+
+        if (birthDate > date18YearsAgo) throw new BadRequestException(ErrorMessagesConstants.USER_HAS_TO_BE_AT_LEAST_18_YEARS_OF_AGE);
+        if(birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
+    }
 }
