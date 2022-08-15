@@ -5,10 +5,13 @@ import { ErrorExceptionDto } from "@/medivet-commons/dto/error-exception.dto";
 import { CreateMedivetUserDto } from "@/medivet-users/dto/create-medivet-user.dto";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
+import { ClassSerializerInterceptor } from "@nestjs/common";
+import { UseInterceptors } from "@nestjs/common";
 import { Body, Controller, Post } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 @ApiTags(ApiTagsConstants.USERS)
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller(PathConstants.USERS)
 export class MedivetUsersController {
     constructor(private usersService: MedivetUsersService){}

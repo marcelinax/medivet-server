@@ -3,11 +3,13 @@ import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/jwt-auth.guard";
-import { Controller, Get, UseGuards } from "@nestjs/common";
+import { ClassSerializerInterceptor, Controller, Get, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { UseInterceptors } from "@nestjs/common";
 
 @ApiTags(ApiTagsConstants.USERS)
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller(`${PathConstants.USERS}/${PathConstants.ME}`)
 export class MedivetUsersMeController {
 
@@ -26,7 +28,7 @@ export class MedivetUsersMeController {
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Get()
-    getMe(@CurrentUser() user): Promise<MedivetUser>{
+    async getMe(@CurrentUser() user: MedivetUser): Promise<MedivetUser>{
         return user;
     }
 }

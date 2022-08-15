@@ -3,12 +3,13 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { envConfig } from '@/medivet-commons/configurations/env-config';
 import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
+import { MedivetUsersService } from '@/medivet-users/services/medivet-users.service';
 
 const env = envConfig();
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+    constructor(private usersService: MedivetUsersService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -17,6 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: MedivetUser) {
-    return { ...payload };
+    const user = await this.usersService.findOneById(payload.id);
+    return user;
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Post } from "@nestjs/common";
 import { MedivetSecurityAuthService } from "@/medivet-security/services/medivet-security-auth.service";
 import { MedivetAuthLoginDto } from '@/medivet-security/dto/medivet-auth-login.dto';
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
@@ -8,6 +8,7 @@ import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-except
 import { MedivetAuthTokenDto } from "@/medivet-security/dto/medivet-auth-token.dto";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
+import { UseInterceptors } from "@nestjs/common";
 
 @ApiTags(ApiTagsConstants.AUTH)
 @Controller(PathConstants.AUTH)

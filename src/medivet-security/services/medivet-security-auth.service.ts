@@ -27,7 +27,7 @@ export class MedivetSecurityAuthService {
     async login(authLoginDto: MedivetAuthLoginDto) {
         const user = await this.validateUser(authLoginDto.email, authLoginDto.password);
 
-        const authToken = this.jwtService.sign({...user})
+        const authToken = this.jwtService.sign({ ...user });
 
         return authToken;
     }
