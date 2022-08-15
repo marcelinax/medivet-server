@@ -22,6 +22,10 @@ export class CreateMedivetUserDto {
     @MinLength(6)
     password: string;
 
+    @ApiProperty({
+        required: true,
+        example: 'Jan Kowalski'
+    })
     @IsNotEmpty()
     @IsString()
     name: string;
@@ -38,7 +42,7 @@ export class CreateMedivetUserDto {
 
     @ApiProperty({
         required: true,
-        example: new Date()
+        example: new Date(new Date().setFullYear(new Date().getFullYear() - 18))
     })
     @IsNotEmpty()
     @Transform(({value}) => new Date(value))

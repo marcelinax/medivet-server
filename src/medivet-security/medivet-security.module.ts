@@ -4,14 +4,19 @@ import { MedivetSecurityHashingService } from "@/medivet-security/services/mediv
 import { MedivetUsersModule } from "@/medivet-users/medivet-users.module";
 import { forwardRef, Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
-import MedivetSecurityAuthController from "./controllers/medivet-security-auth.controller";
-import { JwtStrategy } from "./strategies/jwt.strategy";
+import MedivetSecurityAuthController from "@/medivet-security/controllers/medivet-security-auth.controller";
+import { JwtStrategy } from "@/medivet-security/strategies/medivet-jwt.strategy";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { MedivetAuthToken } from "@/medivet-users/entities/medivet-auth-token.entity";
 
 const env = envConfig();
 
 @Module({
     imports: [
         forwardRef(() => MedivetUsersModule),
+        TypeOrmModule.forFeature([
+            MedivetAuthToken
+        ]),
         JwtModule.register({
             secret: env.ENCRYPT_KEY,
         })

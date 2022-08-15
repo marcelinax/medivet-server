@@ -2,7 +2,7 @@ import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
-import { JwtAuthGuard } from "@/medivet-security/guards/jwt-auth.guard";
+import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { ClassSerializerInterceptor, Controller, Get, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";

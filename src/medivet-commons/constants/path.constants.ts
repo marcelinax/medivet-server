@@ -4,4 +4,5 @@ export class PathConstants {
 
     public static LOGIN = 'login';
     public static ME = 'me';
+    public static VALIDATE_TOKEN = 'validate-token';
 }
