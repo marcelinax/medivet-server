@@ -20,7 +20,7 @@ export class MedivetSecurityAuthService {
 
     async validateUser(email: string, password: string): Promise<MedivetUser> {
         const user = await this.usersService.findOneByEmail(email);
-        if (!user) throw new UnauthorizedException(ErrorMessagesConstants.USER_WITH_THIS_ID_DOES_NOT_EXIST);        
+        if (!user) throw new UnauthorizedException(ErrorMessagesConstants.USER_WITH_THIS_EMAIL_DOES_NOT_EXIST);        
         
         if (!(await this.securityHashingService.validateHashingValue(password, user.password)))
             throw new UnauthorizedException(ErrorMessagesConstants.WRONG_PASSWORD);
@@ -31,17 +31,28 @@ export class MedivetSecurityAuthService {
     async login(authLoginDto: MedivetAuthLoginDto) {
         const user = await this.validateUser(authLoginDto.email, authLoginDto.password);
 
-        const authToken = this.jwtService.sign({ ...user });
+        const authToken = this.jwtService.sign({id: user.id});
+
+        await this.authTokenRepository.insert({
+            token: "Bearer " + authToken,
+            user: user,
+        });
 
         return authToken;
     }
 
-   async validateAuthToken(token: string): Promise<boolean> {
+    async validateAuthToken(token: string): Promise<boolean> {
        return !!await this.authTokenRepository.findOne({
            where: {
                token,
                active: true
            }
        });
+   }
+    
+    async logout(token: string): Promise<void> {
+        const tokenEntity = await this.authTokenRepository.findOne({ where: { token } });
+        tokenEntity.active = false;
+        await this.authTokenRepository.save(tokenEntity);
     }
 }

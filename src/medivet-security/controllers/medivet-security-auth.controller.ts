@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Post, Request, UseGuards, UseInterceptors } from "@nestjs/common";
 import { MedivetSecurityAuthService } from "@/medivet-security/services/medivet-security-auth.service";
 import { MedivetAuthLoginDto } from '@/medivet-security/dto/medivet-auth-login.dto';
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
@@ -16,6 +16,7 @@ import { UnauthorizedException } from "@nestjs/common";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 
 @ApiTags(ApiTagsConstants.AUTH)
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller(PathConstants.AUTH)
 export default class MedivetSecurityAuthController {
     constructor(
@@ -62,8 +63,26 @@ export default class MedivetSecurityAuthController {
     @UseGuards(JwtAuthGuard)
     @Get(PathConstants.VALIDATE_TOKEN)
     async validateToken(@CurrentUser() user: MedivetUser): Promise<OkMessageDto>{
-        console.log(user)
         if (!user) throw new UnauthorizedException();
         return {message: SuccessMessageConstants.TOKEN_IS_VALID}
+    }
+
+    @ApiOperation({
+        summary: 'Logout user and remove used authorization token',
+    })
+    @ApiOkResponse({
+        description: 'Authorization token has been successfully removed from database and user is logged out',
+        type: OkMessageDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Authorization token is not valid',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @Post(PathConstants.LOGOUT)
+    async logout(@Request() req: Request): Promise<OkMessageDto> {
+        await this.securityAuthService.logout(req.headers['authorization']);
+        return {message: SuccessMessageConstants.LOGOUT_USER }
     }
 }
