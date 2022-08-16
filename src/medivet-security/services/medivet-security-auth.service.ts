@@ -61,4 +61,5 @@ export class MedivetSecurityAuthService {
         tokenEntity.lastUse = new Date();
         await this.authTokenRepository.save(tokenEntity);
     }
+
 }

@@ -57,4 +57,18 @@ export class MedivetUsersService {
         if (birthDate > date18YearsAgo) throw new BadRequestException(ErrorMessagesConstants.USER_HAS_TO_BE_AT_LEAST_18_YEARS_OF_AGE);
         if(birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
     }
+
+    async updateUserPassword(user: MedivetUser, newPassword: string, oldPassword: string): Promise<MedivetUser> {
+        const userEntity = await this.usersRepository.findOne({ where: { id: user.id } });
+
+        if (!await this.hashingService.validateHashingValue(oldPassword, userEntity.password))
+            throw new BadRequestException(ErrorMessagesConstants.WRONG_OLD_PASSWORD);
+        
+        if (await this.hashingService.validateHashingValue(newPassword, userEntity.password))
+            throw new BadRequestException(ErrorMessagesConstants.NEW_PASSWORD_THE_SAME_AS_OLD_PASSWORD);
+        
+        userEntity.password = await this.hashingService.hashValue(newPassword);
+        await this.usersRepository.save(userEntity);
+        return userEntity;
+    }
 }
