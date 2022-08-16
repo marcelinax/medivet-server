@@ -55,4 +55,10 @@ export class MedivetSecurityAuthService {
         tokenEntity.active = false;
         await this.authTokenRepository.save(tokenEntity);
     }
+
+    async setTokenLastUseDate(token: string): Promise<void> {
+        const tokenEntity = await this.authTokenRepository.findOne({ where: { token } });
+        tokenEntity.lastUse = new Date();
+        await this.authTokenRepository.save(tokenEntity);
+    }
 }

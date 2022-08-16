@@ -15,7 +15,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       passReqToCallback: true,
-      // ignoreExpiration: false,
       secretOrKey: env.ENCRYPT_KEY,
     });
   }
@@ -24,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const token = req.headers['authorization'];
 
     if (!await this.authSecurityService.validateAuthToken(token)) throw new UnauthorizedException();
+    await this.authSecurityService.setTokenLastUseDate(token);
     const user = await this.usersService.findOneById(payload.id);
     return user;
   }
