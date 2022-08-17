@@ -71,4 +71,5 @@ export class MedivetUsersService {
         await this.usersRepository.save(userEntity);
         return userEntity;
     }
+
 }

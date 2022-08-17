@@ -3,19 +3,23 @@ import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
-import { Body, ClassSerializerInterceptor, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Delete, Get, Post, UseGuards } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { UseInterceptors } from "@nestjs/common";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { UpdateMedivetUserPasswordDto } from "@/medivet-users/dto/update-medivet-user-password.dto";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
+import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { MedivetAnonymizeUserService } from "@/medivet-users/services/medivet-anonymize-user.service";
+import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 
 @ApiTags(ApiTagsConstants.USERS)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller(`${PathConstants.USERS}/${PathConstants.ME}`)
 export class MedivetUsersMeController {
-    constructor(private usersService: MedivetUsersService) {}
+    constructor(private usersService: MedivetUsersService, private usersAnonymizeService: MedivetAnonymizeUserService) {}
 
     @ApiOperation({
         summary: 'Get information about authorized user',
@@ -63,5 +67,30 @@ export class MedivetUsersMeController {
             newPassword,
             oldPassword
         );
+    }
+
+    @ApiOperation({
+        summary: 'Removes and anonymizes authorized user account',
+        description: 'You can do it only once. This operation irreversible!'
+    })
+    @ApiOkResponse({
+        description: 'Returns successfully anonymized account message',
+        type: OkMessageDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBadRequestResponse({
+        description: `User account is already deleted`,
+        type: BadRequestExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @Delete()
+    async deleteMe(@CurrentUser() user: MedivetUser): Promise<OkMessageDto> {
+        if (!user.email) throw new BadRequestException([ErrorMessagesConstants.USER_ACCOUNT_IS_ALREADY_DELETED]);
+        await this.usersAnonymizeService.anonymizeUser(user);
+        return { message: SuccessMessageConstants.DELETED_USER_ACCOUNT };
     }
  }

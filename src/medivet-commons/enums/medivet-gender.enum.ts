@@ -1,4 +1,5 @@
 export enum MedivetGender {
     FEMALE = 'female',
-    MALE = 'male'
+    MALE = 'male',
+    UNKNOWN = 'unknown'
 }

@@ -7,4 +7,5 @@ export class ErrorMessagesConstants {
     public static WRONG_PASSWORD = 'Wrong password.';
     public static WRONG_OLD_PASSWORD = 'Wrong old password.';
     public static NEW_PASSWORD_THE_SAME_AS_OLD_PASSWORD = 'New password cannot be the same as old password.';
+    public static USER_ACCOUNT_IS_ALREADY_DELETED = 'User account is already deleted.';
 }
