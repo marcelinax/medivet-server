@@ -1,8 +1,10 @@
 import { envConfig } from '@/medivet-commons/configurations/env-config';
 import { MedivetSecurityModule } from '@/medivet-security/medivet-security.module';
+import { MedivetRoleGuard } from '@/medivet-storage/guards/medivet-role.guard';
 import { MedivetUsersModule } from '@/medivet-users/medivet-users.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
@@ -23,6 +25,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     }),
     MedivetUsersModule,
     MedivetSecurityModule
-  ]
+  ],
 })
 export class MedivetAppModule {}

@@ -1,8 +1,9 @@
 import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { version } from '../package.json';
 import { MedivetAppModule } from '@/medivet-app/medivet-app.module';
+import { MedivetRoleGuard } from '@/medivet-storage/guards/medivet-role.guard';
 
 async function bootstrap() {
   const appListenPort = process.env.LISTEN_PORT || 3002;
@@ -23,6 +24,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document, {customSiteTitle: 'Medivet :: Swagger v' + version});
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
   await app.listen(appListenPort);
 }
 bootstrap();

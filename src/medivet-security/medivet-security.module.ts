@@ -22,7 +22,11 @@ const env = envConfig();
         })
     ],
     controllers: [MedivetSecurityAuthController],
-    providers: [MedivetSecurityHashingService, MedivetSecurityAuthService, JwtStrategy],
+    providers: [
+        MedivetSecurityHashingService,
+        MedivetSecurityAuthService,
+        JwtStrategy,
+    ],
     exports: [MedivetSecurityHashingService, MedivetSecurityAuthService]
 })
 
