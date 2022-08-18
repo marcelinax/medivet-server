@@ -128,7 +128,7 @@ export class MedivetUsersMeController {
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(MedivetStorageProfilePhotoInterceptor)
     @Post(PathConstants.UPLOAD_PROFILE_PHOTO)
-    async uploadNewUserProfilePhoto(
+    async uploadMyNewProfilePhoto(
         @UploadedFile() file: Express.Multer.File,
         @CurrentUser() user: MedivetUser
     ): Promise<MedivetUser>{
@@ -136,5 +136,24 @@ export class MedivetUsersMeController {
             user,
             file.path.replaceAll('\\', '/')
         );
+    }
+
+    @ApiOperation({
+        summary: 'Removes user profile photo',
+        description: 'First removes user profile photo and then returns user'
+    })
+    @ApiOkResponse({
+        description: 'Returns ok message',
+        type: MedivetUser
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @Delete(PathConstants.REMOVE_PROFILE_PHOTO)
+    async removeMyProfilePhoto(@CurrentUser() user: MedivetUser): Promise<MedivetUser> {
+        return this.usersProfilePhotosService.removeUserProfilePhoto(user);
     }
  }

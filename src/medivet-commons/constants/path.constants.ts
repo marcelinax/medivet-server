@@ -8,4 +8,5 @@ export class PathConstants {
     public static LOGOUT = 'logout';
     public static UPDATE_PASSWORD = 'update-password';
     public static UPLOAD_PROFILE_PHOTO = 'upload-profile-photo';
+    public static REMOVE_PROFILE_PHOTO = 'remove-profile-photo';
 }
