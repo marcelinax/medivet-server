@@ -3,8 +3,8 @@ import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
-import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Delete, Get, Post, UseGuards } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Delete, Get, Post, UploadedFile, UseGuards } from "@nestjs/common";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { UseInterceptors } from "@nestjs/common";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
@@ -14,12 +14,18 @@ import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetAnonymizeUserService } from "@/medivet-users/services/medivet-anonymize-user.service";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { MedivetStorageProfilePhotoInterceptor } from "@/medivet-storage/interceptors/medivet-storage-profile-photo.interceptor";
+import { MedivetUserProfilePhotosService } from "@/medivet-users/services/medivet-user-profile-photos.service";
 
 @ApiTags(ApiTagsConstants.USERS)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller(`${PathConstants.USERS}/${PathConstants.ME}`)
 export class MedivetUsersMeController {
-    constructor(private usersService: MedivetUsersService, private usersAnonymizeService: MedivetAnonymizeUserService) {}
+    constructor(
+        private usersService: MedivetUsersService,
+        private usersAnonymizeService: MedivetAnonymizeUserService,
+        private usersProfilePhotosService: MedivetUserProfilePhotosService
+    ) { }
 
     @ApiOperation({
         summary: 'Get information about authorized user',
@@ -92,5 +98,43 @@ export class MedivetUsersMeController {
         if (!user.email) throw new BadRequestException([ErrorMessagesConstants.USER_ACCOUNT_IS_ALREADY_DELETED]);
         await this.usersAnonymizeService.anonymizeUser(user);
         return { message: SuccessMessageConstants.DELETED_USER_ACCOUNT };
+    }
+
+    @ApiOperation({
+        summary: 'Uploads new user profile photo',
+        description: 'First uploads new user profile photo and then returns user'
+    })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: "object",
+            properties: {
+                file: {
+                    type: "string",
+                    format: "binary",
+                },
+            },
+        },
+    })
+    @ApiCreatedResponse({
+        description: 'The new user profile photo has been uploaded',
+        type: MedivetUser
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(MedivetStorageProfilePhotoInterceptor)
+    @Post(PathConstants.UPLOAD_PROFILE_PHOTO)
+    async uploadNewUserProfilePhoto(
+        @UploadedFile() file: Express.Multer.File,
+        @CurrentUser() user: MedivetUser
+    ): Promise<MedivetUser>{
+        return this.usersProfilePhotosService.updateUserProfilePhoto(
+            user,
+            file.path.replaceAll('\\', '/')
+        );
     }
  }

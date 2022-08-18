@@ -7,6 +7,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { MedivetUsersMeController } from "@/medivet-users/controllers/medivet-users-me.controller";
 import { MedivetUserDeleteLog } from "@/medivet-users/entities/medivet-user-delete-log.entity";
 import { MedivetAnonymizeUserService } from "@/medivet-users/services/medivet-anonymize-user.service";
+import { MedivetUserProfilePhotosService } from "@/medivet-users/services/medivet-user-profile-photos.service";
 
 @Module({
     imports: [
@@ -17,8 +18,8 @@ import { MedivetAnonymizeUserService } from "@/medivet-users/services/medivet-an
         forwardRef(() => MedivetSecurityModule),
     ],
     controllers: [MedivetUsersController, MedivetUsersMeController],
-    providers: [MedivetUsersService, MedivetAnonymizeUserService],
-    exports: [MedivetUsersService, MedivetAnonymizeUserService]
+    providers: [MedivetUsersService, MedivetAnonymizeUserService, MedivetUserProfilePhotosService],
+    exports: [MedivetUsersService, MedivetAnonymizeUserService, MedivetUserProfilePhotosService]
 })
 
 export class MedivetUsersModule {}

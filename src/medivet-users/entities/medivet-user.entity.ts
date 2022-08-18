@@ -1,8 +1,11 @@
+import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
 import {  MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
+import { Exclude, Transform } from "class-transformer";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+
+const env = envConfig();
 
 @Entity()
 export class MedivetUser {
@@ -47,6 +50,7 @@ export class MedivetUser {
     phoneNumber: string;
 
     @ApiProperty()
+    @Transform(({value}) => value ? env.ROOT_URL + value : value)
     @Column({default: ''})
     profilePhotoUrl: string;
 }
