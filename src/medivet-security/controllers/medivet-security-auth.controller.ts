@@ -2,18 +2,19 @@ import { Body, ClassSerializerInterceptor, Controller, Get, Post, Request, UseGu
 import { MedivetSecurityAuthService } from "@/medivet-security/services/medivet-security-auth.service";
 import { MedivetAuthLoginDto } from '@/medivet-security/dto/medivet-auth-login.dto';
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { MedivetAuthTokenDto } from "@/medivet-security/dto/medivet-auth-token.dto";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
-import { JwtAuthGuard } from "../guards/medivet-jwt-auth.guard";
-import { CurrentUser } from "../decorators/medivet-current-user.decorator";
+import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
+import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { UnauthorizedException } from "@nestjs/common";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { MedivetResetPasswordRequestDto } from '@/medivet-security/dto/medivet-reset-password-request.dto';
 
 @ApiTags(ApiTagsConstants.AUTH)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -84,5 +85,28 @@ export default class MedivetSecurityAuthController {
     async logout(@Request() req: Request): Promise<OkMessageDto> {
         await this.securityAuthService.logout(req.headers['authorization']);
         return {message: SuccessMessageConstants.LOGOUT_USER }
+    }
+
+    @ApiOperation({
+        summary: 'First generates new reset password link with new token, then sends email with this link',
+        description: 'Allows only to send emails if account exists'
+    })
+    @ApiOkResponse({
+        description: 'Returns ok message - email has been sent',
+        type: OkMessageDto
+    })
+    @ApiNotFoundResponse({
+        description: 'User with provided email does not exist, so email cannot be sent',
+        type: BadRequestExceptionDto
+    })
+    @ApiBadRequestResponse({
+        description: 'Invalid form data',
+        type: BadRequestExceptionDto
+    })
+    @Post(PathConstants.SEND_RESET_PASSWORD_LINK_VIA_EMAIL)
+    async sendPasswordResetLinkEmail(@Body() resetPasswordRequestDto: MedivetResetPasswordRequestDto): Promise<OkMessageDto>{
+        const { email } = resetPasswordRequestDto;
+        await this.securityAuthService.sendResetUserPasswordLink(email);
+        return { message: SuccessMessageConstants.SENT_RESET_PASSWORD_EMAIL };
     }
 }

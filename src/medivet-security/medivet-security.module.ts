@@ -7,7 +7,8 @@ import { JwtModule } from "@nestjs/jwt";
 import MedivetSecurityAuthController from "@/medivet-security/controllers/medivet-security-auth.controller";
 import { JwtStrategy } from "@/medivet-security/strategies/medivet-jwt.strategy";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { MedivetAuthToken } from "@/medivet-users/entities/medivet-auth-token.entity";
+import { MedivetAuthToken } from "@/medivet-security/entities/medivet-auth-token.entity";
+import { MedivetResetPasswordToken } from "@/medivet-security/entities/medivet-reset-password-token.entity";
 
 const env = envConfig();
 
@@ -15,7 +16,8 @@ const env = envConfig();
     imports: [
         forwardRef(() => MedivetUsersModule),
         TypeOrmModule.forFeature([
-            MedivetAuthToken
+            MedivetAuthToken,
+            MedivetResetPasswordToken
         ]),
         JwtModule.register({
             secret: env.ENCRYPT_KEY,
@@ -25,7 +27,7 @@ const env = envConfig();
     providers: [
         MedivetSecurityHashingService,
         MedivetSecurityAuthService,
-        JwtStrategy,
+        JwtStrategy
     ],
     exports: [MedivetSecurityHashingService, MedivetSecurityAuthService]
 })

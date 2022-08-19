@@ -9,4 +9,5 @@ export class PathConstants {
     public static UPDATE_PASSWORD = 'update-password';
     public static UPLOAD_PROFILE_PHOTO = 'upload-profile-photo';
     public static REMOVE_PROFILE_PHOTO = 'remove-profile-photo';
+    public static SEND_RESET_PASSWORD_LINK_VIA_EMAIL = 'send-reset-password-link-via-email';
 }
