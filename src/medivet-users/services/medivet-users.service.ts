@@ -72,4 +72,10 @@ export class MedivetUsersService {
         return userEntity;
     }
 
+    async forceUpdateUserPassword(user: MedivetUser, newPassword: string): Promise<MedivetUser> {
+        user.password = newPassword;
+        this.usersRepository.save(user);
+        return user;
+    }
+
 }

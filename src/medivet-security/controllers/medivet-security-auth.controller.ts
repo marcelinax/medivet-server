@@ -15,6 +15,7 @@ import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { UnauthorizedException } from "@nestjs/common";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 import { MedivetResetPasswordRequestDto } from '@/medivet-security/dto/medivet-reset-password-request.dto';
+import { MedivetResetPasswordByTokenDto } from "@/medivet-security/dto/medivet-reset-password-by-token.dto";
 
 @ApiTags(ApiTagsConstants.AUTH)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -108,5 +109,24 @@ export default class MedivetSecurityAuthController {
         const { email } = resetPasswordRequestDto;
         await this.securityAuthService.sendResetUserPasswordLink(email);
         return { message: SuccessMessageConstants.SENT_RESET_PASSWORD_EMAIL };
+    }
+
+    @ApiOperation({
+        summary: 'Resets user password by reset password token',
+        description: 'Reset password token is removed after password change'
+    })
+    @ApiOkResponse({
+        description: 'Password has been successfully changed',
+        type: OkMessageDto
+    })
+    @ApiBadRequestResponse({
+        description: 'Bad reset password token',
+        type: BadRequestExceptionDto
+    })
+    @Post(PathConstants.RESET_PASSWORD)
+    async resetPasswordByResetToken(@Body() resetPasswordByTokenDto: MedivetResetPasswordByTokenDto): Promise<OkMessageDto> {
+        const { token, newPassword } = resetPasswordByTokenDto;
+        await this.securityAuthService.resetUserPasswordWithToken(token, newPassword);
+        return { message: SuccessMessageConstants.CHANGED_PASSWORD };
     }
 }

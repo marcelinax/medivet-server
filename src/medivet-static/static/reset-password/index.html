@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medivet - Resetowanie hasła</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+
     <style>
         * {
             padding: 0;
@@ -13,18 +18,169 @@
         }
         
         body {
-
+            font-family: 'Poppins', sans-serif;
         }
 
         .container {
             width: 100%;
             min-height: 100vh;
             display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
+        .form-container {
+            box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+            width: 30%;
+            padding: 2rem;
+            height: fit-content;
+        }
+
+
+        .input-container {
+                display: flex;
+                width: 100%;
+                flex-direction: column;
+        }
+        input {
+            color: #D8D8DC;
+            padding: 1rem;
+            border: 1px solid #D8D8DC;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        input:focus, input:focus-visible {
+            border: 1px solid #D8D8DC;
+        }
+        label {
+            color: #AEAEB2;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-weight: 600;
+            color: #B05C2E;
+            margin-bottom: 2rem;
+        }
+        button {
+            background-color: #B05C2E;
+            font-size: 1rem;
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            border: none;
+            width: 100%;
+            margin-top:2rem;
+            cursor: pointer;
+        }
+
+        .error-text {
+            color: red;
+            font-size: 13px;
+            display: block;
+        }
+
+        .error-text-hidden {
+            display: none;
+        }
+
+        @media screen and (max-width: 768px) {
+           .form-container {
+            padding: 1rem;
+            width: 100%;
+            height: 100vh;
+           }
+        }
+
+        @media screen and (min-width: 768px) and (max-width: 1280px) {
+            .form-container {
+                width: 70%;
+            }
+        }
+
     </style>
 </head>
 
 <body>
-    <div class="container"></div>
+    <div class="container">
+        <div class="form-container">
+            <h2>Zmiana hasła dla aplikacji Medivet</h2>
+            <div class="input-container">
+                <label for="password">Nowe hasło</label>
+                <input id='password'/>
+            </div>
+            <div class="input-container">
+                <label for="reapeat-password">Powtórz nowe hasło</label>
+                <input id='repeat-password'/>
+            </div>
+            <span id='error-text' class="error-text-hidden"></span>
+            <button id="reset-password-button">
+                Zmień hasło
+            </button>
+        </div>
+    </div>
 </body>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    const sendResetPassword = async () => {
+        const password = document.getElementById('password');
+        const repeatPassword = document.getElementById('repeat-password');
+        const errorText= document.getElementById('error-text');
+
+        if(password !== newPassword) {
+            errorText.innerHTML = 'Hasła różnią się od siebie!';
+            errorText.classList.remove('error-text-hidden');
+            errorText.classList.add('error-text');
+            return;
+        }
+        else {
+            errorText.innerHTML = '';
+            errorText.classList.remove('error-text');
+            errorText.classList.add('error-text-hidden');
+            return;
+        }
+           
+        try {
+            const res = await fetch('/auth/reset-password' , {
+                method: 'POST',
+                body: JSON.stringify({
+                    token,
+                    newPassword: password
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if(res.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Hasło zostało zmienione!',
+                    text: 'Twoje hasło zostało zresetowane. Możesz teraz ponownie zalogować się do aplikacji używając nowego hasła.'
+                })
+            }
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Wystąpił błąd!',
+                    text: 'Nie udało się zresetować hasła. Spróbuj ponownie później.'
+                })
+            }
+        }
+        catch(err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Niepoprawne dane formularza',
+                text: 'Nie udało się zresetować hasła. Hasło musi składać się z co najmniej 6 znaków.'
+            })
+        }
+
+    }
+
+    const resetPasswordButton = document.getElementById('reset-password-button');
+    resetPasswordButton.addEventListener('click', sendResetPassword );
+
+</script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </html>

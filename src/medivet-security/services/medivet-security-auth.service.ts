@@ -4,7 +4,7 @@ import { MedivetSecurityHashingService } from "@/medivet-security/services/mediv
 import { MedivetAuthToken } from "@/medivet-security/entities/medivet-auth-token.entity";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -86,4 +86,16 @@ export class MedivetSecurityAuthService {
         await this.mailerService.sendResetPasswordLinkMail(userEmail, user.name, link);
     }
 
+    async resetUserPasswordWithToken(token: string, newPassword: string): Promise<void> {
+        const resetPasswordTokenObj = await this.resetPasswordTokenRepository.findOne({
+            where: { token },
+            relations: ['user']
+        });
+
+        if (!resetPasswordTokenObj) throw new BadRequestException([ErrorMessagesConstants.INVALID_RESET_PASSWORD_TOKEN]);
+        const user = resetPasswordTokenObj.user;
+        if (!user) throw new BadRequestException([ErrorMessagesConstants.INVALID_RESET_PASSWORD_TOKEN]);
+        await this.usersService.forceUpdateUserPassword(user, await this.securityHashingService.hashValue(newPassword));
+        await this.resetPasswordTokenRepository.remove(resetPasswordTokenObj);
+    }
 }
