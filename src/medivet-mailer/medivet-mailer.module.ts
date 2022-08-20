@@ -16,9 +16,8 @@ import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handleba
                 }
             },
             defaults: {
-                from: "Medivet <medivetnotify@gmail.com>"
+                from: "Medivet Notify <medivetnotify@gmail.com>"
             },
-            preview: true,
             template: {
                 dir: process.cwd() + '/dist/medivet-mailer/templates',
                 adapter: new HandlebarsAdapter(),

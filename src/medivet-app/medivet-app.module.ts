@@ -1,6 +1,7 @@
 import { envConfig } from '@/medivet-commons/configurations/env-config';
 import { MedivetMailerModule } from '@/medivet-mailer/medivet-mailer.module';
 import { MedivetSecurityModule } from '@/medivet-security/medivet-security.module';
+import { MedivetStaticModule } from '@/medivet-static/medivet-static.module';
 import { MedivetUsersModule } from '@/medivet-users/medivet-users.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -24,7 +25,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     }),
     MedivetUsersModule,
     MedivetSecurityModule,
-    MedivetMailerModule
+    MedivetMailerModule,
+    MedivetStaticModule
   ],
 })
 export class MedivetAppModule {}
