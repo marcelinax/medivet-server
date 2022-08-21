@@ -1,6 +1,6 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Param, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { MedivetAnimalsService } from "@/medivet-animals/services/medivet-animals.service";
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
@@ -107,4 +107,26 @@ export class MedivetAnimalsController{
         return this.animalsProfilePhotosService.removeAnimalProfilePhoto(animal);
     }
 
+    @ApiOperation({
+        summary: 'Returns animal object',
+        description: 'Finds animal by id and then returns it'
+    })
+    @ApiOkResponse({
+        description: 'Returns animal object',
+        type: MedivetAnimal
+    })
+    @ApiBadRequestResponse({
+        description: 'Animal does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @Get(PathConstants.ID_PARAM)
+    async getAnimal(@Param('id') animalId: number): Promise<MedivetAnimal> {
+        return this.animalsService.findOneById(animalId);
+    }
 }

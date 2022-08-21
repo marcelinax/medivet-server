@@ -25,7 +25,7 @@ export class MedivetAnimalsService {
     }
 
     async findOneById(id: number): Promise<MedivetAnimal> {
-        const animal =  this.animalsRepository.findOne({ where: { id } });
+        const animal = await this.animalsRepository.findOne({ where: { id } });
         if (!animal) throw new NotFoundException(ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST);
         return animal;
     }
