@@ -3,7 +3,8 @@ import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
 import {  MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Transform } from "class-transformer";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { MedivetAnimal } from '@/medivet-animals/entities/medivet-animal.entity';
 
 const env = envConfig();
 
