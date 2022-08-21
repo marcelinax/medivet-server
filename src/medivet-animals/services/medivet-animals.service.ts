@@ -1,9 +1,8 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from 'typeorm';
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
 import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-animal.dto";
-import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 
@@ -23,7 +22,12 @@ export class MedivetAnimalsService {
         });
         await this.animalsRepository.save(newAnimal);
         return newAnimal;
-        
+    }
+
+    async findOneById(id: number): Promise<MedivetAnimal> {
+        const animal =  this.animalsRepository.findOne({ where: { id } });
+        if (!animal) throw new NotFoundException(ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST);
+        return animal;
     }
 
     validateAnimalBirthDate(animal: MedivetCreateAnimalDto): void {
@@ -31,5 +35,4 @@ export class MedivetAnimalsService {
 
         if(birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
     }
-
 }

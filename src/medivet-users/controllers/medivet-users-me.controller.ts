@@ -14,8 +14,8 @@ import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetAnonymizeUserService } from "@/medivet-users/services/medivet-anonymize-user.service";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
-import { MedivetStorageProfilePhotoInterceptor } from "@/medivet-storage/interceptors/medivet-storage-profile-photo.interceptor";
 import { MedivetUserProfilePhotosService } from "@/medivet-users/services/medivet-user-profile-photos.service";
+import { MedivetStorageUserProfilePhotoInterceptor } from "@/medivet-storage/interceptors/medivet-storage-user-profile-photo.interceptor";
 
 @ApiTags(ApiTagsConstants.USERS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -126,7 +126,7 @@ export class MedivetUsersMeController {
     })
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(MedivetStorageProfilePhotoInterceptor)
+    @UseInterceptors(MedivetStorageUserProfilePhotoInterceptor)
     @Post(PathConstants.UPLOAD_PROFILE_PHOTO)
     async uploadMyNewProfilePhoto(
         @UploadedFile() file: Express.Multer.File,

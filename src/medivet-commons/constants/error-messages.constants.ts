@@ -9,4 +9,5 @@ export class ErrorMessagesConstants {
     public static NEW_PASSWORD_THE_SAME_AS_OLD_PASSWORD = 'New password cannot be the same as old password.';
     public static USER_ACCOUNT_IS_ALREADY_DELETED = 'User account is already deleted.';
     public static INVALID_RESET_PASSWORD_TOKEN = 'Invalid reset password token.';
+    public static ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST = 'Animal with this id does not exist.';
 }

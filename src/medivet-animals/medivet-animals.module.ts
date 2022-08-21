@@ -3,6 +3,7 @@ import { MedivetAnimalsService } from '@/medivet-animals/services/medivet-animal
 import { MedivetAnimalsController } from '@/medivet-animals/controllers/medivet-animals.controller';
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
+import { MedivetAnimalProfilePhotosService } from "@/medivet-animals/services/medivet-animal-profile-photos.service";
 
 @Module({
     imports: [
@@ -10,8 +11,8 @@ import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity"
             MedivetAnimal,
         ]),
     ],
-    providers: [MedivetAnimalsService],
-    exports: [MedivetAnimalsService],
+    providers: [MedivetAnimalsService, MedivetAnimalProfilePhotosService],
+    exports: [MedivetAnimalsService, MedivetAnimalProfilePhotosService],
     controllers: [MedivetAnimalsController]
 })
 export class MedivetAnimalsModule {}
