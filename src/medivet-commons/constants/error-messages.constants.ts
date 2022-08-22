@@ -10,4 +10,6 @@ export class ErrorMessagesConstants {
     public static USER_ACCOUNT_IS_ALREADY_DELETED = 'User account is already deleted.';
     public static INVALID_RESET_PASSWORD_TOKEN = 'Invalid reset password token.';
     public static ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST = 'Animal with this id does not exist.';
+    public static ANIMAL_BREED_WITH_THIS_ID_DOES_NOT_EXIST = 'Animal breed with this id does not exist.';
+    public static ANIMAL_BREED_WITH_THIS_NAME_ALREADY_EXISTS = 'Animal breed with this name already exists.';
 }

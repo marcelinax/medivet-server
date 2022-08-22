@@ -81,7 +81,7 @@ export class MedivetAnimalsController{
     @UseInterceptors(MedivetStorageAnimalProfilePhotoInterceptor)
     @Post(PathConstants.UPLOAD_PROFILE_PHOTO + PathConstants.ID_PARAM)
     async uploadNewAnimalProfilePhoto(@UploadedFile() file: Express.Multer.File, @Param('id') animalId: number) {
-        const animal = await this.animalsService.findOneById(animalId);
+        const animal = await this.animalsService.findOneAnimalById(animalId);
         return this.animalsProfilePhotosService.updateAnimalProfilePhoto(animal, file.path.replaceAll('\\', '/'));
     }
 
@@ -103,7 +103,7 @@ export class MedivetAnimalsController{
     @UseGuards(JwtAuthGuard)
     @Delete(PathConstants.REMOVE_PROFILE_PHOTO + PathConstants.ID_PARAM)
     async removeAnimalProfilePhoto(@Param('id') animalId: number) {
-        const animal = await this.animalsService.findOneById(animalId);
+        const animal = await this.animalsService.findOneAnimalById(animalId);
         return this.animalsProfilePhotosService.removeAnimalProfilePhoto(animal);
     }
 
@@ -127,6 +127,6 @@ export class MedivetAnimalsController{
     @UseGuards(JwtAuthGuard)
     @Get(PathConstants.ID_PARAM)
     async getAnimal(@Param('id') animalId: number): Promise<MedivetAnimal> {
-        return this.animalsService.findOneById(animalId);
+        return this.animalsService.findOneAnimalById(animalId);
     }
 }
