@@ -15,7 +15,7 @@ export class MedivetAnimalsService {
         const newAnimal = this.animalsRepository.create({
             name: createAnimalDto.name,
             birthDate: createAnimalDto.birthDate,
-            breed: createAnimalDto.breed,
+            breed: this.parseAnimalBreedToPascalCase(createAnimalDto.breed),
             gender: createAnimalDto.gender,
             type: createAnimalDto.type,
             owner
@@ -34,5 +34,14 @@ export class MedivetAnimalsService {
         const { birthDate } = animal;
 
         if(birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
+    }
+
+    parseAnimalBreedToPascalCase(breed: string): string {
+        const words = breed.split(' ');
+        return words.map(word => {
+            const firstLetter = word[0].toUpperCase();
+            const restLetters = word.slice(1);
+            return firstLetter + restLetters;
+        }).join(' ');
     }
 }
