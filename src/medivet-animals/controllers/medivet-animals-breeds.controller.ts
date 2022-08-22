@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Post, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Param, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 import { MedivetAnimalsBreedsService } from '@/medivet-animals/services/medivet-animals-breeds.service';
 import { ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetAnimalBreed } from '@/medivet-animals/entities/medivet-animal-breed.entity';
@@ -43,5 +43,29 @@ export class MedivetAnimalsBreedsController {
     async createAnimalBreed(@CurrentUser() user: MedivetUser,
         @Body() createAnimalBreedDto: MedivetCreateAnimalBreedDto): Promise<MedivetAnimalBreed> {
         return this.animalsBreedsService.createAnimalBreed(createAnimalBreedDto, user);
+    }
+
+    @ApiOperation({
+        summary: 'Returns animal breed object',
+        description: 'Finds animal breed by id and then returns it'
+    })
+    @ApiOkResponse({
+        description: 'Returns animal breed object',
+        type: MedivetAnimalBreed
+    })
+    @ApiBadRequestResponse({
+        description: 'Animal breed does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.PATIENT)
+    @UseGuards(JwtAuthGuard)
+    @Get(PathConstants.ID_PARAM)
+    async getAnimalBreed(@Param('id') animalBreedId: number): Promise<MedivetAnimalBreed> {
+        return this.animalsBreedsService.findOneAnimalBreedById(animalBreedId);
     }
 }
