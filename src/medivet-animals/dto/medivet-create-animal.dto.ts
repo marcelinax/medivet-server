@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsEnum, IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsDate, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 import { MedivetAnimalType } from "@/medivet-animals/enums/medivet-animal-type.enum";
 import { Transform } from "class-transformer";
 import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
@@ -39,6 +39,14 @@ export class MedivetCreateAnimalDto {
     @IsString()
     @MinLength(3)
     breed: string;
+
+    @ApiProperty({
+        example: 'Jednolite'
+    })
+    @IsString()
+    @IsOptional()
+    @MinLength(3)
+    coatColor: string;
 
     @ApiProperty({
         required: true,

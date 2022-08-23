@@ -20,6 +20,7 @@ export class MedivetAnimalsService {
             breed: this.parseAnimalBreedToPascalCase(createAnimalDto.breed),
             gender: createAnimalDto.gender,
             type: createAnimalDto.type,
+            coatColor: createAnimalDto.coatColor,
             owner
         });
         await this.animalsRepository.save(newAnimal);
@@ -27,7 +28,7 @@ export class MedivetAnimalsService {
     }
 
     async findOneAnimalById(id: number): Promise<MedivetAnimal> {
-        const animal = await this.animalsRepository.findOne({ where: { id } , relations: ['owner', 'breed']});
+        const animal = await this.animalsRepository.findOne({ where: { id } , relations: ['owner']});
         if (!animal) throw new NotFoundException(ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST);
         return animal;
     }
