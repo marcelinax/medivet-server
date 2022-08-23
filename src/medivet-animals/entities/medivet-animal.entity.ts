@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { MedivetAnimalType } from "@/medivet-animals/enums/medivet-animal-type.enum";
 import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
 import { Transform } from "class-transformer";
@@ -19,7 +19,7 @@ export class MedivetAnimal {
     name: string;
 
     @ApiProperty()
-    @OneToMany(() => MedivetUser, user => user.id)
+    @ManyToOne(() => MedivetUser, user => user.id)
     owner: MedivetUser;
 
     @ApiProperty()

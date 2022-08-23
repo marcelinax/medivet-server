@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { MedivetAnimalsService } from "@/medivet-animals/services/medivet-animals.service";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
@@ -128,5 +128,33 @@ export class MedivetAnimalsController{
     @Get(PathConstants.ID_PARAM)
     async getAnimal(@Param('id') animalId: number): Promise<MedivetAnimal> {
         return this.animalsService.findOneAnimalById(animalId);
+    }
+
+    @ApiOperation({
+        summary: 'Updates animal object by id',
+        description: 'Finds created animal by id, updates it and then returns animal object only when user is its owner'
+    })
+    @ApiOkResponse({
+        description: 'Returns updated animal object',
+        type: MedivetAnimal
+    })
+    @ApiBadRequestResponse({
+        description: 'Animal does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: `Bad authorization / user is not animal's owner`,
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.PATIENT)
+    @UseGuards(JwtAuthGuard)
+    @Put(PathConstants.UPDATE + PathConstants.ID_PARAM)
+    async updateAnimal(
+        @Param('id') animalId: number,
+        @CurrentUser() user: MedivetUser,
+        @Body() updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
+            return this.animalsService.updateAnimal(animalId, user, updateAnimalDto);
     }
 }

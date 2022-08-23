@@ -13,4 +13,5 @@ export class PathConstants {
     public static SEND_RESET_PASSWORD_LINK_VIA_EMAIL = 'send-reset-password-link-via-email';
     public static RESET_PASSWORD = 'reset-password';
     public static ID_PARAM = '/:id';
+    public static UPDATE = 'update';
 }

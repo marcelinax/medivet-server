@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from 'typeorm';
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
@@ -28,7 +28,7 @@ export class MedivetAnimalsService {
     }
 
     async findOneAnimalById(id: number): Promise<MedivetAnimal> {
-        const animal = await this.animalsRepository.findOne({ where: { id } , relations: ['owner']});
+        const animal = await this.animalsRepository.findOne({ where: { id }, relations: ['owner'] });
         if (!animal) throw new NotFoundException(ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST);
         return animal;
     }
@@ -46,6 +46,27 @@ export class MedivetAnimalsService {
             const restLetters = word.slice(1);
             return firstLetter + restLetters;
         }).join(' ');
+    }
+
+    async updateAnimal(animalId: number, user: MedivetUser, updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
+        const animal = await this.findOneAnimalById(animalId);
+        const { birthDate, breed, coatColor, gender, name, type } = updateAnimalDto;
+
+        if (!this.checkIfUserIsAnimalOwner(user, animal)) throw new UnauthorizedException();
+
+        animal.birthDate = birthDate;
+        animal.breed = breed;
+        animal.coatColor = coatColor;
+        animal.gender = gender;
+        animal.name = name;
+        animal.type = type;
+
+        await this.animalsRepository.save(animal);
+        return animal;
+    }
+
+    checkIfUserIsAnimalOwner(user: MedivetUser, animal: MedivetAnimal): boolean {
+        return user.id === animal.owner.id;
     }
 
 }
