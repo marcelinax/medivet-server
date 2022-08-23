@@ -2,7 +2,6 @@ export class PathConstants {
     public static USERS = 'users';
     public static AUTH = 'auth';
     public static ANIMALS = 'animals';
-    public static BREEDS = 'breeds';
 
     public static LOGIN = 'login';
     public static ME = 'me';

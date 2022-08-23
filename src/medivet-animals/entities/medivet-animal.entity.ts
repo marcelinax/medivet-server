@@ -5,7 +5,6 @@ import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
 import { Transform } from "class-transformer";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
-import { MedivetAnimalBreed } from "@/medivet-animals/entities/medivet-animal-breed.entity";
 
 const env = envConfig();
 
@@ -35,7 +34,7 @@ export class MedivetAnimal {
     birthDate: Date;
 
     @ApiProperty()
-    @ManyToOne(() => MedivetAnimalBreed)
+    @Column()
     breed: string;
 
     @ApiProperty()

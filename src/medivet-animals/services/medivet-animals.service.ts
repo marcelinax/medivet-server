@@ -5,13 +5,11 @@ import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity"
 import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-animal.dto";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { MedivetAnimalsBreedsService } from '@/medivet-animals/services/medivet-animals-breeds.service';
 
 @Injectable()
 export class MedivetAnimalsService {
     constructor(
-        @InjectRepository(MedivetAnimal) private animalsRepository: Repository<MedivetAnimal>,
-        private animalsBreedService: MedivetAnimalsBreedsService
+        @InjectRepository(MedivetAnimal) private animalsRepository: Repository<MedivetAnimal>
     ) { }
     
     async createAnimal(createAnimalDto: MedivetCreateAnimalDto, owner: MedivetUser): Promise<MedivetAnimal> {
@@ -19,13 +17,12 @@ export class MedivetAnimalsService {
         const newAnimal = this.animalsRepository.create({
             name: createAnimalDto.name,
             birthDate: createAnimalDto.birthDate,
-            breed: createAnimalDto.breed,
+            breed: this.parseAnimalBreedToPascalCase(createAnimalDto.breed),
             gender: createAnimalDto.gender,
             type: createAnimalDto.type,
             owner
         });
         await this.animalsRepository.save(newAnimal);
-        await this.animalsBreedService.updateAnimalBreedUsage(createAnimalDto.breed, true);
         return newAnimal;
     }
 
@@ -39,6 +36,15 @@ export class MedivetAnimalsService {
         const { birthDate } = animal;
 
         if(birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
+    }
+
+    parseAnimalBreedToPascalCase(breed: string): string {
+        const words = breed.split(' ');
+        return words.map(word => {
+            const firstLetter = word[0].toUpperCase();
+            const restLetters = word.slice(1);
+            return firstLetter + restLetters;
+        }).join(' ');
     }
 
 }
