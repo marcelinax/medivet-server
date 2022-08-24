@@ -187,4 +187,33 @@ export class MedivetAnimalsController{
             return this.animalsService.archiveAnimal(animal, user);
     }
 
+    @ApiOperation({
+        summary: 'Restores animal by id',
+        description: `Restores owner's animal`
+    })
+    @ApiOkResponse({
+        description: 'Returns updated animal object',
+        type: MedivetAnimal
+    })
+    @ApiBadRequestResponse({
+        description: 'Animal does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: `Bad authorization / user is not animal's owner`,
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.PATIENT)
+    @UseGuards(JwtAuthGuard)
+    @Put(PathConstants.RESTORE + PathConstants.ID_PARAM)
+    async restoreAnimal(
+        @Param('id') animalId: number,
+        @CurrentUser() user: MedivetUser
+    ): Promise<MedivetAnimal> {
+            const animal = await this.animalsService.findOneAnimalById(animalId);
+            return this.animalsService.restoreAnimal(animal, user);
+    }
+
 }

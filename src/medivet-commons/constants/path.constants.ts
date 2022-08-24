@@ -15,4 +15,5 @@ export class PathConstants {
     public static ID_PARAM = '/:id';
     public static UPDATE = 'update';
     public static ARCHVIE = 'archive';
+    public static RESTORE = 'restore';
 }

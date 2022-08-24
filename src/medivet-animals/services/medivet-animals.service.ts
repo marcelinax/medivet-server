@@ -78,4 +78,12 @@ export class MedivetAnimalsService {
         return animal;
     }
 
+    async restoreAnimal(animal: MedivetAnimal, user: MedivetUser): Promise<MedivetAnimal> {
+        if (animal.owner.id !== user.id) throw new UnauthorizedException([ErrorMessagesConstants.USER_IS_UNAUTHORIZED_TO_DO_THIS_ACTION]);
+        
+        animal.status = MedivetStatusEnum.ACTIVE;
+        await this.animalsRepository.save(animal);
+        return animal;
+    }
+
 }
