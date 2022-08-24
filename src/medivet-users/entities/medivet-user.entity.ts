@@ -1,4 +1,5 @@
 import { envConfig } from "@/medivet-commons/configurations/env-config";
+import { Address } from "@/medivet-commons/dto/address.dto";
 import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
 import {  MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
@@ -53,4 +54,9 @@ export class MedivetUser {
     @Transform(({value}) => value ? env.ROOT_URL + value : value)
     @Column({default: ''})
     profilePhotoUrl: string;
+
+    @ApiProperty()
+    @Column({ type: 'json' })
+    address: Address
+
 }

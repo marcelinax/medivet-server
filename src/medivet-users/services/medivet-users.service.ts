@@ -32,10 +32,18 @@ export class MedivetUsersService {
     }
 
     async updateUser(user: MedivetUser, updateUserDto: UpdateMedivetUserDto): Promise<MedivetUser> {
-        const { name, phoneNumber } = updateUserDto;
+        const { name, phoneNumber, address } = updateUserDto;
         user.name = name;
         user.phoneNumber = phoneNumber;
-        this.usersRepository.save(user);
+        user.address = {
+            buildingNumber: address.buildingNumber,
+            city: address.city,
+            flatNumber: address.flatNumber,
+            street: address.street,
+            zipCode: address.zipCode,
+        }
+       
+        await this.usersRepository.save(user);
         return user;
     }
 

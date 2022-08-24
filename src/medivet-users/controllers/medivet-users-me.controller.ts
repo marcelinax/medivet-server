@@ -3,7 +3,7 @@ import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
-import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Delete, Get, Post, UploadedFile, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Delete, Get, Post, Put, UploadedFile, UseGuards } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { UseInterceptors } from "@nestjs/common";
@@ -16,6 +16,7 @@ import { MedivetAnonymizeUserService } from "@/medivet-users/services/medivet-an
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 import { MedivetUserProfilePhotosService } from "@/medivet-users/services/medivet-user-profile-photos.service";
 import { MedivetStorageUserProfilePhotoInterceptor } from "@/medivet-storage/interceptors/medivet-storage-user-profile-photo.interceptor";
+import { UpdateMedivetUserDto } from "@/medivet-users/dto/update-medivet-user.dto";
 
 @ApiTags(ApiTagsConstants.USERS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -155,5 +156,29 @@ export class MedivetUsersMeController {
     @Delete(PathConstants.REMOVE_PROFILE_PHOTO)
     async removeMyProfilePhoto(@CurrentUser() user: MedivetUser): Promise<MedivetUser> {
         return this.usersProfilePhotosService.removeUserProfilePhoto(user);
+    }
+
+    @ApiOperation({
+        summary: `Updates authorized user`,
+        description: 'Updates authorized user data and returns it'
+    })
+    @ApiOkResponse({
+        description: 'Information about you has been updated successfully',
+        type: MedivetUser
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBadRequestResponse({
+        description: 'Form validation errors',
+        type: BadRequestException
+    })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @Put()
+    async updateMe(@CurrentUser() user: MedivetUser, @Body() updateUserDto: UpdateMedivetUserDto): Promise<MedivetUser> {
+        console.log(updateUserDto)
+        return this.usersService.updateUser(user, updateUserDto);
     }
  }
