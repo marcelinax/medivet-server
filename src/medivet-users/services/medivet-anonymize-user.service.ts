@@ -3,8 +3,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { MedivetUserDeleteLog } from "@/medivet-users/entities/medivet-user-delete-log.entity";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
-import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 
 @Injectable()
 export class MedivetAnonymizeUserService {
@@ -19,7 +19,7 @@ export class MedivetAnonymizeUserService {
         user.name = '';
         user.phoneNumber = '';
         user.profilePhotoUrl = '';
-        user.gender = MedivetGender.UNKNOWN;
+        user.gender = MedivetGenderEnum.UNKNOWN;
         user.role = MedivetUserRole.REMOVED;
         user.profilePhotoUrl = '';
         this.usersRepository.save(user);

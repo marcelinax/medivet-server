@@ -13,7 +13,7 @@ export class MedivetResetPasswordToken {
     user: MedivetUser;
 
     @ApiProperty()
-    @Column()
+    @Column({nullable: false})
     token: string;
 
     @ApiProperty()

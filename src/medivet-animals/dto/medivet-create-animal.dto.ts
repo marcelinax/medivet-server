@@ -2,8 +2,8 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsDate, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 import { MedivetAnimalType } from "@/medivet-animals/enums/medivet-animal-type.enum";
 import { Transform } from "class-transformer";
-import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
 import { ValidationMessagesConstants } from '@/medivet-commons/constants/validation-messages.constants';
+import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 
 export class MedivetCreateAnimalDto {
     @ApiProperty({
@@ -50,11 +50,11 @@ export class MedivetCreateAnimalDto {
 
     @ApiProperty({
         required: true,
-        enum: MedivetGender
+        enum: MedivetGenderEnum
     })
-    @IsEnum(MedivetGender, {
+    @IsEnum(MedivetGenderEnum, {
         message: ValidationMessagesConstants.GENDER_ENUM_VALIDATION
     })
     @IsNotEmpty()
-    gender: MedivetGender;
+    gender: MedivetGenderEnum;
 }

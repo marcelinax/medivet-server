@@ -157,4 +157,34 @@ export class MedivetAnimalsController{
         @Body() updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
             return this.animalsService.updateAnimal(animalId, user, updateAnimalDto);
     }
+
+    @ApiOperation({
+        summary: 'Archives animal by id',
+        description: `Archives owner's animal`
+    })
+    @ApiOkResponse({
+        description: 'Returns updated animal object',
+        type: MedivetAnimal
+    })
+    @ApiBadRequestResponse({
+        description: 'Animal does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: `Bad authorization / user is not animal's owner`,
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.PATIENT)
+    @UseGuards(JwtAuthGuard)
+    @Put(PathConstants.ARCHVIE + PathConstants.ID_PARAM)
+    async archivieAnimal(
+        @Param('id') animalId: number,
+        @CurrentUser() user: MedivetUser
+    ): Promise<MedivetAnimal> {
+            const animal = await this.animalsService.findOneAnimalById(animalId);
+            return this.animalsService.archiveAnimal(animal, user);
+    }
+
 }

@@ -14,4 +14,5 @@ export class PathConstants {
     public static RESET_PASSWORD = 'reset-password';
     public static ID_PARAM = '/:id';
     public static UPDATE = 'update';
+    public static ARCHVIE = 'archive';
 }

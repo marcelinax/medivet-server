@@ -5,6 +5,7 @@ import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity"
 import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-animal.dto";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
 
 @Injectable()
 export class MedivetAnimalsService {
@@ -67,6 +68,14 @@ export class MedivetAnimalsService {
 
     checkIfUserIsAnimalOwner(user: MedivetUser, animal: MedivetAnimal): boolean {
         return user.id === animal.owner.id;
+    }
+
+    async archiveAnimal(animal: MedivetAnimal, user: MedivetUser): Promise<MedivetAnimal> {
+        if (animal.owner.id !== user.id) throw new UnauthorizedException([ErrorMessagesConstants.USER_IS_UNAUTHORIZED_TO_DO_THIS_ACTION]);
+
+        animal.status = MedivetStatusEnum.ARCHIVED;
+        await this.animalsRepository.save(animal);
+        return animal;
     }
 
 }

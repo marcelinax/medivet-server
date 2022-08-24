@@ -1,6 +1,6 @@
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { Address } from "@/medivet-commons/dto/address.dto";
-import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import {  MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Transform } from "class-transformer";
@@ -15,36 +15,38 @@ export class MedivetUser {
     id: number;
 
     @ApiProperty()
-    @Column()
+    @Column({nullable: false})
     email: string;
 
     @ApiProperty()
     @Exclude()
-    @Column()
+    @Column({nullable: false})
     password: string;
 
     @ApiProperty()
-    @Column()
+    @Column({nullable: false})
     name: string;
 
     @ApiProperty()
-    @CreateDateColumn()
+    @CreateDateColumn({nullable: false})
     birthDate: Date;
 
     @ApiProperty()
     @Column({
         type: 'enum',
         enum: MedivetUserRole,
+        nullable: false
     })
     role: MedivetUserRole;
 
     @ApiProperty()
     @Column({
         type: 'enum',
-        enum: MedivetGender,
-        default: MedivetGender.MALE
+        enum: MedivetGenderEnum,
+        default: MedivetGenderEnum.MALE,
+        nullable: false
     })
-    gender: MedivetGender;
+    gender: MedivetGenderEnum;
 
     @ApiProperty()
     @Column({default: ''})
@@ -56,7 +58,7 @@ export class MedivetUser {
     profilePhotoUrl: string;
 
     @ApiProperty()
-    @Column({ type: 'json' })
+    @Column({ type: 'json', nullable: false })
     address: Address
 
 }

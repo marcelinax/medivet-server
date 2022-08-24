@@ -1,10 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { MedivetAnimalType } from "@/medivet-animals/enums/medivet-animal-type.enum";
-import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
+import {  MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { Transform } from "class-transformer";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
 
 const env = envConfig();
 
@@ -15,7 +16,7 @@ export class MedivetAnimal {
     id: number;
 
     @ApiProperty()
-    @Column()
+    @Column({nullable: false})
     name: string;
 
     @ApiProperty()
@@ -25,16 +26,17 @@ export class MedivetAnimal {
     @ApiProperty()
     @Column({
         type: 'enum',
-        enum: MedivetAnimalType
+        enum: MedivetAnimalType,
+        nullable: false
     })
     type: MedivetAnimalType;
 
     @ApiProperty()
-    @CreateDateColumn()
+    @CreateDateColumn({nullable: false})
     birthDate: Date;
 
     @ApiProperty()
-    @Column()
+    @Column({nullable: false})
     breed: string;
 
     @ApiProperty()
@@ -44,12 +46,22 @@ export class MedivetAnimal {
     @ApiProperty()
     @Column({
         type: 'enum',
-        enum: MedivetGender
+        enum: MedivetGenderEnum,
+        nullable: false
     })
-    gender: MedivetGender;
+    gender: MedivetGenderEnum;
 
     @ApiProperty()
     @Transform(({value}) => value ? env.ROOT_URL + value : value)
     @Column({default: ''})
     profilePhotoUrl: string;
+
+    @ApiProperty()
+    @Column({
+        type: 'enum',
+        enum: MedivetStatusEnum,
+        default: MedivetStatusEnum.ACTIVE,
+        nullable: false
+    })
+    status: MedivetStatusEnum;
 }

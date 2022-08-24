@@ -13,6 +13,6 @@ export class MedivetUserDeleteLog {
     user: MedivetUser;
 
     @ApiProperty()
-    @CreateDateColumn()
+    @CreateDateColumn({nullable: false})
     deletedDate: Date;
 }

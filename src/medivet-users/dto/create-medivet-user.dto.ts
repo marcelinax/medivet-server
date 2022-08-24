@@ -1,5 +1,5 @@
 import { ValidationMessagesConstants } from "@/medivet-commons/constants/validation-messages.constants";
-import { MedivetGender } from "@/medivet-commons/enums/medivet-gender.enum";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
@@ -32,13 +32,13 @@ export class CreateMedivetUserDto {
 
     @ApiProperty({
         required: true,
-        enum: MedivetGender,
+        enum: MedivetGenderEnum,
     })
     @IsNotEmpty()
-    @IsEnum(MedivetGender, {
+    @IsEnum(MedivetGenderEnum, {
         message: ValidationMessagesConstants.GENDER_ENUM_VALIDATION
     })
-    gender: MedivetGender;
+    gender: MedivetGenderEnum;
 
     @ApiProperty({
         required: true,
