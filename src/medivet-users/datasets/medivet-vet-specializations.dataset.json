@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "namePl": "Choroby psów i kotów"
+    },
+    {
+        "id": 2,
+        "namePl": "Choroby zwierząt futerkowych"
+    },
+    {
+        "id": 3,
+        "namePl": "Choroby ryb"
+    },
+    {
+        "id": 4,
+        "namePl": "Choroby koni"
+    },
+    {
+        "id": 5,
+        "namePl": "Weterynaryjna diagnostyka laboratoryjna"
+    },
+    {
+        "id": 6,
+        "namePl": "Radiologia weterynaryjna"
+    },
+    {
+        "id": 7,
+        "namePl": "Chirurgia weterynaryjna"
+    },
+    {
+        "id": 8,
+        "namePl": "Rozród zwierząt"
+    },
+    {
+        "id": 9,
+        "namePl": "Choroby drobiu oraz ptaków ozdobnych"
+    },
+    {
+        "id": 10,
+        "namePl": "Choroby zwierząt egzotycznych"
+    }
+]

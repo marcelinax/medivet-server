@@ -2,6 +2,7 @@ export class PathConstants {
     public static USERS = 'users';
     public static AUTH = 'auth';
     public static ANIMALS = 'animals';
+    public static VET_SPECIALIZATIONS = 'vet-specializations';
 
     public static LOGIN = 'login';
     public static ME = 'me';
@@ -16,4 +17,5 @@ export class PathConstants {
     public static UPDATE = 'update';
     public static ARCHVIE = 'archive';
     public static RESTORE = 'restore';
+    public static SEARCH = 'search';
 }
