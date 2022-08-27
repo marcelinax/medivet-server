@@ -61,4 +61,19 @@ export class MedivetClinicsService {
         }
     }
 
+    async unassignVetFromClinic(vet: MedivetUser, clinicId: number): Promise<MedivetUser> {
+        const clinic = await this.findClinicById(clinicId);
+
+        if (clinic) {
+            const hasVetThisClinic = vet.clinics?.find(x => x.id === clinic.id);
+            if (!hasVetThisClinic) throw new BadRequestException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
+            const newVetClinics = [...vet.clinics];
+            newVetClinics.splice(newVetClinics.indexOf(clinic), 1);
+            vet.clinics = [...newVetClinics];
+            await this.usersRepository.save(vet);
+            await this.clinicsRepository.save(clinic);
+            return vet;
+        }
+    }
+
 }

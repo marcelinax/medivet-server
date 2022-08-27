@@ -21,4 +21,5 @@ export class PathConstants {
     public static RESTORE = 'restore';
     public static SEARCH = 'search';
     public static ASSIGN_VET = 'assign-vet';
+    public static UNASSIGN_VET = 'unassign-vet';
 }

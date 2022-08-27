@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Param, Post, UseGuards } from "@nestjs/common";
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
@@ -74,5 +74,33 @@ export class MedivetClinicsController {
         @CurrentUser() user: MedivetUser
     ): Promise<MedivetUser> {
         return this.clinicsService.assignVetToClinic(user, clinicId);
+    }
+
+    @ApiOperation({
+        summary: 'Unassigns vet clinics from vet',
+        description: 'Unasssigns vet clinics from vet and returns vet'
+    })
+    @ApiOkResponse({
+        description: 'Vet clinic has been successfully unassigned from vet',
+        type: MedivetUser
+    })
+    @ApiBadRequestResponse({
+        description: 'Vet clinic does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Delete(PathConstants.UNASSIGN_VET + PathConstants.ID_PARAM) 
+    async unassignClinicFromVet(
+        @Param('id') clinicId: number,
+        @CurrentUser() user: MedivetUser
+    ): Promise<MedivetUser> {
+        return this.clinicsService.unassignVetFromClinic(user, clinicId);
     }
 }
