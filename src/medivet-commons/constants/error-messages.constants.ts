@@ -11,4 +11,7 @@ export class ErrorMessagesConstants {
     public static INVALID_RESET_PASSWORD_TOKEN = 'Invalid reset password token.';
     public static ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST = 'Animal with this id does not exist.';
     public static USER_IS_UNAUTHORIZED_TO_DO_THIS_ACTION = 'User is unauthorized to do this action.';
+    public static CLINIC_WITH_THIS_ID_DOES_NOT_EXIST = 'Clinic with this id does not exist';
+    public static CLINIC_ALREADY_EXISTS = 'Clinic already exists';
+    public static CLINIC_RECEPTION_TIME_WITH_THIS_ID_DOES_NOT_EXIST = 'Clinic reception time with this id does not exist';
 }

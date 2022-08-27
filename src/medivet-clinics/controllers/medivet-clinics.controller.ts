@@ -1,0 +1,50 @@
+import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import { PathConstants } from '@/medivet-commons/constants/path.constants';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
+import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity";
+import { MedivetCreateClinicDto } from '@/medivet-clinics/dto/medivet-create-clinic.dto';
+import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
+import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
+import { JwtAuthGuard } from '@/medivet-security/guards/medivet-jwt-auth.guard';
+import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
+import { MedivetUserRole } from '@/medivet-users/enums/medivet-user-role.enum';
+import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
+import { MedivetClinicsService } from '@/medivet-clinics/services/medivet-clinics.service';
+import { BadRequestExceptionDto } from '@/medivet-commons/dto/bad-request-exception.dto';
+import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
+
+@ApiTags(ApiTagsConstants.CLINICS)
+@Controller(PathConstants.CLINICS)
+export class MedivetClinicsController {
+    
+    constructor(private clinicsService: MedivetClinicsService) {}
+
+    @ApiOperation({
+        summary: 'Creates new vet clinic',
+        description: 'Creates new vet clinic and returns it'
+    })
+    @ApiOkResponse({
+        description: 'Vet clinic has been successfully created',
+        type: MedivetClinic
+    })
+    @ApiBadRequestResponse({
+        description: 'Form validation error array',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Post() 
+    async createClinic(
+        @Body() createClinicDto: MedivetCreateClinicDto,
+        @CurrentUser() user: MedivetUser
+    ): Promise<MedivetClinic> {
+        return this.clinicsService.createClinic(user, createClinicDto);
+    }
+}

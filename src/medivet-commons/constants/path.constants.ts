@@ -3,6 +3,8 @@ export class PathConstants {
     public static AUTH = 'auth';
     public static ANIMALS = 'animals';
     public static VET_SPECIALIZATIONS = 'vet-specializations';
+    public static CLINICS = 'clinics';
+    public static RECEPTION_TIMES = 'reception_times';
 
     public static LOGIN = 'login';
     public static ME = 'me';

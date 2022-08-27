@@ -9,7 +9,6 @@ import { MedivetUserDeleteLog } from "@/medivet-users/entities/medivet-user-dele
 import { MedivetAnonymizeUserService } from "@/medivet-users/services/medivet-anonymize-user.service";
 import { MedivetVetSpecializationService } from '@/medivet-users/services/medivet-vet-specialization.service';
 import { MedivetUserProfilePhotosService } from "@/medivet-users/services/medivet-user-profile-photos.service";
-import { MedivetVetService } from '@/medivet-users/services/medivet-vet.service';
 import { MedivetVetSpecializationController } from "@/medivet-users/controllers/medivet-vet-specializations.controllers";
 import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
 @Module({
@@ -23,9 +22,9 @@ TypeOrmModule.forFeature([
     ],
     controllers: [MedivetUsersController, MedivetUsersMeController, MedivetVetSpecializationController],
     providers: [MedivetUsersService, MedivetAnonymizeUserService,
-        MedivetUserProfilePhotosService, MedivetVetSpecializationService, MedivetVetService],
+        MedivetUserProfilePhotosService, MedivetVetSpecializationService],
     exports: [MedivetUsersService, MedivetAnonymizeUserService,
-        MedivetUserProfilePhotosService, MedivetVetSpecializationService, MedivetVetService]
+        MedivetUserProfilePhotosService, MedivetVetSpecializationService]
 })
 
 export class MedivetUsersModule {}
