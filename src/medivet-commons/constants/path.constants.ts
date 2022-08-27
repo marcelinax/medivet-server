@@ -20,4 +20,5 @@ export class PathConstants {
     public static ARCHVIE = 'archive';
     public static RESTORE = 'restore';
     public static SEARCH = 'search';
+    public static ASSIGN_VET = 'assign-vet';
 }

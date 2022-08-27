@@ -6,12 +6,14 @@ import { MedivetClinicsController } from '@/medivet-clinics/controllers/medivet-
 import { MedivetClinicsReceptionTime } from "@/medivet-clinics/entities/medivet-clinics-reception-time.entity";
 import { MedivetClinicsReceptionTimesController } from "@/medivet-clinics/controllers/medivet-clinics-reception-times.controller";
 import { MedivetClinicsReceptionTimesService } from "@/medivet-clinics/services/medivet-clinics-reception-times.service";
+import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 
 @Module({
     imports: [
-    TypeOrmModule.forFeature([
+TypeOrmModule.forFeature([
         MedivetClinic,
-        MedivetClinicsReceptionTime
+        MedivetClinicsReceptionTime,
+        MedivetUser
     ])
     ],
     providers: [MedivetClinicsService, MedivetClinicsReceptionTimesService],

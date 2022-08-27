@@ -48,7 +48,7 @@ export class MedivetUsersService {
     }
 
     async findOneById(id: number): Promise<MedivetUser> {
-        const user = await this.usersRepository.findOne({ where: { id } });
+        const user = await this.usersRepository.findOne({ where: { id }, relations: ['clinics'] });
         if (!user) throw new NotFoundException(ErrorMessagesConstants.USER_WITH_THIS_ID_DOES_NOT_EXIST);
         return user;
     }
