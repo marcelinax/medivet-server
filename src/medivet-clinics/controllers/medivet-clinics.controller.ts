@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from "@nestjs/common";
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
@@ -102,5 +102,27 @@ export class MedivetClinicsController {
         @CurrentUser() user: MedivetUser
     ): Promise<MedivetUser> {
         return this.clinicsService.unassignVetFromClinic(user, clinicId);
+    }
+
+    @ApiOperation({
+        summary: 'Gets all vet clinics',
+        description: 'Returns array of all vet clinics'
+    })
+    @ApiOkResponse({
+        description: 'Returns list of all vet clinics',
+        type: MedivetClinic,
+        isArray: true
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Get() 
+    async getAllClinics(): Promise<MedivetClinic[]> {
+        return this.clinicsService.findAllClinics();
     }
 }

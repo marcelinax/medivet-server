@@ -76,4 +76,8 @@ export class MedivetClinicsService {
         }
     }
 
+    async findAllClinics(): Promise<MedivetClinic[]> {
+        return this.clinicsRepository.find();
+    }
+
 }
