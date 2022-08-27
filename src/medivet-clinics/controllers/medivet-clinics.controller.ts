@@ -42,10 +42,9 @@ export class MedivetClinicsController {
     @UseGuards(JwtAuthGuard)
     @Post() 
     async createClinic(
-        @Body() createClinicDto: MedivetCreateClinicDto,
-        @CurrentUser() user: MedivetUser
+        @Body() createClinicDto: MedivetCreateClinicDto
     ): Promise<MedivetClinic> {
-        return this.clinicsService.createClinic(user, createClinicDto);
+        return this.clinicsService.createClinic(createClinicDto);
     }
 
     @ApiOperation({
@@ -124,5 +123,30 @@ export class MedivetClinicsController {
     @Get() 
     async getAllClinics(): Promise<MedivetClinic[]> {
         return this.clinicsService.findAllClinics();
+    }
+
+    @ApiOperation({
+        summary: 'Gets vet clinic',
+        description: 'Finds vet clinic by id and returns it'
+    })
+    @ApiOkResponse({
+        description: 'Returns vet clinic data',
+        type: MedivetClinic
+    })
+    @ApiBadRequestResponse({
+        description: 'Vet clinic does not exist',
+        type:BadRequestExceptionDto
+        })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Get(PathConstants.ID_PARAM) 
+    async getClinic(@Param('id') clinicId: number): Promise<MedivetClinic> {
+        return this.clinicsService.findClinicById(clinicId);
     }
 }

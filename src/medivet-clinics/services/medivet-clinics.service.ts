@@ -13,7 +13,7 @@ export class MedivetClinicsService {
         @InjectRepository(MedivetUser) private usersRepository: Repository<MedivetUser>
     ) { }
     
-    async createClinic(vet: MedivetUser, createClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {
+    async createClinic(createClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {
         if (await this.checkIfClinicAlreadyExists(createClinicDto))
             throw new BadRequestException([ErrorMessagesConstants.CLINIC_ALREADY_EXISTS]);
         
@@ -27,7 +27,7 @@ export class MedivetClinicsService {
     }
 
     async findClinicById(id: number): Promise<MedivetClinic> {
-        const clinic = await this.clinicsRepository.findOne({ where: { id } });
+        const clinic = await this.clinicsRepository.findOne({ where: { id }, relations: ['vets'] });
 
         if (!clinic) throw new NotFoundException([ErrorMessagesConstants.CLINIC_WITH_THIS_ID_DOES_NOT_EXIST]);
         return clinic;
@@ -77,7 +77,7 @@ export class MedivetClinicsService {
     }
 
     async findAllClinics(): Promise<MedivetClinic[]> {
-        return this.clinicsRepository.find();
+        return this.clinicsRepository.find({relations: ['vets']});
     }
 
 }

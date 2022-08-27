@@ -23,7 +23,7 @@ export class MedivetUser {
 
     @ApiProperty()
     @Exclude()
-    @Column({nullable: false})
+    @Column({nullable: false, select: false})
     password: string;
 
     @ApiProperty()
