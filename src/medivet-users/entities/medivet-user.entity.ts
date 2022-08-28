@@ -4,7 +4,7 @@ import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import {  MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Transform } from "class-transformer";
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
 import { MedivetClinicsReceptionTime } from "@/medivet-clinics/entities/medivet-clinics-reception-time.entity";
@@ -71,11 +71,10 @@ export class MedivetUser {
 
     @ApiProperty()
     @ManyToMany(() => MedivetClinic)
-    @JoinTable({ name: 'medivet-bind-vet-clinics' })
+    @JoinTable({ name: 'medivet-bind-clinic-vets' })
     clinics: MedivetClinic[];
 
     @ApiProperty()
-    @ManyToMany(() => MedivetClinicsReceptionTime)
-    @JoinTable({ name: 'medivet-bind-vet-receptions-times' })
+    @OneToMany(() => MedivetClinicsReceptionTime, time => time.vet)
     receptionTimes: MedivetClinicsReceptionTime[];
 }

@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsMilitaryTime, IsNotEmpty, IsString } from "class-validator";
+import { IsMilitaryTime, IsNotEmpty, IsNumber, IsPositive, IsString } from "class-validator";
 
-export class MedivietClinicsReceptionTimeDto {
+export class MedivietCreateClinicsReceptionTimeDto {
     @ApiProperty({
         required: true,
         example: ['09:00']
@@ -25,4 +25,14 @@ export class MedivietClinicsReceptionTimeDto {
     @IsString()
     @IsNotEmpty()
     day: string;
+
+    @ApiProperty({
+        required: true,
+        example: 1
+    })
+    @IsNotEmpty()
+    @IsPositive()
+    @IsNumber()
+    clinicId: number;
+
 }

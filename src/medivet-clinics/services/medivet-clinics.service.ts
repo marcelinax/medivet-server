@@ -27,7 +27,15 @@ export class MedivetClinicsService {
     }
 
     async findClinicById(id: number): Promise<MedivetClinic> {
-        const clinic = await this.clinicsRepository.findOne({ where: { id }, relations: ['vets'] });
+        const clinic = await this.clinicsRepository.findOne({
+            where: { id }, relations: [
+                'vets',
+                'vets.receptionTimes',
+                'vets.receptionTimes.clinic',
+                'receptionTimes',
+                'receptionTimes.clinic'
+            ]
+        });
 
         if (!clinic) throw new NotFoundException([ErrorMessagesConstants.CLINIC_WITH_THIS_ID_DOES_NOT_EXIST]);
         return clinic;
@@ -56,7 +64,6 @@ export class MedivetClinicsService {
             if(hasVetThisClinic) throw new BadRequestException([ErrorMessagesConstants.VET_IS_ALREADY_ASSIGNS_TO_THIS_VET_CLINIC])
             vet.clinics = vet.clinics ? [...vet.clinics, clinic] : [clinic];
             await this.usersRepository.save(vet);
-            await this.clinicsRepository.save(clinic);
             return vet;
         }
     }

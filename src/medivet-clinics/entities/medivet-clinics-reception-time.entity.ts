@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
 import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 
@@ -21,7 +21,11 @@ export class MedivetClinicsReceptionTime {
     @Column({ nullable: false })
     day: string;
 
-    @ApiProperty()
-    @OneToMany(() => MedivetUser, vet => vet.id)
+    @ApiProperty({type: () => MedivetClinic})
+    @ManyToOne(() => MedivetClinic, clinic => clinic.receptionTimes)
     clinic: MedivetClinic;
+
+    @ApiProperty({type: () => MedivetUser})
+    @ManyToOne(() => MedivetUser, vet => vet.receptionTimes)
+    vet: MedivetUser;
 }

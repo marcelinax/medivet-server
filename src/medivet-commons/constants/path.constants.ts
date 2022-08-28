@@ -4,7 +4,7 @@ export class PathConstants {
     public static ANIMALS = 'animals';
     public static VET_SPECIALIZATIONS = 'vet-specializations';
     public static CLINICS = 'clinics';
-    public static RECEPTION_TIMES = 'reception_times';
+    public static RECEPTION_TIMES = 'reception-times';
 
     public static LOGIN = 'login';
     public static ME = 'me';
