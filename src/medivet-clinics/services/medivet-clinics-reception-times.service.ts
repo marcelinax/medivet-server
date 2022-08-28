@@ -42,7 +42,6 @@ export class MedivetClinicsReceptionTimesService {
                 if (await this.checkIfClinicReceptionTimesCollidateWithEachOther(createClinicReceptionTimeDto))
                     throw new BadRequestException([ErrorMessagesConstants.CLINIC_RECEPTION_TIMES_CANNOT_COLLIDATE_WITH_EACH_OTHER]);
                 
-                
                 const newClinicReceptionTime = this.clinicsReceptionTimesRepository.create({
                     day,
                     endTime,
@@ -62,16 +61,17 @@ export class MedivetClinicsReceptionTimesService {
     }
 
     async findClinicReceptionTimeById(id: number): Promise<MedivetClinicsReceptionTime> {
-        const clinicReceptionTime = await this.clinicsReceptionTimesRepository.findOne({ where: { id } });
+        const clinicReceptionTime = await this.clinicsReceptionTimesRepository.findOne({ where: { id }, relations: ['clinic', 'vet'] });
 
         if (!clinicReceptionTime) throw new NotFoundException([ErrorMessagesConstants.CLINIC_RECEPTION_TIME_WITH_THIS_ID_DOES_NOT_EXIST]);
         return clinicReceptionTime;
     }
 
-    async checkIfClinicReceptionTimesCollidateWithEachOther(createReceptionTimeDto: MedivietCreateClinicsReceptionTimeDto): Promise<boolean> {
+    async checkIfClinicReceptionTimesCollidateWithEachOther(createReceptionTimeDto: MedivietCreateClinicsReceptionTimeDto, id?: number): Promise<boolean> {
         const { day, startTime, endTime } = createReceptionTimeDto;
 
-        const receptionTimeForThisDay = await this.clinicsReceptionTimesRepository.find({ where: { day } });
+        let receptionTimeForThisDay = await this.clinicsReceptionTimesRepository.find({ where: { day } });
+        if (id) receptionTimeForThisDay = receptionTimeForThisDay.filter(time => time.id !== id);
         if (receptionTimeForThisDay.length === 0) return false;
 
         return receptionTimeForThisDay.some(time => {
@@ -87,5 +87,33 @@ export class MedivetClinicsReceptionTimesService {
         if (startTime === '00:00') startTime = "24:00";
         if (endTime === '00:00') endTime = "24:00";
         return startTime < endTime;
+    }
+
+    async updateClinicReceptionTime(clinicReceptionTimeId: number, vet: MedivetUser,
+        updateClinicReceptionTimeDto: MedivietCreateClinicsReceptionTimeDto): Promise<MedivetClinicsReceptionTime> {
+        const clinicReceptionTime = await this.findClinicReceptionTimeById(clinicReceptionTimeId);
+        const { startTime, endTime, day } = updateClinicReceptionTimeDto;
+        
+        const clinic = await this.clinicsService.findClinicById(clinicReceptionTime.clinic.id);
+
+        if (clinic) {
+            const clinicWithThisVet = clinic.vets?.find(v => vet.id === v.id);
+            if (clinicWithThisVet) {
+                if (!this.checkIfClinicReceptionStartTimeIsLessThanEndTime(startTime, endTime))
+                    throw new BadRequestException([ErrorMessagesConstants.CLINIC_RECEPTION_START_TIME_CANNOT_BE_GREATER_THAN_END_TIME]);
+            
+                if (await this.checkIfClinicReceptionTimesCollidateWithEachOther(updateClinicReceptionTimeDto, clinicReceptionTimeId))
+                    throw new BadRequestException([ErrorMessagesConstants.CLINIC_RECEPTION_TIMES_CANNOT_COLLIDATE_WITH_EACH_OTHER]);
+                
+                clinicReceptionTime.startTime = startTime;
+                clinicReceptionTime.endTime = endTime;
+                clinicReceptionTime.day = day;
+                
+                await this.clinicsReceptionTimesRepository.save(clinicReceptionTime);
+                await this.clinicsRepository.save(clinic);
+                return clinicReceptionTime;
+            }
+            else throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
+        }
     }
 };

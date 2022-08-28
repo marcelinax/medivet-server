@@ -1,5 +1,5 @@
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
-import { Body, ClassSerializerInterceptor, Controller, Post, UnauthorizedException, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Param, Post, Put, UnauthorizedException, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
 import { MedivetClinicsReceptionTimesService } from "@/medivet-clinics/services/medivet-clinics-reception-times.service";
@@ -47,5 +47,34 @@ export class MedivetClinicsReceptionTimesController {
         @CurrentUser() vet: MedivetUser
     ): Promise<MedivetClinicsReceptionTime> {
         return this.clinicsReceptionTimesService.createClinicReceptionTime(vet, clinicReceptionTimeDto);
+    }
+
+    @ApiOperation({
+        summary: 'Updates new reception time',
+        description: 'Finds new reception time by id and updates it'
+    })
+    @ApiOkResponse({
+        description: 'Reception time has been successfully updated',
+        type: MedivetClinicsReceptionTime
+    })
+    @ApiBadRequestResponse({
+        description: 'Vet clinic is not assigned to this vet / Vet clinic does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnauthorizedException
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Put(PathConstants.UPDATE + PathConstants.ID_PARAM)
+    async updateClinicReceptionTime(
+        @Param('id') clinicReceptionTimeId: number,
+        @Body() clinicReceptionTimeDto: MedivietCreateClinicsReceptionTimeDto,
+        @CurrentUser() vet: MedivetUser
+    ): Promise<MedivetClinicsReceptionTime> {
+        return this.clinicsReceptionTimesService.updateClinicReceptionTime(clinicReceptionTimeId, vet, clinicReceptionTimeDto);
     }
 }
