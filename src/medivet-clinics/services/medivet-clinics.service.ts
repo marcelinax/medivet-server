@@ -122,7 +122,14 @@ export class MedivetClinicsService {
             clinics = clinics.filter(clinic => clinic?.address?.flatNumber === searchClinicDto.flatNumber);
         }
 
-        return clinics;
+        const pageSize = searchClinicDto.pageSize || 10;
+        const offset = searchClinicDto.offset || 0;
+
+        return this.paginateClinics(clinics, offset, pageSize);
+    }
+
+    private paginateClinics(clinics: MedivetClinic[], offset: number, pageSize: number): MedivetClinic[] {
+        return clinics.filter((_, index) => index >= offset && index < offset + pageSize);
     }
 
 }

@@ -145,7 +145,8 @@ export class MedivetClinicsController {
     async searchClinics(
         @Query('name') name: string, @Query('city') city: string,
         @Query('zipCode') zipCode: string, @Query('buildingNumber') buildingNumber: number,
-        @Query('flatNumber') flatNumber: number, @Query('street') street: string
+        @Query('flatNumber') flatNumber: number, @Query('street') street: string,
+        @Query('pageSize') pageSize: number, @Query('offset') offset: number
     ): Promise<MedivetClinic[]> {
         return this.clinicsService.searchClinics({
             name,
@@ -153,7 +154,9 @@ export class MedivetClinicsController {
             street,
             zipCode,
             flatNumber,
-            buildingNumber
+            buildingNumber,
+            pageSize,
+            offset
         });
     };
 

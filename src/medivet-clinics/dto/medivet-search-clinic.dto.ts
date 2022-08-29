@@ -1,7 +1,8 @@
+import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
 
-export class MedivetSearchClinicDto {
+export class MedivetSearchClinicDto extends OffsetPaginationDto {
     @ApiProperty({
         example: 'Medvet'
     })
