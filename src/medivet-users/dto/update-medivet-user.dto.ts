@@ -19,7 +19,7 @@ export class UpdateMedivetUserDto {
     @IsOptional()
     @IsPhoneNumber()
     @IsString()
-    phoneNumber: string;
+    phoneNumber?: string;
 
     @ApiProperty()
     @IsNotEmpty()

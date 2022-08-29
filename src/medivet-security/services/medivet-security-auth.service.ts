@@ -28,7 +28,7 @@ export class MedivetSecurityAuthService {
     async validateUser(email: string, password: string): Promise<MedivetUser> {
         const user = await this.usersService.findOneByEmail(email);
         if (!user) throw new UnauthorizedException(ErrorMessagesConstants.USER_WITH_THIS_EMAIL_DOES_NOT_EXIST);        
-        
+      
         if (!(await this.securityHashingService.validateHashingValue(password, user.password)))
             throw new UnauthorizedException(ErrorMessagesConstants.WRONG_PASSWORD);
 

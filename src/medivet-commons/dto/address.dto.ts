@@ -33,7 +33,7 @@ export class AddressDto {
     @IsOptional()
     @IsNumber()
     @IsPositive()
-    flatNumber: number;
+    flatNumber?: number;
 
     @ApiProperty({
         required: true,

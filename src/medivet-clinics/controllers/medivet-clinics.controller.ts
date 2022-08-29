@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
@@ -125,6 +125,37 @@ export class MedivetClinicsController {
     async getAllClinics(): Promise<MedivetClinic[]> {
         return this.clinicsService.findAllClinics();
     }
+
+    @ApiOperation({
+        summary: 'Search vet clinics',
+        description: 'Enables search vet clinics by name and address'
+    })
+    @ApiOkResponse({
+        description: 'Returns array of matched vet clinics',
+        type: MedivetClinic,
+        isArray: true
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @Get(PathConstants.SEARCH) 
+    async searchClinics(
+        @Query('name') name: string, @Query('city') city: string,
+        @Query('zipCode') zipCode: string, @Query('buildingNumber') buildingNumber: number,
+        @Query('flatNumber') flatNumber: number, @Query('street') street: string
+    ): Promise<MedivetClinic[]> {
+        return this.clinicsService.searchClinics({
+            name,
+            city,
+            street,
+            zipCode,
+            flatNumber,
+            buildingNumber
+        });
+    };
 
     @ApiOperation({
         summary: 'Gets vet clinic',

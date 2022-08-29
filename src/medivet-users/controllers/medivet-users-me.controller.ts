@@ -178,7 +178,6 @@ export class MedivetUsersMeController {
     @UseGuards(JwtAuthGuard)
     @Put()
     async updateMe(@CurrentUser() user: MedivetUser, @Body() updateUserDto: UpdateMedivetUserDto): Promise<MedivetUser> {
-        console.log(updateUserDto)
         return this.usersService.updateUser(user, updateUserDto);
     }
  }

@@ -46,7 +46,7 @@ export class MedivetCreateAnimalDto {
     @IsString()
     @IsOptional()
     @MinLength(3)
-    coatColor: string;
+    coatColor?: string;
 
     @ApiProperty({
         required: true,

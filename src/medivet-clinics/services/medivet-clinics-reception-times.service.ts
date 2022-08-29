@@ -67,7 +67,7 @@ export class MedivetClinicsReceptionTimesService {
         return clinicReceptionTime;
     }
 
-    async checkIfClinicReceptionTimesCollidateWithEachOther(createReceptionTimeDto: MedivietCreateClinicsReceptionTimeDto, id?: number): Promise<boolean> {
+    private async checkIfClinicReceptionTimesCollidateWithEachOther(createReceptionTimeDto: MedivietCreateClinicsReceptionTimeDto, id?: number): Promise<boolean> {
         const { day, startTime, endTime } = createReceptionTimeDto;
 
         let receptionTimeForThisDay = await this.clinicsReceptionTimesRepository.find({ where: { day } });
@@ -83,7 +83,7 @@ export class MedivetClinicsReceptionTimesService {
         });
     }
 
-    checkIfClinicReceptionStartTimeIsLessThanEndTime(startTime: string, endTime: string): boolean {
+    private checkIfClinicReceptionStartTimeIsLessThanEndTime(startTime: string, endTime: string): boolean {
         if (startTime === '00:00') startTime = "24:00";
         if (endTime === '00:00') endTime = "24:00";
         return startTime < endTime;

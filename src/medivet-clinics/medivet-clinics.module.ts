@@ -13,7 +13,7 @@ import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 TypeOrmModule.forFeature([
         MedivetClinic,
         MedivetClinicsReceptionTime,
-        MedivetUser
+        MedivetUser,
     ])
     ],
     providers: [MedivetClinicsService, MedivetClinicsReceptionTimesService],

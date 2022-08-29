@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { MedivetCreateClinicDto } from "@/medivet-clinics/dto/medivet-create-clinic.dto";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { MedivetSearchClinicDto } from '@/medivet-clinics/dto/medivet-search-clinic.dto';
 
 @Injectable()
 export class MedivetClinicsService {
@@ -41,7 +42,7 @@ export class MedivetClinicsService {
         return clinic;
     }
 
-    async checkIfClinicAlreadyExists(createClinicDto: MedivetCreateClinicDto): Promise<boolean> {
+    private async checkIfClinicAlreadyExists(createClinicDto: MedivetCreateClinicDto): Promise<boolean> {
         const { name, address } = createClinicDto;
         const existingClinic = await this.clinicsRepository.findOne({
             where: {
@@ -84,7 +85,44 @@ export class MedivetClinicsService {
     }
 
     async findAllClinics(): Promise<MedivetClinic[]> {
-        return this.clinicsRepository.find({relations: ['vets']});
+        return this.clinicsRepository.find({
+            relations: [
+                'vets',
+                'vets.receptionTimes',
+                'vets.receptionTimes.clinic',
+                'receptionTimes',
+                'receptionTimes.clinic'
+        ]});
+    }
+
+    async searchClinics(searchClinicDto: MedivetSearchClinicDto): Promise<MedivetClinic[]> {
+        let clinics = await this.findAllClinics();
+
+        if (searchClinicDto.name) {
+            clinics = clinics.filter(clinic => clinic.name.toLowerCase().includes(searchClinicDto.name.toLowerCase()));
+        }
+
+        if (searchClinicDto.city) {
+            clinics = clinics.filter(clinic => clinic?.address?.city.toLowerCase() === searchClinicDto.city.toLowerCase());
+        }
+
+        if (searchClinicDto.street) {
+            clinics = clinics.filter(clinic => clinic?.address?.street.toLowerCase() === searchClinicDto.street.toLowerCase());
+        }
+
+        if (searchClinicDto.zipCode) {
+            clinics = clinics.filter(clinic => clinic?.address?.street.toLowerCase() === searchClinicDto.zipCode.toLowerCase());
+        }
+
+        if (searchClinicDto.buildingNumber) {
+            clinics = clinics.filter(clinic => clinic?.address?.buildingNumber === searchClinicDto.buildingNumber);
+        }
+        
+        if (searchClinicDto.flatNumber) {
+            clinics = clinics.filter(clinic => clinic?.address?.flatNumber === searchClinicDto.flatNumber);
+        }
+
+        return clinics;
     }
 
 }
