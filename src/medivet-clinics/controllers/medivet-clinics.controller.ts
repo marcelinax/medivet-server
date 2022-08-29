@@ -1,6 +1,6 @@
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
 import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity";
 import { MedivetCreateClinicDto } from '@/medivet-clinics/dto/medivet-create-clinic.dto';
@@ -57,7 +57,7 @@ export class MedivetClinicsController {
         description: 'Vet clinic has been successfully assigned to vet',
         type: MedivetUser
     })
-    @ApiBadRequestResponse({
+    @ApiNotFoundResponse({
         description: 'Vet clinic does not exist',
         type: BadRequestExceptionDto
     })
@@ -85,7 +85,7 @@ export class MedivetClinicsController {
         description: 'Vet clinic has been successfully unassigned from vet',
         type: MedivetUser
     })
-    @ApiBadRequestResponse({
+    @ApiNotFoundResponse({
         description: 'Vet clinic does not exist',
         type: BadRequestExceptionDto
     })
@@ -171,7 +171,7 @@ export class MedivetClinicsController {
         description: 'Returns vet clinic data',
         type: MedivetClinic
     })
-    @ApiBadRequestResponse({
+    @ApiNotFoundResponse({
         description: 'Vet clinic does not exist',
         type:BadRequestExceptionDto
         })

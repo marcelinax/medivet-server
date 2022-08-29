@@ -6,6 +6,8 @@ import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-ani
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
+import { MedivetSearchAnimalDto } from '@/medivet-animals/dto/medivet-search-animal.dto';
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 
 @Injectable()
 export class MedivetAnimalsService {
@@ -28,25 +30,60 @@ export class MedivetAnimalsService {
         return newAnimal;
     }
 
-    async findOneAnimalById(id: number): Promise<MedivetAnimal> {
-        const animal = await this.animalsRepository.findOne({ where: { id }, relations: ['owner'] });
-        if (!animal) throw new NotFoundException(ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST);
-        return animal;
-    }
-
-    validateAnimalBirthDate(animal: MedivetCreateAnimalDto): void {
+    private validateAnimalBirthDate(animal: MedivetCreateAnimalDto): void {
         const { birthDate } = animal;
 
         if(birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
     }
 
-    parseAnimalBreedToPascalCase(breed: string): string {
+    private parseAnimalBreedToPascalCase(breed: string): string {
         const words = breed.split(' ');
         return words.map(word => {
             const firstLetter = word[0].toUpperCase();
             const restLetters = word.slice(1);
             return firstLetter + restLetters;
         }).join(' ');
+    }
+
+    async findOneAnimalById(id: number): Promise<MedivetAnimal> {
+        const animal = await this.animalsRepository.findOne({ where: { id }, relations: ['owner'] });
+        if (!animal) throw new NotFoundException(ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST);
+        return animal;
+    }
+
+    private async findAllAnimalsAssignedToOwner(user: MedivetUser): Promise<MedivetAnimal[]> {
+        return this.animalsRepository.find({ where: {owner: {id: user.id}}, relations: ['owner'] });
+    }
+
+    async serachAllAnimalsAssignedToOwner(user: MedivetUser, searchAnimalDto: MedivetSearchAnimalDto): Promise<MedivetAnimal[]> {
+        let animals = await this.findAllAnimalsAssignedToOwner(user);
+        
+        if (searchAnimalDto.animalName) {
+            animals = animals.filter(animal => animal.name.toLowerCase().includes(searchAnimalDto.animalName.toLowerCase()));
+        }
+
+        if (searchAnimalDto.sortingMode) {
+            animals = animals.sort((a, b) => {
+                const aName: string = a.name.toLowerCase();
+                const bName: string = b.name.toLowerCase();
+                
+                switch (searchAnimalDto.sortingMode) {
+                    case MedivetSortingModeEnum.ASC:
+                        return aName.localeCompare(bName);
+                    case MedivetSortingModeEnum.DESC:
+                            return bName.localeCompare(aName);
+                }
+            })
+        }
+
+        const pageSize = searchAnimalDto.pageSize || 10;
+        const offset = searchAnimalDto.offset || 0;
+
+        return this.paginateAnimals(offset, pageSize, animals);
+    }
+
+    private paginateAnimals(offset: number, pageSize: number, animals: MedivetAnimal[]): MedivetAnimal[] {
+        return animals.filter((_, index) => index >= offset && index < offset + pageSize);
     }
 
     async updateAnimal(animalId: number, user: MedivetUser, updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {

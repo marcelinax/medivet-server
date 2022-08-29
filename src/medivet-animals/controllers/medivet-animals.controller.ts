@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { MedivetAnimalsService } from "@/medivet-animals/services/medivet-animals.service";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
@@ -15,6 +15,7 @@ import { PathConstants } from '@/medivet-commons/constants/path.constants';
 import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
 import { MedivetStorageAnimalProfilePhotoInterceptor } from '@/medivet-storage/interceptors/medivet-storage-animal-profile-photo.interceptor';
 import { MedivetAnimalProfilePhotosService } from "@/medivet-animals/services/medivet-animal-profile-photos.service";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 
 @ApiTags(ApiTagsConstants.ANIMALS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -48,6 +49,39 @@ export class MedivetAnimalsController{
     @Post()
     createAnimal(@CurrentUser() owner: MedivetUser, @Body() createAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
         return this.animalsService.createAnimal(createAnimalDto, owner);
+    }
+
+    @ApiOperation({
+        summary: `Search authorized owner's animals`,
+        description: `Enables search owner's animal by it's name`
+    })
+    @ApiOkResponse({
+        description: `Returns list off all authorized owner's animals`,
+        type: MedivetAnimal,
+        isArray: true
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.PATIENT)
+    @UseGuards(JwtAuthGuard)
+    @Get(PathConstants.SEARCH + '/' + PathConstants.MY)
+    getMyAnimals(
+        @CurrentUser() owner: MedivetUser,
+        @Query('animalName') animalName: string,
+        @Query('sortingMode') sortingMode: MedivetSortingModeEnum,
+        @Query('pageSize') pageSize: number,
+        @Query('offset') offset: number,
+    ): Promise<MedivetAnimal[]> {
+        return this.animalsService.serachAllAnimalsAssignedToOwner(owner, {
+            animalName,
+            sortingMode,
+            pageSize,
+            offset
+        });
     }
 
     @ApiOperation({
@@ -138,7 +172,7 @@ export class MedivetAnimalsController{
         description: 'Returns updated animal object',
         type: MedivetAnimal
     })
-    @ApiBadRequestResponse({
+    @ApiNotFoundResponse({
         description: 'Animal does not exist',
         type: BadRequestExceptionDto
     })
@@ -166,7 +200,7 @@ export class MedivetAnimalsController{
         description: 'Returns updated animal object',
         type: MedivetAnimal
     })
-    @ApiBadRequestResponse({
+    @ApiNotFoundResponse({
         description: 'Animal does not exist',
         type: BadRequestExceptionDto
     })
@@ -195,7 +229,7 @@ export class MedivetAnimalsController{
         description: 'Returns updated animal object',
         type: MedivetAnimal
     })
-    @ApiBadRequestResponse({
+    @ApiNotFoundResponse({
         description: 'Animal does not exist',
         type: BadRequestExceptionDto
     })
