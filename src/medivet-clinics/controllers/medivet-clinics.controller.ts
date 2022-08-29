@@ -13,6 +13,7 @@ import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
 import { MedivetClinicsService } from '@/medivet-clinics/services/medivet-clinics.service';
 import { BadRequestExceptionDto } from '@/medivet-commons/dto/bad-request-exception.dto';
 import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 
 @ApiTags(ApiTagsConstants.CLINICS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -146,7 +147,8 @@ export class MedivetClinicsController {
         @Query('name') name: string, @Query('city') city: string,
         @Query('zipCode') zipCode: string, @Query('buildingNumber') buildingNumber: number,
         @Query('flatNumber') flatNumber: number, @Query('street') street: string,
-        @Query('pageSize') pageSize: number, @Query('offset') offset: number
+        @Query('pageSize') pageSize: number, @Query('offset') offset: number,
+        @Query('sortingMode') sortingMode: MedivetSortingModeEnum
     ): Promise<MedivetClinic[]> {
         return this.clinicsService.searchClinics({
             name,
@@ -156,7 +158,8 @@ export class MedivetClinicsController {
             flatNumber,
             buildingNumber,
             pageSize,
-            offset
+            offset,
+            sortingMode
         });
     };
 

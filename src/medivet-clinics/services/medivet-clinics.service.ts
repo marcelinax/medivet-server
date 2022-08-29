@@ -6,6 +6,7 @@ import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { MedivetCreateClinicDto } from "@/medivet-clinics/dto/medivet-create-clinic.dto";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSearchClinicDto } from '@/medivet-clinics/dto/medivet-search-clinic.dto';
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 
 @Injectable()
 export class MedivetClinicsService {
@@ -120,6 +121,20 @@ export class MedivetClinicsService {
         
         if (searchClinicDto.flatNumber) {
             clinics = clinics.filter(clinic => clinic?.address?.flatNumber === searchClinicDto.flatNumber);
+        }
+
+        if (searchClinicDto.sortingMode) {
+            clinics = clinics.sort((a, b) => {
+                const aName: string = a.name.toLowerCase();
+                const bName: string = b.name.toLowerCase();
+                
+                switch (searchClinicDto.sortingMode) {
+                    case MedivetSortingModeEnum.ASC:
+                        return aName.localeCompare(bName);
+                    case MedivetSortingModeEnum.DESC:
+                            return bName.localeCompare(aName);
+                }
+            })
         }
 
         const pageSize = searchClinicDto.pageSize || 10;
