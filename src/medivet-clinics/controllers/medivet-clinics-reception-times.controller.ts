@@ -1,5 +1,5 @@
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
-import { Body, ClassSerializerInterceptor, Controller, Param, Post, Put, UnauthorizedException, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Param, Post, Put, UnauthorizedException, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
 import { MedivetClinicsReceptionTimesService } from "@/medivet-clinics/services/medivet-clinics-reception-times.service";
@@ -12,6 +12,10 @@ import { MedivetRoleGuard } from '@/medivet-security/guards/medivet-role.guard';
 import { MedivietCreateClinicsReceptionTimeDto } from "@/medivet-clinics/dto/medivet-create-clinics-reception-time.dto";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
+import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
+import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
 
 @ApiTags(ApiTagsConstants.RECEPTION_TIMES)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -76,5 +80,36 @@ export class MedivetClinicsReceptionTimesController {
         @CurrentUser() vet: MedivetUser
     ): Promise<MedivetClinicsReceptionTime> {
         return this.clinicsReceptionTimesService.updateClinicReceptionTime(clinicReceptionTimeId, vet, clinicReceptionTimeDto);
+    }
+
+    @ApiOperation({
+        summary: 'Removes clinic reception time from assigned clinic and assigned vet',
+        description: 'Enabled only if clinic has assigned this vet and this reception time'
+    })
+    @ApiOkResponse({
+        description: 'Clinic reception time has been successfully removed',
+        type: OkMessageDto
+    })
+    @ApiBadRequestResponse({
+        description: 'Vet is not assigned to this clinic/ reception time is not assigned to this clinic',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Delete(PathConstants.ID_PARAM)
+    async removeReceptionTime(
+        @Param('id') receptionTimeId: number,
+        @CurrentUser() vet: MedivetUser,
+        @Body() body: {clinicId: number}
+    ): Promise<OkMessageDto> {
+        const receptionTime = await this.clinicsReceptionTimesService.findClinicReceptionTimeById(receptionTimeId);
+        await this.clinicsReceptionTimesService.removeClinicReceptionTime(receptionTime, vet, body.clinicId);
+        return { message: SuccessMessageConstants.DELETED_RECEPTION_TIME };
     }
 }

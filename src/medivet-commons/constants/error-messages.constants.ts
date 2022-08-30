@@ -19,4 +19,5 @@ export class ErrorMessagesConstants {
     public static CLINIC_RECEPTION_TIME_ALREADY_EXISTS = 'Clinic recption time already exists';
     public static CLINIC_RECEPTION_TIMES_CANNOT_COLLIDATE_WITH_EACH_OTHER = 'Clinic reception times cannot collidate with each other';
     public static CLINIC_RECEPTION_START_TIME_CANNOT_BE_GREATER_THAN_END_TIME = 'Clinic reception start time cannot be greater than end time';
+    public static CLINIC_RECEPTION_TIME_FOR_THIS_CLINIC_DOES_NOT_EXIST = 'Clinic reception time for this clinic does not exist';
 }

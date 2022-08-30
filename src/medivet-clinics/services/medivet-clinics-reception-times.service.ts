@@ -7,6 +7,8 @@ import { MedivietCreateClinicsReceptionTimeDto } from '@/medivet-clinics/dto/med
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetClinicsService } from '@/medivet-clinics/services/medivet-clinics.service';
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
+import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { ApiOkResponse } from '@nestjs/swagger';
 
 @Injectable()
 export class MedivetClinicsReceptionTimesService {
@@ -114,6 +116,28 @@ export class MedivetClinicsReceptionTimesService {
                 return clinicReceptionTime;
             }
             else throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
+        }
+    }
+
+    async removeClinicReceptionTime(clinicReceptionTime: MedivetClinicsReceptionTime, vet: MedivetUser, clinicId: number): Promise<void> {
+        const clinic = await this.clinicsService.findClinicById(clinicId);
+
+        if (clinic) {
+            const clinicWithThisVet = clinic.vets?.find(v => vet.id === v.id);
+
+            if (clinicWithThisVet) {
+                if (clinicReceptionTime) {
+                    const receptionTimeExistsInClinic = clinic.receptionTimes.find(time => time.id === clinicReceptionTime.id);
+                    if (receptionTimeExistsInClinic) {
+                        await this.clinicsReceptionTimesRepository.remove(clinicReceptionTime);
+                        await this.clinicsReceptionTimesRepository.save(clinicReceptionTime);
+                        await this.clinicsRepository.save(clinic);
+                    } else {
+                        throw new NotFoundException([ErrorMessagesConstants.CLINIC_RECEPTION_TIME_FOR_THIS_CLINIC_DOES_NOT_EXIST])
+                    }
+                }
+            }
+            else throw new BadRequestException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
         }
     }
 };
