@@ -85,6 +85,34 @@ export class MedivetAnimalsController{
     }
 
     @ApiOperation({
+        summary: `Get authorized user animal by id`,
+        description: `Returns authorized user's animal if it is its owner`
+    })
+    @ApiOkResponse({
+        description: `Returns owner's animal`,
+        type: MedivetAnimal
+    })
+    @ApiNotFoundResponse({
+        description: 'Animal does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization / user is not owner for animal',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.PATIENT)
+    @UseGuards(JwtAuthGuard)
+    @Get(PathConstants.MY + PathConstants.ID_PARAM)
+    async getOwnerAnimal(
+        @CurrentUser() owner: MedivetUser,
+        @Param('id') animalId: number
+    ): Promise<MedivetAnimal> {
+        return this.animalsService.findOneAnimalAssignedToOwner(animalId, owner);
+    }
+
+    @ApiOperation({
         summary: 'Uploads new animal profile photo',
         description: 'First uploads new animal profile photo, then returns animal'
     })
@@ -139,29 +167,6 @@ export class MedivetAnimalsController{
     async removeAnimalProfilePhoto(@Param('id') animalId: number) {
         const animal = await this.animalsService.findOneAnimalById(animalId);
         return this.animalsProfilePhotosService.removeAnimalProfilePhoto(animal);
-    }
-
-    @ApiOperation({
-        summary: 'Returns animal object',
-        description: 'Finds animal by id and then returns it'
-    })
-    @ApiOkResponse({
-        description: 'Returns animal object',
-        type: MedivetAnimal
-    })
-    @ApiBadRequestResponse({
-        description: 'Animal does not exist',
-        type: BadRequestExceptionDto
-    })
-    @ApiUnauthorizedResponse({
-        description: 'Bad authorization',
-        type: UnathorizedExceptionDto
-    })
-    @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
-    @Get(PathConstants.ID_PARAM)
-    async getAnimal(@Param('id') animalId: number): Promise<MedivetAnimal> {
-        return this.animalsService.findOneAnimalById(animalId);
     }
 
     @ApiOperation({

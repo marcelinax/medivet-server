@@ -17,6 +17,8 @@ export class MedivetAnimalsService {
     
     async createAnimal(createAnimalDto: MedivetCreateAnimalDto, owner: MedivetUser): Promise<MedivetAnimal> {
 
+       this.validateAnimalBirthDate(createAnimalDto.birthDate);
+
         const newAnimal = this.animalsRepository.create({
             name: createAnimalDto.name,
             birthDate: createAnimalDto.birthDate,
@@ -30,9 +32,7 @@ export class MedivetAnimalsService {
         return newAnimal;
     }
 
-    private validateAnimalBirthDate(animal: MedivetCreateAnimalDto): void {
-        const { birthDate } = animal;
-
+    private validateAnimalBirthDate(birthDate: Date): void {
         if(birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
     }
 
@@ -52,8 +52,22 @@ export class MedivetAnimalsService {
     }
 
     private async findAllAnimalsAssignedToOwner(user: MedivetUser): Promise<MedivetAnimal[]> {
-        return this.animalsRepository.find({ where: {owner: {id: user.id}}, relations: ['owner'] });
+        const animals = await this.animalsRepository.find({ where: { owner: { id: user.id } }, relations: ['owner'] });
+        animals.forEach(animal => {
+            delete animal.owner;
+        })
+        return animals;
     }
+
+    async findOneAnimalAssignedToOwner(animalId: number, user: MedivetUser): Promise<MedivetAnimal> {
+        const animal = await this.animalsRepository.findOne({ where: { id: animalId, owner: { id: user.id } }, relations: ['owner']   });
+        if (!animal) throw new NotFoundException([ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST]);
+        const newAnimal = { ...animal };
+        delete newAnimal.owner;
+
+        return newAnimal;
+    }
+    
 
     async serachAllAnimalsAssignedToOwner(user: MedivetUser, searchAnimalDto: MedivetSearchAnimalDto): Promise<MedivetAnimal[]> {
         let animals = await this.findAllAnimalsAssignedToOwner(user);
@@ -91,6 +105,7 @@ export class MedivetAnimalsService {
         const { birthDate, breed, coatColor, gender, name, type } = updateAnimalDto;
 
         if (!this.checkIfUserIsAnimalOwner(user, animal)) throw new UnauthorizedException();
+        this.validateAnimalBirthDate(updateAnimalDto.birthDate);
 
         animal.birthDate = birthDate;
         animal.breed = breed;
