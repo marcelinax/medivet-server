@@ -16,6 +16,7 @@ import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
+import { MedivetRemoveClinicReceptionTimeDto } from '@/medivet-clinics/dto/medivet-remove-clinic-reception-time.dto';
 
 @ApiTags(ApiTagsConstants.RECEPTION_TIMES)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -106,10 +107,10 @@ export class MedivetClinicsReceptionTimesController {
     async removeReceptionTime(
         @Param('id') receptionTimeId: number,
         @CurrentUser() vet: MedivetUser,
-        @Body() body: {clinicId: number}
+        @Body() body: MedivetRemoveClinicReceptionTimeDto
     ): Promise<OkMessageDto> {
         const receptionTime = await this.clinicsReceptionTimesService.findClinicReceptionTimeById(receptionTimeId);
-        await this.clinicsReceptionTimesService.removeClinicReceptionTime(receptionTime, vet, body.clinicId);
+        await this.clinicsReceptionTimesService.removeClinicReceptionTime(receptionTime, vet, body);
         return { message: SuccessMessageConstants.DELETED_RECEPTION_TIME };
     }
 }

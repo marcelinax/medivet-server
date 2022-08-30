@@ -7,8 +7,7 @@ import { MedivietCreateClinicsReceptionTimeDto } from '@/medivet-clinics/dto/med
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetClinicsService } from '@/medivet-clinics/services/medivet-clinics.service';
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
-import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
-import { ApiOkResponse } from '@nestjs/swagger';
+import { MedivetRemoveClinicReceptionTimeDto } from '@/medivet-clinics/dto/medivet-remove-clinic-reception-time.dto';
 
 @Injectable()
 export class MedivetClinicsReceptionTimesService {
@@ -119,7 +118,9 @@ export class MedivetClinicsReceptionTimesService {
         }
     }
 
-    async removeClinicReceptionTime(clinicReceptionTime: MedivetClinicsReceptionTime, vet: MedivetUser, clinicId: number): Promise<void> {
+    async removeClinicReceptionTime(clinicReceptionTime: MedivetClinicsReceptionTime, vet: MedivetUser,
+        removeClinicReceptionTimeDto: MedivetRemoveClinicReceptionTimeDto): Promise<void> {
+        const { clinicId } = removeClinicReceptionTimeDto;
         const clinic = await this.clinicsService.findClinicById(clinicId);
 
         if (clinic) {
