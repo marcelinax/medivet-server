@@ -8,6 +8,7 @@ import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, One
 import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
 import { MedivetClinicsReceptionTime } from "@/medivet-clinics/entities/medivet-clinics-reception-time.entity";
+import { MedivetOpinion } from '@/medivet-opinions/entities/medivet-opinion.entity';
 
 const env = envConfig();
 
@@ -77,4 +78,8 @@ export class MedivetUser {
     @ApiProperty()
     @OneToMany(() => MedivetClinicsReceptionTime, time => time.vet)
     receptionTimes: MedivetClinicsReceptionTime[];
+
+    @ApiProperty()
+    @OneToMany(() => MedivetOpinion, opinion => opinion.vet)
+    opinions: MedivetOpinion[];
 }

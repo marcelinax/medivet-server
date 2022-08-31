@@ -11,13 +11,15 @@ export class ErrorMessagesConstants {
     public static INVALID_RESET_PASSWORD_TOKEN = 'Invalid reset password token.';
     public static ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST = 'Animal with this id does not exist.';
     public static USER_IS_UNAUTHORIZED_TO_DO_THIS_ACTION = 'User is unauthorized to do this action.';
-    public static CLINIC_WITH_THIS_ID_DOES_NOT_EXIST = 'Clinic with this id does not exist';
-    public static CLINIC_ALREADY_EXISTS = 'Clinic already exists';
-    public static VET_IS_ALREADY_ASSIGNS_TO_THIS_VET_CLINIC = 'Vet is already assigns to this vet clinic';
-    public static VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET = 'Vet clinic is not assigned to this vet';
-    public static CLINIC_RECEPTION_TIME_WITH_THIS_ID_DOES_NOT_EXIST = 'Clinic recption time with this id does not exist';
-    public static CLINIC_RECEPTION_TIME_ALREADY_EXISTS = 'Clinic recption time already exists';
-    public static CLINIC_RECEPTION_TIMES_CANNOT_COLLIDATE_WITH_EACH_OTHER = 'Clinic reception times cannot collidate with each other';
-    public static CLINIC_RECEPTION_START_TIME_CANNOT_BE_GREATER_THAN_END_TIME = 'Clinic reception start time cannot be greater than end time';
-    public static CLINIC_RECEPTION_TIME_FOR_THIS_CLINIC_DOES_NOT_EXIST = 'Clinic reception time for this clinic does not exist';
+    public static CLINIC_WITH_THIS_ID_DOES_NOT_EXIST = 'Clinic with this id does not exist.';
+    public static CLINIC_ALREADY_EXISTS = 'Clinic already exists.';
+    public static VET_IS_ALREADY_ASSIGNS_TO_THIS_VET_CLINIC = 'Vet is already assigns to this vet clinic.';
+    public static VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET = 'Vet clinic is not assigned to this vet.';
+    public static CLINIC_RECEPTION_TIME_WITH_THIS_ID_DOES_NOT_EXIST = 'Clinic recption time with this id does not exist.';
+    public static CLINIC_RECEPTION_TIME_ALREADY_EXISTS = 'Clinic recption time already exists.';
+    public static CLINIC_RECEPTION_TIMES_CANNOT_COLLIDATE_WITH_EACH_OTHER = 'Clinic reception times cannot collidate with each other.';
+    public static CLINIC_RECEPTION_START_TIME_CANNOT_BE_GREATER_THAN_END_TIME = 'Clinic reception start time cannot be greater than end time.';
+    public static CLINIC_RECEPTION_TIME_FOR_THIS_CLINIC_DOES_NOT_EXIST = 'Clinic reception time for this clinic does not exist.';
+    public static VET_CANNOT_GIVE_YOURSELF_OPINION = 'Vet cannot give yourself an opinion.';
+    public static OPINION_CAN_ONLY_BE_GIVEN_TO_VET = 'Opinion can only be given to the vet.';
 }

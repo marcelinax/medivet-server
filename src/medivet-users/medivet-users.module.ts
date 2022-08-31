@@ -15,7 +15,7 @@ import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-s
     imports: [
 TypeOrmModule.forFeature([
             MedivetUser,
-    MedivetUserDeleteLog,
+            MedivetUserDeleteLog,
             MedivetVetSpecialization
         ]),
         forwardRef(() => MedivetSecurityModule),

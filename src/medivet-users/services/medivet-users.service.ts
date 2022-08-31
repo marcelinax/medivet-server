@@ -48,7 +48,14 @@ export class MedivetUsersService {
     }
 
     async findOneById(id: number): Promise<MedivetUser> {
-        const user = await this.usersRepository.findOne({ where: { id }, relations: ['clinics', 'receptionTimes'] });
+        const user = await this.usersRepository.findOne({
+            where: { id }, relations: [
+                'clinics',
+                'receptionTimes',
+                'opinions',
+                'opinions.issuer',
+            ]
+        });
         if (!user) throw new NotFoundException(ErrorMessagesConstants.USER_WITH_THIS_ID_DOES_NOT_EXIST);
         return user;
     }
@@ -84,6 +91,10 @@ export class MedivetUsersService {
         user.password = newPassword;
         this.usersRepository.save(user);
         return user;
+    }
+
+    async saveUser(user: MedivetUser): Promise<void> {
+        await this.usersRepository.save(user);
     }
 
 }

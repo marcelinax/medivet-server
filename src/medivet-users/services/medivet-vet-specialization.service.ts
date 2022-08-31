@@ -36,7 +36,6 @@ export class MedivetVetSpecializationService {
     async searchVetSpecialization(query: string): Promise<MedivetVetSpecialization[]> {
         return this.medivetVetSpecializationRepository.createQueryBuilder('medivet-vet-specialization').
             where('medivet-vet-specialization.namePl = :q', { q: query }).getMany();
-        return []
     }
 
 }
