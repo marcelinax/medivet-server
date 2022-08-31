@@ -7,6 +7,8 @@ import { MedivetCreateOpinionDto } from '@/medivet-opinions/dto/medivet-create-o
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
+import { MedivetSearchOpinionDto } from "@/medivet-opinions/dto/medivet-search-opinion.dto";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 
 @Injectable()
 export class MedivetOpinionsService {
@@ -23,7 +25,7 @@ export class MedivetOpinionsService {
         if (possibleVet) {
             if (user.id === possibleVet.id) throw new BadRequestException([ErrorMessagesConstants.VET_CANNOT_GIVE_YOURSELF_OPINION]);
             if (possibleVet.role !== MedivetUserRole.VET) throw new BadRequestException([ErrorMessagesConstants.OPINION_CAN_ONLY_BE_GIVEN_TO_VET]);
-            
+
             const newOpinion = this.opinionsRepository.create({
                 date: new Date(),
                 message,
@@ -36,5 +38,49 @@ export class MedivetOpinionsService {
             await this.usersService.saveUser(possibleVet);
             return newOpinion;
         }
+    }
+
+    async findAllOpinionsAssignedToVet(vetId: number): Promise<MedivetOpinion[]> {
+        const vet = await this.usersService.findOneById(vetId);
+
+        if (vet) {
+            return this.opinionsRepository.find({ where: { vet: { id: vetId } }, relations: ['issuer'] });
+        }
+    }
+
+    async searchVetOpinions(vetId: number, searchOpinionDto: MedivetSearchOpinionDto): Promise<MedivetOpinion[]> {
+        let opinions = await this.findAllOpinionsAssignedToVet(vetId);
+        
+        if (searchOpinionDto.sortingMode) {
+            opinions = opinions.sort((a, b) => {
+                switch (searchOpinionDto.sortingMode) {
+                    case MedivetSortingModeEnum.NEWEST:
+                        return b.date.getTime() - a.date.getTime();
+                    case MedivetSortingModeEnum.OLDEST:
+                        return a.date.getTime() - b.date.getTime();
+                    case MedivetSortingModeEnum.HIGHEST_RATE:
+                        if (b.rate === a.rate) {
+                            return b.date.getTime() - a.date.getTime();
+                        }
+                        return b.rate - a.rate;
+                    case MedivetSortingModeEnum.LOWEST_RATE:
+                        if (b.rate === a.rate) {
+                            return b.date.getTime() - a.date.getTime();
+                        }
+                        return a.rate - b.rate;
+                    default:
+                        return b.date.getTime() - a.date.getTime();
+                }
+            });
+        };
+
+        const pageSize = searchOpinionDto.pageSize || 10;
+        const offset = searchOpinionDto.offset || 0;
+
+        return this.paginateOpinions(pageSize, offset, opinions);
+    }
+
+    private paginateOpinions(pageSize: number, offset: number, opinions: MedivetOpinion[]): MedivetOpinion[] {
+        return opinions.filter((_, index) => index >=offset && index < pageSize + offset)
     }
 }

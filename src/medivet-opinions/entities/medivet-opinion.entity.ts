@@ -8,7 +8,7 @@ export class MedivetOpinion {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ApiProperty()
+    @ApiProperty({type: () => MedivetUser})
     @ManyToOne(() => MedivetUser, user => user.opinions)
     vet: MedivetUser;
 
@@ -24,7 +24,7 @@ export class MedivetOpinion {
     @Column({ nullable: false })
     rate: number;
 
-    @ApiProperty()
+    @ApiProperty({ type: () => MedivetUser})
     @ManyToOne(() => MedivetUser, user => user.opinions)
     issuer: MedivetUser;
 }

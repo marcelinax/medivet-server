@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { MedivetOpinionsService } from '@/medivet-opinions/services/medivet-opinions.service';
 import { MedivetOpinionsController } from '@/medivet-opinions/controllers/medivet-opinions.controller';
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -12,7 +12,7 @@ import { MedivetUsersModule } from "@/medivet-users/medivet-users.module";
         MedivetOpinion,
         MedivetUser
     ]),
-    MedivetUsersModule
+    forwardRef(() => MedivetUsersModule) 
     ],
     providers: [MedivetOpinionsService],
     controllers: [MedivetOpinionsController]

@@ -79,7 +79,7 @@ export class MedivetUser {
     @OneToMany(() => MedivetClinicsReceptionTime, time => time.vet)
     receptionTimes: MedivetClinicsReceptionTime[];
 
-    @ApiProperty()
+    @ApiProperty({type: () => MedivetOpinion})
     @OneToMany(() => MedivetOpinion, opinion => opinion.vet)
     opinions: MedivetOpinion[];
 }
