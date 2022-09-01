@@ -25,4 +25,5 @@ export class ErrorMessagesConstants {
     public static VET_SPECIALIZATION_DOES_NOT_EXIST = 'Vet specialization does not exist.';
     public static VET_SPECIALIZATION_IS_NOT_ASSIGNED_TO_THIS_VET = 'Vet specialization is not assigned to this vet.';
     public static APPOINTMENT_PURPOSE_ALREADY_EXISTS = 'Appointment purpose already exists.';
+    public static APPOINTMENT_PURPOSE_DOES_NOT_EXIST = 'Appointment purpose does not exist.';
 }

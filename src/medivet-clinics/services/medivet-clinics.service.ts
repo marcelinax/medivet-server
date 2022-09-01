@@ -32,7 +32,7 @@ export class MedivetClinicsService {
         const clinic = await this.clinicsRepository.findOne({
             where: { id }, relations: [
                 'vets',
-                'vets.receptionTimes', ,
+                'vets.receptionTimes',
                 'vets.receptionTimes.clinic',
                 'vets.specializations',
                 'receptionTimes',
@@ -92,6 +92,7 @@ export class MedivetClinicsService {
                 'vets',
                 'vets.receptionTimes',
                 'vets.receptionTimes.clinic',
+                'vets.specializations',
                 'receptionTimes',
                 'receptionTimes.clinic'
         ]});
