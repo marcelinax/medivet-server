@@ -9,6 +9,7 @@ import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-s
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
 import { MedivetClinicsReceptionTime } from "@/medivet-clinics/entities/medivet-clinics-reception-time.entity";
 import { MedivetOpinion } from '@/medivet-opinions/entities/medivet-opinion.entity';
+import { MedivetPriceList } from "@/medivet-price-lists/entities/medivet-price-list.entity";
 
 const env = envConfig();
 
@@ -82,4 +83,8 @@ export class MedivetUser {
     @ApiProperty({type: () => MedivetOpinion})
     @OneToMany(() => MedivetOpinion, opinion => opinion.vet)
     opinions: MedivetOpinion[];
+
+    @ApiProperty({ type: () => MedivetPriceList })
+    @OneToMany(() => MedivetPriceList, priceList => priceList.vet)
+    priceLists: MedivetPriceList[];
 }

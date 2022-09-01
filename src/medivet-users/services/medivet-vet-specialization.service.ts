@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
 import { Repository } from 'typeorm';
 import medivetVetSpecializationsDataset from '@/medivet-users/datasets/medivet-vet-specializations.dataset.json';
+import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 
 
 @Injectable()
@@ -36,6 +37,13 @@ export class MedivetVetSpecializationService {
     async searchVetSpecialization(query: string): Promise<MedivetVetSpecialization[]> {
         return this.medivetVetSpecializationRepository.createQueryBuilder('medivet-vet-specialization').
             where('medivet-vet-specialization.namePl = :q', { q: query }).getMany();
+    }
+
+    async findVetSpecializationById(id: number): Promise<MedivetVetSpecialization> {
+        const specialization = await this.medivetVetSpecializationRepository.findOne({ where: { id } });
+
+        if (!specialization) throw new NotFoundException([ErrorMessagesConstants.VET_SPECIALIZATION_DOES_NOT_EXIST]);
+        return specialization;
     }
 
 }

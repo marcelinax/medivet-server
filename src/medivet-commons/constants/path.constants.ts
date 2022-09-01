@@ -6,6 +6,8 @@ export class PathConstants {
     public static CLINICS = 'clinics';
     public static RECEPTION_TIMES = 'reception-times';
     public static OPINIONS = 'opinions';
+    public static PRICE_LISTS = 'price-lists';
+    public static APPOINTMENTS = 'appointments';
 
     public static LOGIN = 'login';
     public static ME = 'me';
@@ -24,4 +26,5 @@ export class PathConstants {
     public static ASSIGN_VET = 'assign-vet';
     public static UNASSIGN_VET = 'unassign-vet';
     public static MY = 'my';
+    public static PURPOSE = 'purpose';
 }

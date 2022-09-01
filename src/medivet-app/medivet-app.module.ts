@@ -1,8 +1,10 @@
 import { MedivetAnimalsModule } from '@/medivet-animals/medivet-animals.module';
+import { MedivetAppointmentsModule } from '@/medivet-appointments/medivet-appointments.module';
 import { MedivetClinicsModule } from '@/medivet-clinics/medivet-clinics.module';
 import { envConfig } from '@/medivet-commons/configurations/env-config';
 import { MedivetMailerModule } from '@/medivet-mailer/medivet-mailer.module';
 import { MedivetOpinionsModule } from '@/medivet-opinions/medivet-opinions.module';
+import { MedivetPriceListsModule } from '@/medivet-price-lists/medivet-price-lists.module';
 import { MedivetSecurityModule } from '@/medivet-security/medivet-security.module';
 import { MedivetStaticModule } from '@/medivet-static/medivet-static.module';
 import { MedivetUsersModule } from '@/medivet-users/medivet-users.module';
@@ -32,7 +34,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     MedivetStaticModule,
     MedivetAnimalsModule,
     MedivetClinicsModule,
-    MedivetOpinionsModule
+    MedivetOpinionsModule,
+    MedivetPriceListsModule,
+    MedivetAppointmentsModule
   ],
 })
 export class MedivetAppModule {}

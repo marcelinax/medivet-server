@@ -32,8 +32,9 @@ export class MedivetClinicsService {
         const clinic = await this.clinicsRepository.findOne({
             where: { id }, relations: [
                 'vets',
-                'vets.receptionTimes',
+                'vets.receptionTimes', ,
                 'vets.receptionTimes.clinic',
+                'vets.specializations',
                 'receptionTimes',
                 'receptionTimes.clinic'
             ]
@@ -63,7 +64,7 @@ export class MedivetClinicsService {
 
         if (clinic) {
             const hasVetThisClinic = vet.clinics?.find(x => x.id === clinic.id);
-            if(hasVetThisClinic) throw new BadRequestException([ErrorMessagesConstants.VET_IS_ALREADY_ASSIGNS_TO_THIS_VET_CLINIC])
+            if(hasVetThisClinic) throw new BadRequestException([ErrorMessagesConstants.VET_IS_ALREADY_ASSIGNED_TO_THIS_VET_CLINIC])
             vet.clinics = vet.clinics ? [...vet.clinics, clinic] : [clinic];
             await this.usersRepository.save(vet);
             return vet;

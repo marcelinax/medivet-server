@@ -54,6 +54,8 @@ export class MedivetUsersService {
                 'receptionTimes',
                 'opinions',
                 'opinions.issuer',
+                'priceLists',
+                'specializations'
             ]
         });
         if (!user) throw new NotFoundException(ErrorMessagesConstants.USER_WITH_THIS_ID_DOES_NOT_EXIST);

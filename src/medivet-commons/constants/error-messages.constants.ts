@@ -13,7 +13,7 @@ export class ErrorMessagesConstants {
     public static USER_IS_UNAUTHORIZED_TO_DO_THIS_ACTION = 'User is unauthorized to do this action.';
     public static CLINIC_WITH_THIS_ID_DOES_NOT_EXIST = 'Clinic with this id does not exist.';
     public static CLINIC_ALREADY_EXISTS = 'Clinic already exists.';
-    public static VET_IS_ALREADY_ASSIGNS_TO_THIS_VET_CLINIC = 'Vet is already assigns to this vet clinic.';
+    public static VET_IS_ALREADY_ASSIGNED_TO_THIS_VET_CLINIC = 'Vet is already assigned to this vet clinic.';
     public static VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET = 'Vet clinic is not assigned to this vet.';
     public static CLINIC_RECEPTION_TIME_WITH_THIS_ID_DOES_NOT_EXIST = 'Clinic recption time with this id does not exist.';
     public static CLINIC_RECEPTION_TIME_ALREADY_EXISTS = 'Clinic recption time already exists.';
@@ -22,4 +22,7 @@ export class ErrorMessagesConstants {
     public static CLINIC_RECEPTION_TIME_FOR_THIS_CLINIC_DOES_NOT_EXIST = 'Clinic reception time for this clinic does not exist.';
     public static VET_CANNOT_GIVE_YOURSELF_OPINION = 'Vet cannot give yourself an opinion.';
     public static OPINION_CAN_ONLY_BE_GIVEN_TO_VET = 'Opinion can only be given to the vet.';
+    public static VET_SPECIALIZATION_DOES_NOT_EXIST = 'Vet specialization does not exist.';
+    public static VET_SPECIALIZATION_IS_NOT_ASSIGNED_TO_THIS_VET = 'Vet specialization is not assigned to this vet.';
+    public static APPOINTMENT_PURPOSE_ALREADY_EXISTS = 'Appointment purpose already exists.';
 }

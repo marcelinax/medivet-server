@@ -6,4 +6,6 @@ export class ApiTagsConstants {
     public static CLINICS = 'clinics';
     public static RECEPTION_TIMES = 'reception-times';
     public static OPINIONS = 'opinions';
+    public static PRICE_LISTS = 'price-lists';
+    public static APPOINTMENTS = 'appointments';
 }
