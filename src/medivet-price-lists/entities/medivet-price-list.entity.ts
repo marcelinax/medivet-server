@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
 import { MedivetAppointmentPurpose } from "@/medivet-appointments/entities/medivet-appointment-purpose.entity";
@@ -12,7 +12,7 @@ export class MedivetPriceList{
     id: number;
 
     @ApiProperty({ type: () => MedivetUser})
-    @ManyToOne(() => MedivetUser, user => user.priceLists)
+    @ManyToOne(() => MedivetUser)
     vet: MedivetUser;
 
     @ApiProperty({ type: () => MedivetClinic })
@@ -21,7 +21,7 @@ export class MedivetPriceList{
 
     @ApiProperty()
     @ManyToMany(() => MedivetAppointmentPurpose)
-    @JoinColumn({ name: 'medivet-bind-appointment-purpose-price-list' })
+    @JoinTable({ name: 'medivet-bind-appointment-purpose-price-list' })
     purposes: MedivetAppointmentPurpose[];
 
     @ApiProperty({ type: () => MedivetVetSpecialization})

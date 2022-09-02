@@ -138,7 +138,7 @@ export class MedivetClinicsReceptionTimesService {
                     }
                 }
             }
-            else throw new BadRequestException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
+            else throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
         }
     }
 };

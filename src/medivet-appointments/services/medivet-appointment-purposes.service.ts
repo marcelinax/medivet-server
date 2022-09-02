@@ -24,10 +24,10 @@ export class MedivetAppointmentPurposesService {
 
         if (possibleSpecialization) {
             if (!this.checkIfVetHasThisSpecialization(possibleSpecialization, vet))
-                throw new BadRequestException([ErrorMessagesConstants.VET_SPECIALIZATION_IS_NOT_ASSIGNED_TO_THIS_VET]);
+                throw new NotFoundException([ErrorMessagesConstants.VET_SPECIALIZATION_IS_NOT_ASSIGNED_TO_THIS_VET]);
             
             if (!this.checkIfVetIsAssignedToThisClinic(clinicId, vet))
-                throw new BadRequestException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
+                throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
             
             if(this.checkIfVetAppointmentPurposeExists(vet.id, clinicId, name))
                 throw new BadRequestException([ErrorMessagesConstants.APPOINTMENT_PURPOSE_ALREADY_EXISTS]);
@@ -58,10 +58,10 @@ export class MedivetAppointmentPurposesService {
 
         if (possibleSpecialization) {
             if (!this.checkIfVetHasThisSpecialization(possibleSpecialization, vet))
-            throw new BadRequestException([ErrorMessagesConstants.VET_SPECIALIZATION_IS_NOT_ASSIGNED_TO_THIS_VET]);
+            throw new NotFoundException([ErrorMessagesConstants.VET_SPECIALIZATION_IS_NOT_ASSIGNED_TO_THIS_VET]);
             
         if (!this.checkIfVetIsAssignedToThisClinic(clinicId, vet))
-            throw new BadRequestException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
+            throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
 
         appointmentPurpose.name = name;
         appointmentPurpose.price = price;
@@ -70,6 +70,7 @@ export class MedivetAppointmentPurposesService {
         return appointmentPurpose;
         }
     }
+
 
     private checkIfVetHasThisSpecialization(specialization: MedivetVetSpecialization, vet: MedivetUser): boolean {
         const possibleSpecialization = vet.specializations.find(spec => spec.id === specialization.id);

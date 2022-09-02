@@ -76,7 +76,7 @@ export class MedivetClinicsService {
 
         if (clinic) {
             const hasVetThisClinic = vet.clinics?.find(x => x.id === clinic.id);
-            if (!hasVetThisClinic) throw new BadRequestException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
+            if (!hasVetThisClinic) throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
             const newVetClinics = [...vet.clinics];
             newVetClinics.splice(newVetClinics.indexOf(clinic), 1);
             vet.clinics = [...newVetClinics];

@@ -31,9 +31,13 @@ export class MedivetAppointmentsController {
         type: MedivetAppointmentPurpose
     })
     @ApiBadRequestResponse({
-        description: 'Invalid array form / Clinic is not assigned to vet/ Vet specialization is not assigned to vet',
+        description: 'Invalid array form ',
         type: BadRequestExceptionDto
     })
+    @ApiNotFoundResponse({
+        description: 'Clinic is not assigned to vet/ Vet specialization is not assigned to vet',
+        type: BadRequestExceptionDto
+    })   
     @ApiUnauthorizedResponse({
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
@@ -59,11 +63,11 @@ export class MedivetAppointmentsController {
         type: MedivetAppointmentPurpose
     })
     @ApiNotFoundResponse({
-        description: 'Appointment purpose does not exist',
+        description: 'Appointment purpose does not exist / Clinic is not assigned to vet/ Vet specialization is not assigned to vet',
         type: BadRequestExceptionDto
     })
     @ApiBadRequestResponse({
-        description: 'Invalid array form / Clinic is not assigned to vet/ Vet specialization is not assigned to vet',
+        description: 'Invalid array form',
         type: BadRequestExceptionDto
     })
     @ApiUnauthorizedResponse({

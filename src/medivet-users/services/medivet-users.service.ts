@@ -55,6 +55,9 @@ export class MedivetUsersService {
                 'opinions',
                 'opinions.issuer',
                 'priceLists',
+                'priceLists.clinic',
+                'priceLists.specialization',
+                'priceLists.purposes',
                 'specializations'
             ]
         });

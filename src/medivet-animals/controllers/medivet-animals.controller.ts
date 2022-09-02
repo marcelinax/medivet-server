@@ -1,6 +1,6 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { MedivetAnimalsService } from "@/medivet-animals/services/medivet-animals.service";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import {  ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
@@ -236,7 +236,7 @@ export class MedivetAnimalsController{
     })
     @ApiNotFoundResponse({
         description: 'Animal does not exist',
-        type: BadRequestExceptionDto
+        type: NotFoundException
     })
     @ApiUnauthorizedResponse({
         description: `Bad authorization / user is not animal's owner`,

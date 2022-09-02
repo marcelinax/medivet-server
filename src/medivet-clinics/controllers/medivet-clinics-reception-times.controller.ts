@@ -1,6 +1,6 @@
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { Body, ClassSerializerInterceptor, Controller, Delete, Param, Post, Put, UnauthorizedException, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import {  ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
 import { MedivetClinicsReceptionTimesService } from "@/medivet-clinics/services/medivet-clinics-reception-times.service";
 import { MedivetClinicsReceptionTime } from '@/medivet-clinics/entities/medivet-clinics-reception-time.entity';
@@ -91,7 +91,7 @@ export class MedivetClinicsReceptionTimesController {
         description: 'Clinic reception time has been successfully removed',
         type: OkMessageDto
     })
-    @ApiBadRequestResponse({
+    @ApiNotFoundResponse({
         description: 'Vet is not assigned to this clinic/ reception time is not assigned to this clinic',
         type: BadRequestExceptionDto
     })
