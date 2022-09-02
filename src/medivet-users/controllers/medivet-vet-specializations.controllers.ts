@@ -6,7 +6,6 @@ import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exce
 import { JwtAuthGuard } from '@/medivet-security/guards/medivet-jwt-auth.guard';
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
-import { SearchDto } from "@/medivet-commons/dto/search.dto";
 
 @ApiTags(ApiTagsConstants.VET_SPECIALIZATION)
 @Controller(PathConstants.VET_SPECIALIZATIONS)
@@ -29,8 +28,8 @@ export class MedivetVetSpecializationController {
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Get(PathConstants.SEARCH)
-    async searchVetSpecializations(@Query() searchDto: SearchDto): Promise<MedivetVetSpecialization[]> {
-        return this.vetSpecializationService.searchVetSpecialization(searchDto.query);
+    async searchVetSpecializations(@Query('name') name: string): Promise<MedivetVetSpecialization[]> {
+        return this.vetSpecializationService.searchVetSpecialization(name);
     }
 
     @ApiOperation({
