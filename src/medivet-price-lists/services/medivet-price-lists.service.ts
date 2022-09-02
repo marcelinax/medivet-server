@@ -6,6 +6,7 @@ import { MedivetCreatePriceListDto } from '@/medivet-price-lists/dto/medivet-cre
 import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { ErrorMessagesConstants } from '@/medivet-commons/constants/error-messages.constants';
 import { MedivetUsersService } from '@/medivet-users/services/medivet-users.service';
+import { MedivetGetMyPriceListDto } from '@/medivet-price-lists/dto/medivet-get-my-price-list.dto';
 
 @Injectable()
 export class MedivetPriceListsService {
@@ -42,5 +43,29 @@ export class MedivetPriceListsService {
 
         await this.priceListsRepository.save(newPriceList, {});
         return newPriceList;
+    }
+
+    async findMyPriceList(priceListId: number, vet: MedivetUser, getMyPriceListDto: MedivetGetMyPriceListDto): Promise<MedivetPriceList> {
+        const priceList = await this.priceListsRepository.findOne({
+            where: { id: priceListId },
+            relations: [
+                'purposes',
+                'clinic',
+                'vet',
+                'specialization'
+            ]
+        });
+
+        const { clinicId, specializationId } = getMyPriceListDto;
+        if (priceList) {
+            if (+priceList.clinic.id !== +clinicId
+                || +priceList.specialization.id !== +specializationId
+                || +priceList.vet.id !== +vet.id) {
+                    throw new NotFoundException([ErrorMessagesConstants.PRICE_LIST_WITH_SUCH_PARAMS_DOES_NOT_EXIST]);
+                }
+            
+            return priceList;
+        }
+        throw new NotFoundException([ErrorMessagesConstants.PRICE_LIST_DOES_NOT_EXIST]);
     }
 }

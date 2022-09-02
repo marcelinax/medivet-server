@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Post, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Param, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '@/medivet-security/guards/medivet-jwt-auth.guard';
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetCreatePriceListDto } from '@/medivet-price-lists/dto/medivet-create-price-list.dto';
+import { QueryRequired } from "@/medivet-commons/decorators/QueryRequired.decorator";
 
 @ApiTags(ApiTagsConstants.PRICE_LISTS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -52,5 +53,37 @@ export class MedivetPriceListsController {
         @Body() body: MedivetCreatePriceListDto
     ) : Promise<MedivetPriceList> {
         return this.priceListsService.createPriceList(user, body);
+    }
+
+    @ApiOperation({
+        summary: 'Gets price list for authorized vet',
+        description: 'Returns price list by assigned clinic and specialization'
+    })
+    @ApiOkResponse({
+        description: `Returns assigned to authorized vet price list data`,
+        type: MedivetPriceList
+    })
+    @ApiNotFoundResponse({
+        description: 'Price list does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Get(PathConstants.MY + PathConstants.ID_PARAM)
+    async getMyPriceList(
+        @Param('id') id: number,
+        @CurrentUser() user: MedivetUser,
+        @QueryRequired('specializationId') specializationId: number,
+        @QueryRequired('clinicId') clinicId: number
+    ): Promise<MedivetPriceList> {
+        return this.priceListsService.findMyPriceList(id, user, {
+            specializationId,
+            clinicId
+        });
     }
 }

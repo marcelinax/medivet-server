@@ -1,4 +1,5 @@
 export class ErrorMessagesConstants {
+    public static MISSING_REQUIRED_QUERY_PARAM = 'Missing required query param:';
     public static USER_WITH_THIS_EMAIL_ALREADY_EXISTS = 'User with this email already exists.';
     public static USER_WITH_THIS_ID_DOES_NOT_EXIST = 'User with this id does not exist.'
     public static USER_WITH_THIS_EMAIL_DOES_NOT_EXIST = 'User with this email does not exist.';
@@ -27,4 +28,6 @@ export class ErrorMessagesConstants {
     public static APPOINTMENT_PURPOSE_ALREADY_EXISTS = 'Appointment purpose already exists.';
     public static APPOINTMENT_PURPOSE_DOES_NOT_EXIST = 'Appointment purpose does not exist.';
     public static PRICE_LIST_FOR_THIS_SPECIALIZATION_AND_CLINIC_IN_VET_PRICE_LISTS_ALREADY_EXISTS = 'Price list for this specialization and clinic in vet price lists already exists';
+    public static PRICE_LIST_DOES_NOT_EXIST = 'Price list does not exist.';
+    public static PRICE_LIST_WITH_SUCH_PARAMS_DOES_NOT_EXIST = 'Price list with such params does not exist.';
 }
