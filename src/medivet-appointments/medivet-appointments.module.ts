@@ -18,6 +18,7 @@ import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity"
         MedivetUsersModule
     ],
     providers: [MedivetAppointmentsService, MedivetAppointmentPurposesService],
-    controllers: [MedivetAppointmentsController]
+    controllers: [MedivetAppointmentsController],
+    exports: [MedivetAppointmentPurposesService]
 })
 export class MedivetAppointmentsModule {}

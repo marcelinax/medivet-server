@@ -4,8 +4,8 @@ import { MedivetPriceListsController } from '@/medivet-price-lists/controllers/m
 import { MedivetAppointmentPurpose } from '@/medivet-appointments/entities/medivet-appointment-purpose.entity';
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
-import { MedivetUsersModule } from "@/medivet-users/medivet-users.module";
 import { MedivetPriceList } from "@/medivet-price-lists/entities/medivet-price-list.entity";
+import { MedivetAppointmentsModule } from "@/medivet-appointments/medivet-appointments.module";
 
 @Module({
     imports: [
@@ -14,7 +14,7 @@ import { MedivetPriceList } from "@/medivet-price-lists/entities/medivet-price-l
         MedivetAppointmentPurpose,
         MedivetPriceList
     ]),
-        MedivetUsersModule
+        MedivetAppointmentsModule
     ],
     providers: [MedivetPriceListsService],
     controllers: [MedivetPriceListsController]

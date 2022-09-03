@@ -5,14 +5,15 @@ import { Repository } from 'typeorm';
 import { MedivetCreatePriceListDto } from '@/medivet-price-lists/dto/medivet-create-price-list.dto';
 import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { ErrorMessagesConstants } from '@/medivet-commons/constants/error-messages.constants';
-import { MedivetUsersService } from '@/medivet-users/services/medivet-users.service';
 import { MedivetGetMyPriceListDto } from '@/medivet-price-lists/dto/medivet-get-my-price-list.dto';
+import { MedivetAssignAppointmentPurposesToPriceListDto } from '@/medivet-price-lists/dto/medivet-assign-appointment-purposes-to-price-list.dto';
+import { MedivetAppointmentPurposesService } from '@/medivet-appointments/services/medivet-appointment-purposes.service';
 
 @Injectable()
 export class MedivetPriceListsService {
     constructor(
         @InjectRepository(MedivetPriceList) private priceListsRepository: Repository<MedivetPriceList>,
-        private usersService: MedivetUsersService
+        private appointmentPurposesService: MedivetAppointmentPurposesService
     ) { }
     
     async createPriceList(vet: MedivetUser, createPriceListDto: MedivetCreatePriceListDto): Promise<MedivetPriceList> {
@@ -67,5 +68,31 @@ export class MedivetPriceListsService {
             return priceList;
         }
         throw new NotFoundException([ErrorMessagesConstants.PRICE_LIST_DOES_NOT_EXIST]);
+    }
+
+    async assignAppointmentPurposesToPriceList(
+        vet: MedivetUser, priceListId: number, assignAppointmentPurposesToPriceListDto: MedivetAssignAppointmentPurposesToPriceListDto
+    ): Promise<MedivetPriceList> {
+        const { clinicId, purposesIds, specializationId } = assignAppointmentPurposesToPriceListDto;
+
+        const priceList = await this.findMyPriceList(priceListId, vet, { clinicId, specializationId });
+
+        if (priceList) {
+            const purposes = [];
+            for (let i = 0; i < purposesIds.length; i++) {
+                const purposeId = purposesIds[i];
+                const purposeFoundById = await this.appointmentPurposesService.findAppointmentPurposeById(purposeId);
+         
+                if (purposeFoundById) {
+                    const vetPurpose = await this.appointmentPurposesService.findVetAppointmentPurpose(vet.id, clinicId, purposeFoundById.name);
+                    if (vetPurpose) purposes.push(vetPurpose);
+                    else throw new NotFoundException([ErrorMessagesConstants.APPOINTMENT_PURPOSE_DOES_NOT_EXIST]);
+                }
+            }
+
+            priceList.purposes = [...purposes];
+            await this.priceListsRepository.save(priceList);
+            return priceList;
+        }
     }
 }

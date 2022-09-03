@@ -27,4 +27,5 @@ export class PathConstants {
     public static UNASSIGN_VET = 'unassign-vet';
     public static MY = 'my';
     public static PURPOSE = 'purpose';
+    public static ASSIGN_APPOINTMENT_PURPOSES = 'assign-appointment-purposes';
 }

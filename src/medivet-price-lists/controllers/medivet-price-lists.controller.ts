@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, Param, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Param, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
@@ -14,6 +14,7 @@ import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetCreatePriceListDto } from '@/medivet-price-lists/dto/medivet-create-price-list.dto';
 import { QueryRequired } from "@/medivet-commons/decorators/QueryRequired.decorator";
+import { MedivetAssignAppointmentPurposesToPriceListDto } from '@/medivet-price-lists/dto/medivet-assign-appointment-purposes-to-price-list.dto';
 
 @ApiTags(ApiTagsConstants.PRICE_LISTS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -85,5 +86,38 @@ export class MedivetPriceListsController {
             specializationId,
             clinicId
         });
+    }
+
+    @ApiOperation({
+        summary: 'Assigns appointment purpose to proper price list',
+        description: 'Enables to assign appointment created by authorized vet to price list by id'
+    })
+    @ApiOkResponse({
+        description: 'Returns price list with assigned appointment purposes',
+        type: MedivetPriceList
+    })
+    @ApiNotFoundResponse({
+        description: 'Price list does not exist / Appointment purpose does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiBadRequestResponse({
+        description: 'Invalid data form',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Post(`${PathConstants.ID_PARAM}/${PathConstants.ASSIGN_APPOINTMENT_PURPOSES}`)
+    async assignAppointmentPurposesToPriceList(
+        @CurrentUser() user: MedivetUser,
+        @Param('id') priceListId: number,
+        @Body() body: MedivetAssignAppointmentPurposesToPriceListDto
+    ): Promise<MedivetPriceList> {
+        return this.priceListsService.assignAppointmentPurposesToPriceList(user, priceListId, body);
     }
 }

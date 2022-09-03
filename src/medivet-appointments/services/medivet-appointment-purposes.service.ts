@@ -71,6 +71,17 @@ export class MedivetAppointmentPurposesService {
         }
     }
 
+    async findAppointmentPurposeById(id: number): Promise<MedivetAppointmentPurpose> {
+        const appointmentPurpose = await this.appointmentPurposesRepository.findOne({ where: { id } });
+
+        if (!appointmentPurpose) throw new NotFoundException([ErrorMessagesConstants.APPOINTMENT_PURPOSE_DOES_NOT_EXIST]);
+        return appointmentPurpose;
+    }
+
+    async findVetAppointmentPurpose(vetId: number, clinicId: number, name: string): Promise<MedivetAppointmentPurpose> {
+        return this.appointmentPurposesRepository
+            .findOne({ where: { vet: { id: vetId }, clinic: { id: clinicId }, name, }, relations: ['clinic', 'vet'] });
+    }
 
     private checkIfVetHasThisSpecialization(specialization: MedivetVetSpecialization, vet: MedivetUser): boolean {
         const possibleSpecialization = vet.specializations.find(spec => spec.id === specialization.id);
@@ -79,11 +90,6 @@ export class MedivetAppointmentPurposesService {
 
     private checkIfVetIsAssignedToThisClinic(clinicId: number, vet: MedivetUser): boolean {
         return !!vet.clinics.find(clinic => clinic.id === clinicId);
-    }
-
-    private async findVetAppointmentPurpose(vetId: number, clinicId: number, name: string): Promise<MedivetAppointmentPurpose> {
-        return this.appointmentPurposesRepository
-            .findOne({ where: { vet: { id: vetId }, clinic: { id: clinicId }, name, }, relations: ['clinic', 'vet'] });
     }
 
     private checkIfVetAppointmentPurposeExists(vetId: number, clinicId: number, name: string): boolean {
