@@ -6,6 +6,7 @@ import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 
 @Injectable()
 export class MedivetUsersService {
@@ -102,4 +103,14 @@ export class MedivetUsersService {
         await this.usersRepository.save(user);
     }
 
+    async findVetById(id: number): Promise<MedivetUser> {
+        const possibleVet = await this.findOneById(id);
+
+        if (possibleVet) {
+            if (possibleVet.role !== MedivetUserRole.VET) {
+                throw new NotFoundException([ErrorMessagesConstants.VET_DOES_NOT_EXIST]);
+            }
+            return possibleVet;
+        }
+    }
 }

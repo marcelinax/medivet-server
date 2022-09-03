@@ -30,4 +30,5 @@ export class ErrorMessagesConstants {
     public static PRICE_LIST_FOR_THIS_SPECIALIZATION_AND_CLINIC_IN_VET_PRICE_LISTS_ALREADY_EXISTS = 'Price list for this specialization and clinic in vet price lists already exists';
     public static PRICE_LIST_DOES_NOT_EXIST = 'Price list does not exist.';
     public static PRICE_LIST_WITH_SUCH_PARAMS_DOES_NOT_EXIST = 'Price list with such params does not exist.';
+    public static VET_DOES_NOT_EXIST = 'Vet does not exist.';
 }
