@@ -1,7 +1,7 @@
 import { AddressDto } from "@/medivet-commons/dto/address.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsDefined, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsDefined, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
 
 export class UpdateMedivetUserDto {
     @ApiProperty({
@@ -27,4 +27,9 @@ export class UpdateMedivetUserDto {
     @ValidateNested()
     @Type(() => AddressDto)
     address: AddressDto;
+
+    @ApiProperty({default: []})
+    @IsArray()
+    @IsOptional()
+    specializationIds: number[];
 }

@@ -6,10 +6,10 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Transform } from "class-transformer";
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
-import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
 import { MedivetClinicsReceptionTime } from "@/medivet-clinics/entities/medivet-clinics-reception-time.entity";
 import { MedivetOpinion } from '@/medivet-opinions/entities/medivet-opinion.entity';
 import { MedivetPriceList } from "@/medivet-price-lists/entities/medivet-price-list.entity";
+import { MedivetClinicToVetWithSpecializations } from "@/medivet-clinics/entities/medivet-clinic-to-vet-with-specializations.entity";
 
 const env = envConfig();
 
@@ -72,9 +72,8 @@ export class MedivetUser {
     specializations: MedivetVetSpecialization[];
 
     @ApiProperty()
-    @ManyToMany(() => MedivetClinic)
-    @JoinTable({ name: 'medivet-bind-clinic-vets' })
-    clinics: MedivetClinic[];
+    @OneToMany(() => MedivetClinicToVetWithSpecializations, ctv => ctv.vet)
+    clinics: MedivetClinicToVetWithSpecializations[];
 
     @ApiProperty()
     @OneToMany(() => MedivetClinicsReceptionTime, time => time.vet)

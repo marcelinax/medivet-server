@@ -32,10 +32,10 @@ export class MedivetAppointmentPurposesService {
             if(this.checkIfVetAppointmentPurposeExists(vet.id, clinicId, name))
                 throw new BadRequestException([ErrorMessagesConstants.APPOINTMENT_PURPOSE_ALREADY_EXISTS]);
             
-            const clinic = vet.clinics.find(clinic => clinic.id === clinicId);
+            const clinic = vet.clinics.find(clinic => clinic.clinic.id === clinicId);
             
             const newAppointmentPurpose = this.appointmentPurposesRepository.create({
-                clinic,
+                clinic: clinic.clinic,
                 vet,
                 price,
                 name,
@@ -89,7 +89,7 @@ export class MedivetAppointmentPurposesService {
     }
 
     private checkIfVetIsAssignedToThisClinic(clinicId: number, vet: MedivetUser): boolean {
-        return !!vet.clinics.find(clinic => clinic.id === clinicId);
+        return !!vet.clinics.find(clinic => clinic.clinic.id === clinicId);
     }
 
     private checkIfVetAppointmentPurposeExists(vetId: number, clinicId: number, name: string): boolean {

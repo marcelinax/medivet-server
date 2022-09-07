@@ -14,6 +14,7 @@ import { MedivetClinicsService } from '@/medivet-clinics/services/medivet-clinic
 import { BadRequestExceptionDto } from '@/medivet-commons/dto/bad-request-exception.dto';
 import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { MedivetAssignVetToClinicDto } from '@/medivet-clinics/dto/medivet-assign-vet-to-clinic.dto';
 
 @ApiTags(ApiTagsConstants.CLINICS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -72,9 +73,12 @@ export class MedivetClinicsController {
     @Post(PathConstants.ASSIGN_VET + PathConstants.ID_PARAM) 
     async assignClinicToVet(
         @Param('id') clinicId: number,
-        @CurrentUser() user: MedivetUser
+        @CurrentUser() user: MedivetUser,
+        @Body() body: MedivetAssignVetToClinicDto
     ): Promise<MedivetUser> {
-        return this.clinicsService.assignVetToClinic(user, clinicId);
+        return this.clinicsService.assignVetToClinic(user, clinicId, {
+            specializationIds: body.specializationIds
+        });
     }
 
     @ApiOperation({

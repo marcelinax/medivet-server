@@ -1,8 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { AddressDto } from '@/medivet-commons/dto/address.dto';
-import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { MedivetClinicsReceptionTime } from '@/medivet-clinics/entities/medivet-clinics-reception-time.entity';
+import { MedivetClinicToVetWithSpecializations } from "@/medivet-clinics/entities/medivet-clinic-to-vet-with-specializations.entity";
 
 @Entity()
 export class MedivetClinic {
@@ -19,9 +19,8 @@ export class MedivetClinic {
     address: AddressDto;
 
     @ApiProperty()
-    @ManyToMany(() => MedivetUser)
-    @JoinTable({ name: 'medivet-bind-clinic-vets' })
-    vets: MedivetUser[];
+    @OneToMany(() => MedivetClinicToVetWithSpecializations, ctv => ctv.clinic)
+    vets: MedivetClinicToVetWithSpecializations[];
 
     @ApiProperty()
     @OneToMany(() => MedivetClinicsReceptionTime, time => time.clinic)

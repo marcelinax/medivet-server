@@ -30,13 +30,13 @@ export class MedivetPriceListsService {
             throw new BadRequestException([ErrorMessagesConstants.PRICE_LIST_FOR_THIS_SPECIALIZATION_AND_CLINIC_IN_VET_PRICE_LISTS_ALREADY_EXISTS]);
         }
 
-        const vetClinic = vet.clinics.find(clinic => clinic.id === clinicId);
+        const vetClinic = vet.clinics.find(clinic => clinic.clinic.id === clinicId);
         if (!vetClinic) {
             throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
         }
 
         const newPriceList = this.priceListsRepository.create({
-            clinic: vetClinic,
+            clinic: vetClinic.clinic,
             vet,
             specialization: vetSpecialization,
             purposes: []

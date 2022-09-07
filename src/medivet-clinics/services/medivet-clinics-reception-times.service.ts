@@ -23,10 +23,12 @@ export class MedivetClinicsReceptionTimesService {
         const clinic = await this.clinicsService.findClinicById(clinicId);
         
         if (clinic) {
-            const clinicWithThisVet = clinic.vets?.find(v => vet.id === v.id);
+            // const clinicWithThisVet = clinic.vets?.find(v => vet.id === v.id);
+            const clinicWithThisVet = clinic.vets?.find(v => v.vet.id === vet.id);
 
             if (clinicWithThisVet) {
-                const receptionTimes = clinicWithThisVet.receptionTimes;
+                // const receptionTimes = clinicWithThisVet.receptionTimes;
+                const receptionTimes = clinicWithThisVet.vet.receptionTimes;
                 
                 const existingReceptionTime = receptionTimes?.find(time =>
                     time.startTime === startTime
@@ -98,7 +100,8 @@ export class MedivetClinicsReceptionTimesService {
         const clinic = await this.clinicsService.findClinicById(clinicReceptionTime.clinic.id);
 
         if (clinic) {
-            const clinicWithThisVet = clinic.vets?.find(v => vet.id === v.id);
+            // const clinicWithThisVet = clinic.vets?.find(v => vet.id === v.id);
+            const clinicWithThisVet = clinic.vets?.find(v => v.vet.id === vet.id);
             if (clinicWithThisVet) {
                 if (!this.checkIfClinicReceptionStartTimeIsLessThanEndTime(startTime, endTime))
                     throw new BadRequestException([ErrorMessagesConstants.CLINIC_RECEPTION_START_TIME_CANNOT_BE_GREATER_THAN_END_TIME]);
@@ -124,7 +127,8 @@ export class MedivetClinicsReceptionTimesService {
         const clinic = await this.clinicsService.findClinicById(clinicId);
 
         if (clinic) {
-            const clinicWithThisVet = clinic.vets?.find(v => vet.id === v.id);
+            // const clinicWithThisVet = clinic.vets?.find(v => vet.id === v.id);
+            const clinicWithThisVet = clinic.vets?.find(v => v.vet.id === vet.id);
 
             if (clinicWithThisVet) {
                 if (clinicReceptionTime) {

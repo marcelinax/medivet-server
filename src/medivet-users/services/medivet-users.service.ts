@@ -52,7 +52,9 @@ export class MedivetUsersService {
         const user = await this.usersRepository.findOne({
             where: { id }, relations: [
                 'clinics',
-                'receptionTimes',
+                'clinics.clinic',
+                'clinics.specializations',
+                'clinics.clinic.receptionTimes',
                 'opinions',
                 'opinions.issuer',
                 'priceLists',

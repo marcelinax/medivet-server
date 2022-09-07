@@ -7,12 +7,16 @@ import { MedivetCreateClinicDto } from "@/medivet-clinics/dto/medivet-create-cli
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSearchClinicDto } from '@/medivet-clinics/dto/medivet-search-clinic.dto';
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { MedivetAssignVetToClinicDto } from "@/medivet-clinics/dto/medivet-assign-vet-to-clinic.dto";
+import { MedivetUsersService } from '@/medivet-users/services/medivet-users.service';
+import { MedivetClinicToVetWithSpecializationsService } from '@/medivet-clinics/services/medivet-clinic-to-vet-with-specializations.service';
 
 @Injectable()
 export class MedivetClinicsService {
     constructor(
         @InjectRepository(MedivetClinic) private clinicsRepository: Repository<MedivetClinic>,
-        @InjectRepository(MedivetUser) private usersRepository: Repository<MedivetUser>
+        private usersService: MedivetUsersService,
+        private clinicToVetWithSpecializationsService: MedivetClinicToVetWithSpecializationsService
     ) { }
     
     async createClinic(createClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {
@@ -32,9 +36,10 @@ export class MedivetClinicsService {
         const clinic = await this.clinicsRepository.findOne({
             where: { id }, relations: [
                 'vets',
-                'vets.receptionTimes',
-                'vets.receptionTimes.clinic',
                 'vets.specializations',
+                'vets.vet.receptionTimes',
+                'vets.vet.receptionTimes.clinic',
+                'vets.vet.specializations',
                 'receptionTimes',
                 'receptionTimes.clinic'
             ]
@@ -59,28 +64,37 @@ export class MedivetClinicsService {
         return false;
     }
 
-    async assignVetToClinic(vet: MedivetUser, clinicId: number): Promise<MedivetUser> {
-        const clinic = await this.findClinicById(clinicId);
+    async assignVetToClinic(
+        vet: MedivetUser,
+        clinicId: number,
+        assignVetToClinicDto: MedivetAssignVetToClinicDto)
+        : Promise<MedivetUser> {
+        const { specializationIds } = assignVetToClinicDto;
 
-        if (clinic) {
-            const hasVetThisClinic = vet.clinics?.find(x => x.id === clinic.id);
-            if(hasVetThisClinic) throw new BadRequestException([ErrorMessagesConstants.VET_IS_ALREADY_ASSIGNED_TO_THIS_VET_CLINIC])
-            vet.clinics = vet.clinics ? [...vet.clinics, clinic] : [clinic];
-            await this.usersRepository.save(vet);
-            return vet;
-        }
-    }
+        const assignedClinic = await this.clinicToVetWithSpecializationsService
+            .createRelationshipBetweenClinicAndVetWithSpecializations(
+                {
+                    clinicId,
+                    vetId: vet.id,
+                    specializationIds
+                }
+            );
+
+        vet.clinics = [...vet.clinics, assignedClinic]
+        await this.usersService.saveUser(vet);
+        return vet;
+    } 
 
     async unassignVetFromClinic(vet: MedivetUser, clinicId: number): Promise<MedivetUser> {
         const clinic = await this.findClinicById(clinicId);
 
         if (clinic) {
-            const hasVetThisClinic = vet.clinics?.find(x => x.id === clinic.id);
+            const hasVetThisClinic = vet.clinics?.find(x => x.clinic.id === clinic.id);
             if (!hasVetThisClinic) throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
             const newVetClinics = [...vet.clinics];
-            newVetClinics.splice(newVetClinics.indexOf(clinic), 1);
+            newVetClinics.splice(newVetClinics.findIndex(c => c.clinic.id === clinic.id), 1);
             vet.clinics = [...newVetClinics];
-            await this.usersRepository.save(vet);
+            await this.usersService.saveUser(vet);
             await this.clinicsRepository.save(clinic);
             return vet;
         }
@@ -90,9 +104,10 @@ export class MedivetClinicsService {
         return this.clinicsRepository.find({
             relations: [
                 'vets',
-                'vets.receptionTimes',
-                'vets.receptionTimes.clinic',
                 'vets.specializations',
+                'vets.vet.receptionTimes',
+                'vets.vet.receptionTimes.clinic',
+                'vets.vet.specializations',
                 'receptionTimes',
                 'receptionTimes.clinic'
         ]});
