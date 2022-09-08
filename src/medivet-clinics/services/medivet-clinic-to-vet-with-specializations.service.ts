@@ -58,4 +58,33 @@ export class MedivetClinicToVetWithSpecializationsService {
     private checkIfVetHasThisSpecialization(specializationId: number, vet: MedivetUser): boolean {
         return !!vet.specializations.find(spec => spec.id === specializationId);
     }
+
+    async findRelationshipBetweenClinicAndVetWithSpecializationsByVetAndClinic(vetId: number, clinicId: number): Promise<MedivetClinicToVetWithSpecializations> {
+        const existingRelationship = await this.clinicToVetWithSpecializationsRepository.findOne({
+            where: {
+                vet: { id: vetId },
+                clinic: {id: clinicId}
+            },
+            relations: ['vet', 'clinic']
+        });
+
+        if (!existingRelationship) {
+            throw new NotFoundException([ErrorMessagesConstants.RELATIONSHIP_BETWEEN_CLINIC_AND_VET_WITH_SPECIALIZATIONS_DOES_NOT_EXIST]);
+        }
+        return existingRelationship;
+    }
+
+    async removeRelationshipBetweenClinicAndVetWithSpecializations(clinicId: number, vet: MedivetUser): Promise<void> {
+        const existingRelationship = await this.findRelationshipBetweenClinicAndVetWithSpecializationsByVetAndClinic(vet.id, clinicId);
+
+        if (existingRelationship) {
+            const isRelatedVet = existingRelationship.vet.id === vet.id;
+            const isRelatedClinic = !!vet.clinics.find(clinic => clinic.clinic.id === existingRelationship.clinic.id);
+            
+            if (isRelatedVet && isRelatedClinic) {
+                await this.clinicToVetWithSpecializationsRepository.remove(existingRelationship);
+            }
+            else throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
+        }
+    }
 }

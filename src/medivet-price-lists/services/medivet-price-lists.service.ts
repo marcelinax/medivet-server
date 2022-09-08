@@ -16,7 +16,7 @@ export class MedivetPriceListsService {
         private appointmentPurposesService: MedivetAppointmentPurposesService
     ) { }
     
-    async createPriceList(vet: MedivetUser, createPriceListDto: MedivetCreatePriceListDto): Promise<MedivetPriceList> {
+    async createPriceList(vet: MedivetUser, createPriceListDto: MedivetCreatePriceListDto): Promise<Partial<MedivetPriceList>> {
         const { clinicId, specializationId } = createPriceListDto;
 
         const vetSpecialization = vet.specializations.find(spec => spec.id === specializationId);
@@ -37,13 +37,14 @@ export class MedivetPriceListsService {
 
         const newPriceList = this.priceListsRepository.create({
             clinic: vetClinic.clinic,
-            vet,
+            vet, 
             specialization: vetSpecialization,
             purposes: []
         });
-
-        await this.priceListsRepository.save(newPriceList, {});
-        return newPriceList;
+        await this.priceListsRepository.save(newPriceList);
+        const { clinic, vet: _vet, ...rest } = newPriceList;
+        
+        return rest;
     }
 
     async findMyPriceList(priceListId: number, vet: MedivetUser, getMyPriceListDto: MedivetGetMyPriceListDto): Promise<MedivetPriceList> {

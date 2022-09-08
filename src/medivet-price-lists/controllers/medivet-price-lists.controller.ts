@@ -52,7 +52,7 @@ export class MedivetPriceListsController {
     async createPriceList(
         @CurrentUser() user: MedivetUser,
         @Body() body: MedivetCreatePriceListDto
-    ) : Promise<MedivetPriceList> {
+    ) : Promise<Partial<MedivetPriceList>> {
         return this.priceListsService.createPriceList(user, body);
     }
 

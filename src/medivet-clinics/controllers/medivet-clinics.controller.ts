@@ -15,6 +15,7 @@ import { BadRequestExceptionDto } from '@/medivet-commons/dto/bad-request-except
 import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 import { MedivetAssignVetToClinicDto } from '@/medivet-clinics/dto/medivet-assign-vet-to-clinic.dto';
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 
 @ApiTags(ApiTagsConstants.CLINICS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -105,7 +106,7 @@ export class MedivetClinicsController {
     async unassignClinicFromVet(
         @Param('id') clinicId: number,
         @CurrentUser() user: MedivetUser
-    ): Promise<MedivetUser> {
+    ): Promise<OkMessageDto> {
         return this.clinicsService.unassignVetFromClinic(user, clinicId);
     }
 

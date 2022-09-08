@@ -10,6 +10,8 @@ import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-
 import { MedivetAssignVetToClinicDto } from "@/medivet-clinics/dto/medivet-assign-vet-to-clinic.dto";
 import { MedivetUsersService } from '@/medivet-users/services/medivet-users.service';
 import { MedivetClinicToVetWithSpecializationsService } from '@/medivet-clinics/services/medivet-clinic-to-vet-with-specializations.service';
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
+import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 
 @Injectable()
 export class MedivetClinicsService {
@@ -34,7 +36,8 @@ export class MedivetClinicsService {
 
     async findClinicById(id: number): Promise<MedivetClinic> {
         const clinic = await this.clinicsRepository.findOne({
-            where: { id }, relations: [
+            where: { id },
+            relations: [
                 'vets',
                 'vets.specializations',
                 'vets.vet.receptionTimes',
@@ -42,7 +45,7 @@ export class MedivetClinicsService {
                 'vets.vet.specializations',
                 'receptionTimes',
                 'receptionTimes.clinic'
-            ]
+            ], 
         });
 
         if (!clinic) throw new NotFoundException([ErrorMessagesConstants.CLINIC_WITH_THIS_ID_DOES_NOT_EXIST]);
@@ -85,19 +88,9 @@ export class MedivetClinicsService {
         return vet;
     } 
 
-    async unassignVetFromClinic(vet: MedivetUser, clinicId: number): Promise<MedivetUser> {
-        const clinic = await this.findClinicById(clinicId);
-
-        if (clinic) {
-            const hasVetThisClinic = vet.clinics?.find(x => x.clinic.id === clinic.id);
-            if (!hasVetThisClinic) throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
-            const newVetClinics = [...vet.clinics];
-            newVetClinics.splice(newVetClinics.findIndex(c => c.clinic.id === clinic.id), 1);
-            vet.clinics = [...newVetClinics];
-            await this.usersService.saveUser(vet);
-            await this.clinicsRepository.save(clinic);
-            return vet;
-        }
+    async unassignVetFromClinic(vet: MedivetUser, clinicId: number): Promise<OkMessageDto> {
+        await this.clinicToVetWithSpecializationsService.removeRelationshipBetweenClinicAndVetWithSpecializations(clinicId, vet);
+        return { message: SuccessMessageConstants.VET_CLINIC_HAS_BEEN_UNASSIGNED_SUCCESSFULLY };     
     }
 
     async findAllClinics(): Promise<MedivetClinic[]> {

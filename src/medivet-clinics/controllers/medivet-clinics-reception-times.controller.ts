@@ -15,7 +15,6 @@ import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
-import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
 import { MedivetRemoveClinicReceptionTimeDto } from '@/medivet-clinics/dto/medivet-remove-clinic-reception-time.dto';
 
 @ApiTags(ApiTagsConstants.RECEPTION_TIMES)
