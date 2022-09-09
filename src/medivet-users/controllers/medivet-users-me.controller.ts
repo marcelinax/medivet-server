@@ -4,11 +4,10 @@ import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exce
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Delete, Get, Post, Put, UploadedFile, UseGuards } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { UseInterceptors } from "@nestjs/common";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
-import { UpdateMedivetUserPasswordDto } from "@/medivet-users/dto/update-medivet-user-password.dto";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
@@ -16,7 +15,12 @@ import { MedivetAnonymizeUserService } from "@/medivet-users/services/medivet-an
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 import { MedivetUserProfilePhotosService } from "@/medivet-users/services/medivet-user-profile-photos.service";
 import { MedivetStorageUserProfilePhotoInterceptor } from "@/medivet-storage/interceptors/medivet-storage-user-profile-photo.interceptor";
-import { UpdateMedivetUserDto } from "@/medivet-users/dto/update-medivet-user.dto";
+import { MedivetUpdateUserDto } from "@/medivet-users/dto/medivet-update-user.dto";
+import { MedivetUpdateUserPasswordDto } from "@/medivet-users/dto/medivet-update-user-password.dto";
+import { MedivetRoleGuard } from '@/medivet-security/guards/medivet-role.guard';
+import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
+import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
+import { MedivetUpdateMyVetSpecializationsDto } from '@/medivet-users/dto/medivet-update-my-vet-specializations.dto';
 
 @ApiTags(ApiTagsConstants.USERS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -66,7 +70,7 @@ export class MedivetUsersMeController {
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Post(PathConstants.UPDATE_PASSWORD) 
-    updateMyPassword(@Body() updateUserPasswordDto: UpdateMedivetUserPasswordDto,
+    updateMyPassword(@Body() updateUserPasswordDto: MedivetUpdateUserPasswordDto,
         @CurrentUser() user: MedivetUser): Promise<MedivetUser>{
         const { oldPassword, newPassword } = updateUserPasswordDto;
         return this.usersService.updateUserPassword(
@@ -177,7 +181,35 @@ export class MedivetUsersMeController {
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Put()
-    async updateMe(@CurrentUser() user: MedivetUser, @Body() updateUserDto: UpdateMedivetUserDto): Promise<MedivetUser> {
+    async updateMe(@CurrentUser() user: MedivetUser, @Body() updateUserDto: MedivetUpdateUserDto): Promise<MedivetUser> {
         return this.usersService.updateUser(user, updateUserDto);
+    }
+
+    @ApiOperation({
+        summary: `Updates authorized vet specializations`,
+        description: 'Updates authorized vet specializations and returns vet data'
+    })
+    @ApiOkResponse({
+        description: 'Your vet specializations has been updated successfully',
+        type: MedivetUser
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiNotFoundResponse({
+        description: 'Specialization does not exist',
+        type: BadRequestException
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Put(PathConstants.VET_SPECIALIZATIONS)
+    async updateMyVetSpecializations(
+        @CurrentUser() user: MedivetUser,
+        @Body() updateMyVetSpecializationsDto: MedivetUpdateMyVetSpecializationsDto)
+        : Promise<MedivetUser> {
+        return this.usersService.updateMyVetSpecializations(user, updateMyVetSpecializationsDto);
     }
  }

@@ -4,7 +4,8 @@ import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from "class-validator";
-export class CreateMedivetUserDto {
+
+export class MedivetCreateUserDto {
     @ApiProperty({
         required: true,
         example: 'email@email.com'

@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsArray, IsDefined, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
 
-export class UpdateMedivetUserDto {
+export class MedivetUpdateUserDto {
     @ApiProperty({
         required: true,
         example: 'Jan Kowalski'

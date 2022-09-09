@@ -32,4 +32,5 @@ export class ErrorMessagesConstants {
     public static PRICE_LIST_WITH_SUCH_PARAMS_DOES_NOT_EXIST = 'Price list with such params does not exist.';
     public static VET_DOES_NOT_EXIST = 'Vet does not exist.';
     public static RELATIONSHIP_BETWEEN_CLINIC_AND_VET_WITH_SPECIALIZATIONS_DOES_NOT_EXIST = 'Relationship between clinic and vet with specializations does not exist.';
+    public static CANNOT_REMOVE_VET_SPECIALIZATION_WHICH_IS_ALREADY_IN_USE = 'Cannot remove vet specialization which is already in use.';
 }

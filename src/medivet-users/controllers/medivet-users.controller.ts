@@ -2,7 +2,6 @@ import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { ErrorExceptionDto } from "@/medivet-commons/dto/error-exception.dto";
-import { CreateMedivetUserDto } from "@/medivet-users/dto/create-medivet-user.dto";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
 import { ClassSerializerInterceptor, Get, Param, UseGuards } from "@nestjs/common";
@@ -14,6 +13,7 @@ import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { Role } from "../decorators/medivet-role.decorator";
 import { MedivetUserRole } from '@/medivet-users/enums/medivet-user-role.enum';
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
+import { MedivetCreateUserDto } from '@/medivet-users/dto/medivet-create-user.dto';
 
 @ApiTags(ApiTagsConstants.USERS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -38,7 +38,7 @@ export class MedivetUsersController {
         type: BadRequestExceptionDto
         })
     @Post()
-    createMedivetUser(@Body() body: CreateMedivetUserDto): Promise<MedivetUser> {
+    createMedivetUser(@Body() body: MedivetCreateUserDto): Promise<MedivetUser> {
         return this.usersService.createUser(body);
     }
 
