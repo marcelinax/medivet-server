@@ -87,4 +87,15 @@ export class MedivetClinicToVetWithSpecializationsService {
             else throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
         }
     }
+
+    async checkIfClinicIsAssigned(clinicId: number): Promise<boolean> {
+        const existingRelationship = await this.clinicToVetWithSpecializationsRepository.findOne({
+            where: {
+                clinic: {id: clinicId}
+            },
+            relations: ['clinic']
+        });
+       
+        return !!existingRelationship;
+    }
 }

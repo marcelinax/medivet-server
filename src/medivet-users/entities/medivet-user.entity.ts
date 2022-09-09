@@ -4,12 +4,13 @@ import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import {  MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Transform } from "class-transformer";
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
 import { MedivetClinicsReceptionTime } from "@/medivet-clinics/entities/medivet-clinics-reception-time.entity";
 import { MedivetOpinion } from '@/medivet-opinions/entities/medivet-opinion.entity';
 import { MedivetPriceList } from "@/medivet-price-lists/entities/medivet-price-list.entity";
 import { MedivetClinicToVetWithSpecializations } from "@/medivet-clinics/entities/medivet-clinic-to-vet-with-specializations.entity";
+import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
 
 const env = envConfig();
 
@@ -86,4 +87,8 @@ export class MedivetUser {
     @ApiProperty({ type: () => MedivetPriceList })
     @OneToMany(() => MedivetPriceList, priceList => priceList.vet)
     priceLists: MedivetPriceList[];
+
+    @ApiProperty({ type: () => MedivetClinic })
+    @OneToMany(() => MedivetClinic, clinic => clinic.creator)
+    createdClinics: MedivetClinic[];
 }

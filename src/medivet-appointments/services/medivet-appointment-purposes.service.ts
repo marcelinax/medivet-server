@@ -93,7 +93,7 @@ export class MedivetAppointmentPurposesService {
     }
 
     private checkIfVetAppointmentPurposeExists(vetId: number, clinicId: number, name: string): boolean {
-        return !this.findVetAppointmentPurpose(vetId, clinicId, name);
+        return !!this.findVetAppointmentPurpose(vetId, clinicId, name);
     }
 
 }

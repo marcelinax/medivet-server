@@ -21,13 +21,14 @@ export class MedivetClinicsService {
         private clinicToVetWithSpecializationsService: MedivetClinicToVetWithSpecializationsService
     ) { }
     
-    async createClinic(createClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {
+    async createClinic(vet: MedivetUser, createClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {
         if (await this.checkIfClinicAlreadyExists(createClinicDto))
             throw new BadRequestException([ErrorMessagesConstants.CLINIC_ALREADY_EXISTS]);
         
         const newClinic = this.clinicsRepository.create({
             name: createClinicDto.name,
-            address: createClinicDto.address
+            address: createClinicDto.address,
+            creator: vet
         });
         await this.clinicsRepository.save(newClinic);
         return newClinic;
@@ -44,7 +45,8 @@ export class MedivetClinicsService {
                 'vets.vet.receptionTimes.clinic',
                 'vets.vet.specializations',
                 'receptionTimes',
-                'receptionTimes.clinic'
+                'receptionTimes.clinic',
+                'creator'
             ], 
         });
 
@@ -102,7 +104,8 @@ export class MedivetClinicsService {
                 'vets.vet.receptionTimes.clinic',
                 'vets.vet.specializations',
                 'receptionTimes',
-                'receptionTimes.clinic'
+                'receptionTimes.clinic',
+                'creator'
         ]});
     }
 
@@ -155,6 +158,21 @@ export class MedivetClinicsService {
 
     private paginateClinics(clinics: MedivetClinic[], offset: number, pageSize: number): MedivetClinic[] {
         return clinics.filter((_, index) => index >= offset && index < offset + pageSize);
+    }
+
+    async removeClinic(clinicId: number, vet: MedivetUser): Promise<void> {
+        const clinic = await this.findClinicById(clinicId);
+
+        if (clinic) {
+            if (clinic?.creator?.id === vet.id) {
+                const isClinicInUse = await this.clinicToVetWithSpecializationsService.checkIfClinicIsAssigned(clinicId);
+                if (isClinicInUse)
+                    throw new BadRequestException([ErrorMessagesConstants.CANNOT_REMOVE_VET_CLINIC_WHICH_IS_IN_USE]);
+               
+                await this.clinicsRepository.remove(clinic);
+            }
+            else throw new BadRequestException([ErrorMessagesConstants.YOU_ARE_NOT_ABLE_TO_REMOVE_THIS_VET_CLINIC]);
+        }
     }
 
 }

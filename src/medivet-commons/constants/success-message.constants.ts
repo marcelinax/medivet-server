@@ -7,4 +7,5 @@ export class SuccessMessageConstants {
     public static CHANGED_PASSWORD = 'Password has been changed successfully.';
     public static DELETED_RECEPTION_TIME = 'Reception time has been deleted successfully.';
     public static VET_CLINIC_HAS_BEEN_UNASSIGNED_SUCCESSFULLY = 'Vet clinic has been unassigned successfully.';
+    public static VET_CLINIC_HAS_BEEN_REMOVED_SUCCESSFULLY = 'Vet clinic has been removed successfully.';
 }

@@ -16,6 +16,7 @@ import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exce
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 import { MedivetAssignVetToClinicDto } from '@/medivet-clinics/dto/medivet-assign-vet-to-clinic.dto';
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
+import { SuccessMessageConstants } from '@/medivet-commons/constants/success-message.constants';
 
 @ApiTags(ApiTagsConstants.CLINICS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -46,9 +47,10 @@ export class MedivetClinicsController {
     @UseGuards(JwtAuthGuard)
     @Post() 
     async createClinic(
+        @CurrentUser() user: MedivetUser,
         @Body() createClinicDto: MedivetCreateClinicDto
     ): Promise<MedivetClinic> {
-        return this.clinicsService.createClinic(createClinicDto);
+        return this.clinicsService.createClinic(user, createClinicDto);
     }
 
     @ApiOperation({
@@ -191,5 +193,35 @@ export class MedivetClinicsController {
     @Get(PathConstants.ID_PARAM) 
     async getClinic(@Param('id') clinicId: number): Promise<MedivetClinic> {
         return this.clinicsService.findClinicById(clinicId);
+    }
+
+    @ApiOperation({
+        summary: 'Removes existing clinic',
+        description: 'Enables only when user is its creator and clinic is not in used'
+    })
+    @ApiBadRequestResponse({
+        description: 'You cannot remove clinic which is in use / You are not a clinic creator',
+        type: BadRequestExceptionDto
+    })
+    @ApiOkResponse({
+        description: 'Clinic has been removed successfully',
+        type: OkMessageDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Delete(PathConstants.ID_PARAM)
+    async removeClinic(
+        @CurrentUser() user: MedivetUser,
+        @Param('id') clinicId: number
+    )
+        : Promise<OkMessageDto> {
+        await this.clinicsService.removeClinic(clinicId, user);
+        return { message: SuccessMessageConstants.VET_CLINIC_HAS_BEEN_REMOVED_SUCCESSFULLY };
     }
 }
