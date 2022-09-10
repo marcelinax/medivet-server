@@ -35,4 +35,5 @@ export class ErrorMessagesConstants {
     public static CANNOT_REMOVE_VET_SPECIALIZATION_WHICH_IS_ALREADY_IN_USE = 'Cannot remove vet specialization which is already in use.';
     public static YOU_ARE_NOT_ABLE_TO_REMOVE_THIS_VET_CLINIC = 'You are not able to remove this vet clinic.';
     public static CANNOT_REMOVE_VET_CLINIC_WHICH_IS_IN_USE = 'Cannot remove vet clinic which is in use';
+    public static YOU_ARE_NOT_ABLE_TO_UPDATE_THIS_VET_CLINIC = 'You are not able to update this vet clinic.';
 }

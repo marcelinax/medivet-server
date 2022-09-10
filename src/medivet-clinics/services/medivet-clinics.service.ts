@@ -175,4 +175,20 @@ export class MedivetClinicsService {
         }
     }
 
+    async updateClinic(clinicId: number, vet: MedivetUser, updateClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {
+        const clinic = await this.findClinicById(clinicId);
+        const { address, name } = updateClinicDto;
+
+        if (clinic) {
+            if (clinic?.creator?.id === vet.id) {
+                clinic.address = { ...address };
+                clinic.name = name;
+
+                await this.clinicsRepository.save(clinic);
+                return clinic;
+            }
+            else throw new BadRequestException([ErrorMessagesConstants.YOU_ARE_NOT_ABLE_TO_UPDATE_THIS_VET_CLINIC]);
+        }
+    }
+
 }

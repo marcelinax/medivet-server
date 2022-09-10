@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
@@ -223,5 +223,38 @@ export class MedivetClinicsController {
         : Promise<OkMessageDto> {
         await this.clinicsService.removeClinic(clinicId, user);
         return { message: SuccessMessageConstants.VET_CLINIC_HAS_BEEN_REMOVED_SUCCESSFULLY };
+    }
+
+    @ApiOperation({
+        summary: 'Updates existing vet clinic',
+        description: 'Updates existing vet clinic by id and returns it'
+    })
+    @ApiOkResponse({
+        description: 'Vet clinic has been updated successfully',
+        type: MedivetClinic
+    })
+    @ApiBadRequestResponse({
+        description: 'Invalid array form',
+        type: BadRequestExceptionDto
+    })
+    @ApiNotFoundResponse({
+        description: 'Clinic id does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Put(PathConstants.ID_PARAM)
+    async updateClinic(
+        @CurrentUser() user: MedivetUser,
+        @Param('id') clinicId: number,
+        @Body() updateClinicDto: MedivetCreateClinicDto
+    ): Promise<MedivetClinic> {
+        return await this.clinicsService.updateClinic(clinicId, user, updateClinicDto);
     }
 }
