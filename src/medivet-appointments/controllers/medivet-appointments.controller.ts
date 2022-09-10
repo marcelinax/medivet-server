@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Post, Put, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Post, Put, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
@@ -13,6 +13,7 @@ import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { MedivetCreateAppointmentPurposeDto } from '@/medivet-appointments/dto/medivet-create-appointment-purpose.dto';
+import { MedivetSearchAppointmentPurposeDto } from '@/medivet-appointments/dto/medivet-search-appointment-purpose.dto';
 
 @ApiTags(ApiTagsConstants.APPOINTMENTS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -84,5 +85,44 @@ export class MedivetAppointmentsController {
         @Body() body: MedivetCreateAppointmentPurposeDto
     ): Promise<MedivetAppointmentPurpose> {
         return this.appointmentPurposesService.updateAppointmentPurpose(user, body);
+    }
+
+    @ApiOperation({
+        summary: `Search authorized vet's appointment purposes`,
+        description: 'Only gets appointment purposes which are associated with clinic and specialization'
+    })
+    @ApiOkResponse({
+        description: `Returns list of all authorized vet's appointment purposes`,
+        type: MedivetAppointmentPurpose,
+        isArray: true
+    })
+    @ApiBadRequestResponse({
+        description: 'Appointment purposes is not associated with clinic and specialization',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Get(`${PathConstants.PURPOSE}/${PathConstants.SEARCH}`)
+    async searchAppointmentPurposes(
+        @CurrentUser() user: MedivetUser,
+        @Query('clinicId') clinicId: number,
+        @Query('specializationId') specializationId: number,
+        @Query('name') name: string,
+        @Query('pageSize') pageSize: number,
+        @Query('offset') offset: number,
+    ): Promise<MedivetAppointmentPurpose[]> {
+        return this.appointmentPurposesService.searchAppointmentPurposes(user, {
+            clinicId,
+            specializationId,
+            name,
+            pageSize,
+            offset
+        });
     }
 }

@@ -7,6 +7,7 @@ import { MedivetCreateAppointmentPurposeDto } from "@/medivet-appointments/dto/m
 import { MedivetVetSpecializationService } from '@/medivet-users/services/medivet-vet-specialization.service';
 import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { MedivetSearchAppointmentPurposeDto } from '@/medivet-appointments/dto/medivet-search-appointment-purpose.dto';
 
 @Injectable()
 export class MedivetAppointmentPurposesService {
@@ -83,6 +84,15 @@ export class MedivetAppointmentPurposesService {
             .findOne({ where: { vet: { id: vetId }, clinic: { id: clinicId }, name, }, relations: ['clinic', 'vet'] });
     }
 
+    async findAllVetAppointmentPurposes(vetId: number, clinicId: number): Promise<MedivetAppointmentPurpose[]> {
+        return this.appointmentPurposesRepository.find({
+            where: {
+                vet: { id: vetId },
+                clinic: { id: clinicId }
+            }
+        });
+    }
+
     private checkIfVetHasThisSpecialization(specialization: MedivetVetSpecialization, vet: MedivetUser): boolean {
         const possibleSpecialization = vet.specializations.find(spec => spec.id === specialization.id);
         return !!possibleSpecialization;
@@ -94,6 +104,29 @@ export class MedivetAppointmentPurposesService {
 
     private checkIfVetAppointmentPurposeExists(vetId: number, clinicId: number, name: string): boolean {
         return !!this.findVetAppointmentPurpose(vetId, clinicId, name);
+    }
+
+    async searchAppointmentPurposes(vet: MedivetUser, searchAppointmentPurposeDto: MedivetSearchAppointmentPurposeDto): Promise<MedivetAppointmentPurpose[]> {
+        const { clinicId, specializationId, name } = searchAppointmentPurposeDto;
+       
+        let appointmentPurposes = await this.findAllVetAppointmentPurposes(vet.id, clinicId);
+        const priceList = vet.priceLists.find(priceList => priceList.specialization.id === specializationId);
+
+        if (priceList) {
+            if (name) {
+                appointmentPurposes = appointmentPurposes.filter(purpose => purpose.name.toLowerCase().includes(name.toLowerCase()));
+            }
+
+            const pageSize = searchAppointmentPurposeDto.pageSize || 10;
+            const offset = searchAppointmentPurposeDto.offset || 0;
+
+            return this.paginateAppointmentPurposes(appointmentPurposes, pageSize, offset);
+        }
+        else throw new NotFoundException([ErrorMessagesConstants.PRICE_LIST_FOR_THIS_CLINIC_AND_SPECIALIZATION_IN_VET_PRICE_LISTS_DOES_NOT_EXIST]);
+    }
+
+    private paginateAppointmentPurposes(purposes: MedivetAppointmentPurpose[], pageSize: number, offset: number): MedivetAppointmentPurpose[] {
+        return purposes.filter((_, index) => index >= offset && index < offset + pageSize);
     }
 
 }

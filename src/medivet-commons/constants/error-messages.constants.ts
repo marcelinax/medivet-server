@@ -36,4 +36,5 @@ export class ErrorMessagesConstants {
     public static YOU_ARE_NOT_ABLE_TO_REMOVE_THIS_VET_CLINIC = 'You are not able to remove this vet clinic.';
     public static CANNOT_REMOVE_VET_CLINIC_WHICH_IS_IN_USE = 'Cannot remove vet clinic which is in use';
     public static YOU_ARE_NOT_ABLE_TO_UPDATE_THIS_VET_CLINIC = 'You are not able to update this vet clinic.';
+    public static PRICE_LIST_FOR_THIS_CLINIC_AND_SPECIALIZATION_IN_VET_PRICE_LISTS_DOES_NOT_EXIST = 'Price list for this clinic and specialization in vet price lists does not exist.';
 }
