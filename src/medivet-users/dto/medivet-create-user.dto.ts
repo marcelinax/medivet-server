@@ -3,7 +3,7 @@ import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsBoolean, IsDate, IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from "class-validator";
 
 export class MedivetCreateUserDto {
     @ApiProperty({
@@ -57,4 +57,11 @@ export class MedivetCreateUserDto {
     @IsNotEmpty()
     @IsEnum(MedivetUserRole)
     role: MedivetUserRole;
+
+    @ApiProperty({
+        example: true,
+        required: true
+    })
+    @IsBoolean()
+    acceptTerms: boolean;
 }

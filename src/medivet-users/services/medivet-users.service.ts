@@ -25,6 +25,8 @@ export class MedivetUsersService {
 
         if (userWithExistingEmail) throw new BadRequestException(ErrorMessagesConstants.USER_WITH_THIS_EMAIL_ALREADY_EXISTS);
         this.validateUserBirthDate(user);
+        if (!user.acceptTerms)
+            throw new BadRequestException([ErrorMessagesConstants.TERMS_ARE_NOT_ACCEPTED]);
 
         const hashedPassword = await this.hashingService.hashValue(user.password);
 
