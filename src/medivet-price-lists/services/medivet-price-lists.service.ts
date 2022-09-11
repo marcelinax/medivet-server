@@ -96,4 +96,17 @@ export class MedivetPriceListsService {
             return priceList;
         }
     }
+
+    async findAllMyPriceLists(vet: MedivetUser): Promise<MedivetPriceList[]> {
+        return this.priceListsRepository.find({
+            where: {
+                vet: { id: vet.id },
+            },
+            relations: [
+                'purposes',
+                'clinic',
+                'specialization'
+            ]
+        });
+    }
 }

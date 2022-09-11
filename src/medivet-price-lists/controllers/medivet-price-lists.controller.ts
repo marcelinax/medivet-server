@@ -120,4 +120,26 @@ export class MedivetPriceListsController {
     ): Promise<MedivetPriceList> {
         return this.priceListsService.assignAppointmentPurposesToPriceList(user, priceListId, body);
     }
+
+    @ApiOperation({
+        summary: 'Gets price lists for authorized vet',
+        description: 'Returns list of all price lists related with authorized vet'
+    })
+    @ApiOkResponse({
+        description: `Returns list of all price lists related with authorized vet`,
+        type: MedivetPriceList,
+        isArray: true
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Get(PathConstants.MY)
+    async getAllMyPriceLists(@CurrentUser() user: MedivetUser): Promise<MedivetPriceList[]> {
+        return this.priceListsService.findAllMyPriceLists(user);
+    }
 }
