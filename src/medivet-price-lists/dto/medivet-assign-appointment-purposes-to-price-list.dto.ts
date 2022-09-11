@@ -4,7 +4,8 @@ import { IsArray } from "class-validator";
 
 export class MedivetAssignAppointmentPurposesToPriceListDto extends MedivetGetMyPriceListDto {
     @ApiProperty({
-        example: [1, 2]
+        example: [1, 2],
+        required: true
     })
     @IsArray()
     purposesIds: number[];

@@ -6,44 +6,50 @@ import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-
 
 export class MedivetSearchVetDto extends OffsetPaginationDto {
     @ApiProperty({
-        example: 'Jan Kowalski'
+        example: 'Jan Kowalski',
+        required: false
     })
     @IsOptional()
     @IsString()
-    name: string;
+    name?: string;
 
     @ApiProperty({
-        example: '1,2'
+        example: '1,2',
+        required: false
     })
     @IsOptional()
     @IsString()
-    specializationIds: string;
+    specializationIds?: string;
 
     @ApiProperty({
-        example: 'Kraków'
+        example: 'Kraków',
+        required: false
     })
     @IsOptional()
     @IsString()
-    city: string;
+    city?: string;
 
     @ApiProperty({
-        example: MedivetGenderEnum.FEMALE
+        example: MedivetGenderEnum.FEMALE,
+        required: false
     })
     @IsEnum(MedivetGenderEnum)
     @IsOptional()
-    gender: MedivetGenderEnum;
+    gender?: MedivetGenderEnum;
 
     @ApiProperty({
-        example: MedivetSortingModeEnum.ASC
+        example: MedivetSortingModeEnum.ASC,
+        required: false
     })
     @IsOptional()
     @IsEnum(MedivetSortingModeEnum)
-    sortingMode: MedivetSortingModeEnum;
+    sortingMode?: MedivetSortingModeEnum;
 
     @ApiProperty({
-        example: 'Medvet'
+        example: 'Medvet',
+        required: false
     })
     @IsOptional()
     @IsString()
-    clinicName: string;
+    clinicName?: string;
 }

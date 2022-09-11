@@ -22,7 +22,8 @@ export class MedivetCreateClinicDto {
     address: AddressDto;
 
     @ApiProperty({
-        example: '48123789123'
+        example: '48123789123',
+        required: false
     })
     @IsPhoneNumber('PL')
     @IsString()

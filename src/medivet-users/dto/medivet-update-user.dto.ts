@@ -14,22 +14,28 @@ export class MedivetUpdateUserDto {
 
     @ApiProperty({
         default: '',
-        example: '48123789123'
+        example: '48123789123',
+        required: false
     })
     @IsOptional()
     @IsPhoneNumber('PL')
     @IsString()
     phoneNumber?: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        required: true
+    })
     @IsNotEmpty()
     @IsDefined()
     @ValidateNested()
     @Type(() => AddressDto)
     address: AddressDto;
 
-    @ApiProperty({default: []})
+    @ApiProperty({
+        default: [],
+        required: false
+    })
     @IsArray()
     @IsOptional()
-    specializationIds: number[];
+    specializationIds?: number[];
 }

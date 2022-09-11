@@ -5,7 +5,8 @@ import { IsEnum, IsOptional } from "class-validator";
 
 export class MedivetSearchOpinionDto extends OffsetPaginationDto {
     @ApiProperty({
-        example: MedivetSortingModeEnum.NEWEST
+        example: MedivetSortingModeEnum.NEWEST,
+        required: false
     })
     @IsOptional()
     @IsEnum(MedivetSortingModeEnum)

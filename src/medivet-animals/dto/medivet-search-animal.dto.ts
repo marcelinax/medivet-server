@@ -5,14 +5,16 @@ import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-
 
 export class MedivetSearchAnimalDto extends OffsetPaginationDto {
     @ApiProperty({
-        example: 'Casper'
+        example: 'Casper',
+        required: false
     })
     @IsOptional()
     @IsString()
     animalName?: string;
 
     @ApiProperty({
-        example: MedivetSortingModeEnum.ASC
+        example: MedivetSortingModeEnum.ASC,
+        required: false
     })
     @IsOptional()
     @IsEnum(MedivetSortingModeEnum)

@@ -22,7 +22,8 @@ export class MedivetSearchAppointmentPurposeDto extends OffsetPaginationDto {
     clinicId: number;
 
     @ApiProperty({
-        example: "Szczepienie"
+        example: "Szczepienie",
+        required: false
     })
     @IsOptional()
     @IsString()

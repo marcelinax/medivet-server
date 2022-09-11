@@ -5,35 +5,40 @@ import { IsEnum, IsNumber, IsOptional, IsPositive, IsString } from "class-valida
 
 export class MedivetSearchClinicDto extends OffsetPaginationDto {
     @ApiProperty({
-        example: 'Medvet'
+        example: 'Medvet',
+        required: false
     })
     @IsOptional()
     @IsString()
     name?: string;
 
     @ApiProperty({
-        example: 'Kraków'
+        example: 'Kraków',
+        required: false
     })
     @IsOptional()
     @IsString()
     city?: string;
 
     @ApiProperty({
-        example: 'Wesoła'
+        example: 'Wesoła',
+        required: false
     })
     @IsOptional()
     @IsString()
     street?: string;
 
     @ApiProperty({
-        example: '31-900'
+        example: '31-900',
+        required: false
     })
     @IsOptional()
     @IsString()
     zipCode?: string;
 
     @ApiProperty({
-        example: 120
+        example: 120,
+        required: false
     })
     @IsOptional()
     @IsNumber()
@@ -41,7 +46,8 @@ export class MedivetSearchClinicDto extends OffsetPaginationDto {
     buildingNumber?: number;
 
     @ApiProperty({
-        example: 11
+        example: 11,
+        required: false
     })
     @IsOptional()
     @IsNumber()
@@ -49,7 +55,8 @@ export class MedivetSearchClinicDto extends OffsetPaginationDto {
     flatNumber?: number;
 
     @ApiProperty({
-        example: MedivetSortingModeEnum.DESC
+        example: MedivetSortingModeEnum.DESC,
+        required: false
     })
     @IsOptional()
     @IsEnum(MedivetSortingModeEnum)

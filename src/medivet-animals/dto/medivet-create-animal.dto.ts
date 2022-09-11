@@ -41,7 +41,8 @@ export class MedivetCreateAnimalDto {
     breed: string;
 
     @ApiProperty({
-        example: 'Jednolite'
+        example: 'Jednolite',
+        required: false
     })
     @IsString()
     @IsOptional()
