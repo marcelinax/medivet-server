@@ -9,6 +9,8 @@ import { MedivetUpdateUserDto } from '@/medivet-users/dto/medivet-update-user.dt
 import { MedivetCreateUserDto } from "@/medivet-users/dto/medivet-create-user.dto";
 import { MedivetUpdateMyVetSpecializationsDto } from "@/medivet-users/dto/medivet-update-my-vet-specializations.dto";
 import { MedivetVetSpecializationService } from '@/medivet-users/services/medivet-vet-specialization.service';
+import { MedivetSearchVetDto } from "@/medivet-users/dto/medivet-search-vet.dto";
+import { MedivetSortingModeEnum } from '@/medivet-commons/enums/medivet-sorting-mode.enum';
 
 @Injectable()
 export class MedivetUsersService {
@@ -146,5 +148,78 @@ export class MedivetUsersService {
         vet.specializations = [...specializations];
         await this.saveUser(vet);
         return vet;
+    }
+
+    async searchVets(searchVetDto: MedivetSearchVetDto): Promise<MedivetUser[]> {
+        const { city, gender, name, sortingMode, specializationIds, clinicName } = searchVetDto;
+        let vets = await this.usersRepository.find({
+            where: {
+                role: MedivetUserRole.VET
+            },
+            relations: [
+                'specializations',
+                'clinics',
+                'clinics.clinic',
+                'opinions',
+                'receptionTimes',
+                'priceLists',
+            ]
+        });
+        
+        if (city) {
+            vets = vets.filter(vet => vet?.address?.city?.toLowerCase() === city.toLowerCase());
+        }
+
+        if (gender) {
+            vets = vets.filter(vet => vet.gender === gender);
+        }
+
+        if (name) {
+            vets = vets.filter(vet => vet.name.toLowerCase().includes(name.toLowerCase()));
+        }
+
+        if (specializationIds) {
+            const specializationIdsArray = specializationIds.split(',').map(id => +id);
+            vets = vets.filter(vet => vet.specializations.some(spec => specializationIdsArray.includes(spec.id)));
+        }
+
+        if (clinicName) {
+            vets = vets.filter(vet => vet.clinics.some(clinic => clinic?.clinic?.name?.toLowerCase()?.includes(clinicName.toLowerCase())));
+        }
+
+        if (sortingMode) {
+            vets = vets.sort((a, b) => {
+                const aName: string = a.name.toLowerCase();
+                const bName: string = b.name.toLowerCase();
+                const aOpinions = a.opinions;
+                const bOpinions = b.opinions;
+                const aOpinionsAverageRate = aOpinions.length === 0 ? 0 : aOpinions.reduce((acc, cur) => acc + cur.rate, 0) / aOpinions.length;
+                const bOpinionsAverageRate = bOpinions.length === 0 ? 0 : bOpinions.reduce((acc, cur) => acc + cur.rate, 0) / bOpinions.length;
+                
+                switch (sortingMode) {
+                    case MedivetSortingModeEnum.ASC:
+                        return aName.localeCompare(bName);
+                    case MedivetSortingModeEnum.DESC:
+                        return bName.localeCompare(aName);
+                    case MedivetSortingModeEnum.HIGHEST_RATE: 
+                        return bOpinionsAverageRate - aOpinionsAverageRate;
+                    case MedivetSortingModeEnum.LOWEST_RATE: 
+                        return aOpinionsAverageRate - bOpinionsAverageRate;
+                    case MedivetSortingModeEnum.MOST_OPINIONS: 
+                        return bOpinions.length - aOpinions.length;
+                    case MedivetSortingModeEnum.LEAST_OPINIONS: 
+                        return aOpinions.length - bOpinions.length;
+                }
+            })
+        }
+
+        const pageSize = searchVetDto.pageSize || 10;
+        const offset = searchVetDto.offset || 0;
+
+        return this.paginateVets(vets, pageSize, offset);
+    }
+
+    private paginateVets(vets: MedivetUser[], pageSize: number, offset: number): MedivetUser[] {
+        return vets.filter((_, index) => index >= offset && index < pageSize + offset);
     }
 }
