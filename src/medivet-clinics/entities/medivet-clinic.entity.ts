@@ -20,6 +20,10 @@ export class MedivetClinic {
     address: AddressDto;
 
     @ApiProperty()
+    @Column({ nullable: false })
+    phoneNumber: string;
+
+    @ApiProperty()
     @OneToMany(() => MedivetClinicToVetWithSpecializations, ctv => ctv.clinic)
     vets: MedivetClinicToVetWithSpecializations[];
 

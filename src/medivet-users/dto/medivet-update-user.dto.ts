@@ -17,7 +17,7 @@ export class MedivetUpdateUserDto {
         example: '48123789123'
     })
     @IsOptional()
-    @IsPhoneNumber()
+    @IsPhoneNumber('PL')
     @IsString()
     phoneNumber?: string;
 

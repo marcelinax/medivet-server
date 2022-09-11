@@ -28,6 +28,7 @@ export class MedivetClinicsService {
         const newClinic = this.clinicsRepository.create({
             name: createClinicDto.name,
             address: createClinicDto.address,
+            phoneNumber: createClinicDto.phoneNumber,
             creator: vet
         });
         await this.clinicsRepository.save(newClinic);
@@ -177,12 +178,13 @@ export class MedivetClinicsService {
 
     async updateClinic(clinicId: number, vet: MedivetUser, updateClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {
         const clinic = await this.findClinicById(clinicId);
-        const { address, name } = updateClinicDto;
+        const { address, name, phoneNumber } = updateClinicDto;
 
         if (clinic) {
             if (clinic?.creator?.id === vet.id) {
                 clinic.address = { ...address };
                 clinic.name = name;
+                clinic.phoneNumber = phoneNumber;
 
                 await this.clinicsRepository.save(clinic);
                 return clinic;
