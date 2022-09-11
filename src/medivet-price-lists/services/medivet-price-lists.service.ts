@@ -109,4 +109,18 @@ export class MedivetPriceListsService {
             ]
         });
     }
+
+    async findAllMyPriceListsRelatedWithClinic(vet: MedivetUser, clinicId: number): Promise<MedivetPriceList[]> {
+        return this.priceListsRepository.find({
+            where: {
+                vet: { id: vet.id },
+                clinic: {id: clinicId}
+            },
+            relations: [
+                'purposes',
+                'clinic',
+                'specialization'
+            ]
+        });
+    }
 }

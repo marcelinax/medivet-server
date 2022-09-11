@@ -29,4 +29,5 @@ export class PathConstants {
     public static PURPOSE = 'purpose';
     public static ASSIGN_APPOINTMENT_PURPOSES = 'assign-appointment-purposes';
     public static VET = 'vet';
+    public static CLINIC = 'clinic';
 }

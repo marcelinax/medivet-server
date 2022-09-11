@@ -57,6 +57,53 @@ export class MedivetPriceListsController {
     }
 
     @ApiOperation({
+        summary: 'Gets price lists for authorized vet',
+        description: 'Returns list of all price lists related with authorized vet'
+    })
+    @ApiOkResponse({
+        description: `Returns list of all price lists related with authorized vet`,
+        type: MedivetPriceList,
+        isArray: true
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Get(PathConstants.MY)
+    async getAllMyPriceLists(@CurrentUser() user: MedivetUser): Promise<MedivetPriceList[]> {
+        return this.priceListsService.findAllMyPriceLists(user);
+    }
+
+    @ApiOperation({
+        summary: 'Gets price lists for authorized vet related with his clinic',
+        description: 'Returns list of all price lists related with authorized vet and his clinic'
+    })
+    @ApiOkResponse({
+        description: `Returns list of all price lists related with authorized vet and his clinic`,
+        type: MedivetPriceList,
+        isArray: true
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Get(`${PathConstants.MY}/${PathConstants.CLINIC}${PathConstants.ID_PARAM}`)
+    async getAllMyPriceListsRelatedToClinic(
+        @CurrentUser() user: MedivetUser,
+        @Param('id') clinicId: number
+    ): Promise<MedivetPriceList[]> {
+        return this.priceListsService.findAllMyPriceListsRelatedWithClinic(user, clinicId);
+    }
+
+    @ApiOperation({
         summary: 'Gets price list for authorized vet',
         description: 'Returns price list by assigned clinic and specialization'
     })
@@ -119,27 +166,5 @@ export class MedivetPriceListsController {
         @Body() body: MedivetAssignAppointmentPurposesToPriceListDto
     ): Promise<MedivetPriceList> {
         return this.priceListsService.assignAppointmentPurposesToPriceList(user, priceListId, body);
-    }
-
-    @ApiOperation({
-        summary: 'Gets price lists for authorized vet',
-        description: 'Returns list of all price lists related with authorized vet'
-    })
-    @ApiOkResponse({
-        description: `Returns list of all price lists related with authorized vet`,
-        type: MedivetPriceList,
-        isArray: true
-    })
-    @ApiUnauthorizedResponse({
-        description: 'Bad authorization',
-        type: UnathorizedExceptionDto
-    })
-    @ApiBearerAuth()
-    @UseGuards(MedivetRoleGuard)
-    @Role(MedivetUserRole.VET)
-    @UseGuards(JwtAuthGuard)
-    @Get(PathConstants.MY)
-    async getAllMyPriceLists(@CurrentUser() user: MedivetUser): Promise<MedivetPriceList[]> {
-        return this.priceListsService.findAllMyPriceLists(user);
     }
 }
