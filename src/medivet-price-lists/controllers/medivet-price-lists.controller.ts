@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, Param, Post, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Param, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
@@ -74,8 +74,17 @@ export class MedivetPriceListsController {
     @Role(MedivetUserRole.VET)
     @UseGuards(JwtAuthGuard)
     @Get(PathConstants.MY)
-    async getAllMyPriceLists(@CurrentUser() user: MedivetUser): Promise<MedivetPriceList[]> {
-        return this.priceListsService.findAllMyPriceLists(user);
+    async getAllMyPriceLists(
+        @CurrentUser() user: MedivetUser,
+        @Query('pageSize') pageSize: number,
+        @Query('offset') offset: number
+    ): Promise<MedivetPriceList[]> {
+        return this.priceListsService.findAllMyPriceLists(
+            user,
+            {
+                pageSize, offset
+            }
+        );
     }
 
     @ApiOperation({
@@ -98,9 +107,16 @@ export class MedivetPriceListsController {
     @Get(`${PathConstants.MY}/${PathConstants.CLINIC}${PathConstants.ID_PARAM}`)
     async getAllMyPriceListsRelatedToClinic(
         @CurrentUser() user: MedivetUser,
-        @Param('id') clinicId: number
+        @Param('id') clinicId: number,
+        @Query('pageSize') pageSize: number,
+        @Query('offset') offset: number
     ): Promise<MedivetPriceList[]> {
-        return this.priceListsService.findAllMyPriceListsRelatedWithClinic(user, clinicId);
+        return this.priceListsService.findAllMyPriceListsRelatedWithClinic(
+            user, 
+            clinicId, {
+            pageSize,
+            offset
+        });
     }
 
     @ApiOperation({

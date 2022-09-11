@@ -8,6 +8,7 @@ import { ErrorMessagesConstants } from '@/medivet-commons/constants/error-messag
 import { MedivetGetMyPriceListDto } from '@/medivet-price-lists/dto/medivet-get-my-price-list.dto';
 import { MedivetAssignAppointmentPurposesToPriceListDto } from '@/medivet-price-lists/dto/medivet-assign-appointment-purposes-to-price-list.dto';
 import { MedivetAppointmentPurposesService } from '@/medivet-appointments/services/medivet-appointment-purposes.service';
+import { OffsetPaginationDto } from '@/medivet-commons/dto/offset-pagination.dto';
 
 @Injectable()
 export class MedivetPriceListsService {
@@ -97,8 +98,8 @@ export class MedivetPriceListsService {
         }
     }
 
-    async findAllMyPriceLists(vet: MedivetUser): Promise<MedivetPriceList[]> {
-        return this.priceListsRepository.find({
+    async findAllMyPriceLists(vet: MedivetUser, offsetPaginationDto: OffsetPaginationDto): Promise<MedivetPriceList[]> {
+        const priceLists = await this.priceListsRepository.find({
             where: {
                 vet: { id: vet.id },
             },
@@ -108,10 +109,15 @@ export class MedivetPriceListsService {
                 'specialization'
             ]
         });
+
+        const pageSize = offsetPaginationDto.pageSize || 10;
+        const offset = offsetPaginationDto.offset || 0;
+
+        return this.paginatePriceLists(priceLists, pageSize, offset);
     }
 
-    async findAllMyPriceListsRelatedWithClinic(vet: MedivetUser, clinicId: number): Promise<MedivetPriceList[]> {
-        return this.priceListsRepository.find({
+    async findAllMyPriceListsRelatedWithClinic(vet: MedivetUser, clinicId: number, offsetPaginationDto: OffsetPaginationDto): Promise<MedivetPriceList[]> {
+        const priceLists = await this.priceListsRepository.find({
             where: {
                 vet: { id: vet.id },
                 clinic: {id: clinicId}
@@ -122,5 +128,14 @@ export class MedivetPriceListsService {
                 'specialization'
             ]
         });
+
+        const pageSize = offsetPaginationDto.pageSize || 10;
+        const offset = offsetPaginationDto.offset || 0;
+
+        return this.paginatePriceLists(priceLists, pageSize, offset);
+    }
+
+    private paginatePriceLists(priceLists: MedivetPriceList[], pageSize: number, offset: number): MedivetPriceList[] {
+        return priceLists.filter((_, index) => index >= offset && index < offset + pageSize);
     }
 }
