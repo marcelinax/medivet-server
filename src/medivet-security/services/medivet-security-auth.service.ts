@@ -35,7 +35,7 @@ export class MedivetSecurityAuthService {
         return user;
     }
 
-    async login(authLoginDto: MedivetAuthLoginDto) {
+    async login(authLoginDto: MedivetAuthLoginDto) {        
         const user = await this.validateUser(authLoginDto.email, authLoginDto.password);
 
         const authToken = this.jwtService.sign({id: user.id});
@@ -43,9 +43,9 @@ export class MedivetSecurityAuthService {
         await this.authTokenRepository.insert({
             token: "Bearer " + authToken,
             user: user,
-        });
+        });        
 
-        return authToken;
+        return {access_token: authToken, token_type: "Bearer"};
     }
 
     async validateAuthToken(token: string): Promise<boolean> {
