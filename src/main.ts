@@ -1,9 +1,8 @@
 import { ValidationPipe } from '@nestjs/common';
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { version } from '../package.json';
 import { MedivetAppModule } from '@/medivet-app/medivet-app.module';
-import { MedivetRoleGuard } from '@/medivet-security/guards/medivet-role.guard';
 
 async function bootstrap() {
   const appListenPort = process.env.LISTEN_PORT || 3002;

@@ -10,7 +10,9 @@ import { MedivetStaticModule } from '@/medivet-static/medivet-static.module';
 import { MedivetUsersModule } from '@/medivet-users/medivet-users.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from "@nestjs/serve-static";
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -27,6 +29,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       database: process.env.DB_DATABASE_NAME,
       entities: ["dist/**/*.entity{.ts,.js}"],
       synchronize: true
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "../../..", "storage"),
+      serveRoot: "/storage",
     }),
     MedivetUsersModule,
     MedivetSecurityModule,
