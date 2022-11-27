@@ -1,7 +1,9 @@
+import { ValidationMessagesConstants } from "@/medivet-commons/constants/validation-messages.constants";
 import { AddressDto } from "@/medivet-commons/dto/address.dto";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsArray, IsDefined, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
+import { Transform, Type } from "class-transformer";
+import { IsArray, IsDate, IsDefined, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
 
 export class MedivetUpdateUserDto {
     @ApiProperty({
@@ -30,6 +32,25 @@ export class MedivetUpdateUserDto {
     @ValidateNested()
     @Type(() => AddressDto)
     address: AddressDto;
+
+    @ApiProperty({
+        required: true,
+        enum: MedivetGenderEnum,
+    })
+    @IsNotEmpty()
+    @IsEnum(MedivetGenderEnum, {
+        message: ValidationMessagesConstants.GENDER_ENUM_VALIDATION
+    })
+    gender: MedivetGenderEnum;
+
+    @ApiProperty({
+        required: true,
+        example: new Date(new Date().setFullYear(new Date().getFullYear() - 18))
+    })
+    @IsNotEmpty()
+    @Transform(({value}) => new Date(value))
+    @IsDate()
+    birthDate: Date;
 
     @ApiProperty({
         default: [],

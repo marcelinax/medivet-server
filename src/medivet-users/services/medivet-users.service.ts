@@ -40,7 +40,7 @@ export class MedivetUsersService {
     }
 
     async updateUser(user: MedivetUser, updateUserDto: MedivetUpdateUserDto): Promise<MedivetUser> {
-        const { name, phoneNumber, address } = updateUserDto;
+        const { name, phoneNumber, address, birthDate, gender } = updateUserDto;
         user.name = name;
         user.phoneNumber = phoneNumber;
         user.address = {
@@ -50,6 +50,8 @@ export class MedivetUsersService {
             street: address.street,
             zipCode: address.zipCode,
         }
+        user.birthDate = birthDate;
+        user.gender = gender;
        
         await this.usersRepository.save(user);
         return user;
