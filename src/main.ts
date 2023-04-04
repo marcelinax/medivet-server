@@ -13,14 +13,14 @@ async function bootstrap() {
     .setTitle('Medivet API')
     .setVersion(version)
     .addSecurity('bearer', {
-    type: 'http',
-    scheme: 'bearer'
+      type: 'http',
+      scheme: 'bearer'
     })
     .addBearerAuth()
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, {customSiteTitle: 'Medivet :: Swagger v' + version});
+  SwaggerModule.setup('api', app, document, { customSiteTitle: 'Medivet :: Swagger v' + version });
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 

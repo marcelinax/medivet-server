@@ -3,7 +3,7 @@ import { AddressDto } from "@/medivet-commons/dto/address.dto";
 import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
-import { IsArray, IsDate, IsDefined, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsDate, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString } from "class-validator";
 
 export class MedivetUpdateUserDto {
     @ApiProperty({
@@ -27,9 +27,6 @@ export class MedivetUpdateUserDto {
     @ApiProperty({
         required: true
     })
-    @IsNotEmpty()
-    @IsDefined()
-    @ValidateNested()
     @Type(() => AddressDto)
     address: AddressDto;
 
@@ -48,7 +45,7 @@ export class MedivetUpdateUserDto {
         example: new Date(new Date().setFullYear(new Date().getFullYear() - 18))
     })
     @IsNotEmpty()
-    @Transform(({value}) => new Date(value))
+    @Transform(({ value }) => new Date(value))
     @IsDate()
     birthDate: Date;
 

@@ -1,16 +1,16 @@
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { MedivetSortingModeEnum } from '@/medivet-commons/enums/medivet-sorting-mode.enum';
 import { MedivetSecurityHashingService } from "@/medivet-security/services/medivet-security-hashing.service";
+import { MedivetCreateUserDto } from "@/medivet-users/dto/medivet-create-user.dto";
+import { MedivetSearchVetDto } from "@/medivet-users/dto/medivet-search-vet.dto";
+import { MedivetUpdateMyVetSpecializationsDto } from "@/medivet-users/dto/medivet-update-my-vet-specializations.dto";
+import { MedivetUpdateUserDto } from '@/medivet-users/dto/medivet-update-user.dto';
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
+import { MedivetVetSpecializationService } from '@/medivet-users/services/medivet-vet-specialization.service';
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
-import { MedivetUpdateUserDto } from '@/medivet-users/dto/medivet-update-user.dto';
-import { MedivetCreateUserDto } from "@/medivet-users/dto/medivet-create-user.dto";
-import { MedivetUpdateMyVetSpecializationsDto } from "@/medivet-users/dto/medivet-update-my-vet-specializations.dto";
-import { MedivetVetSpecializationService } from '@/medivet-users/services/medivet-vet-specialization.service';
-import { MedivetSearchVetDto } from "@/medivet-users/dto/medivet-search-vet.dto";
-import { MedivetSortingModeEnum } from '@/medivet-commons/enums/medivet-sorting-mode.enum';
 
 @Injectable()
 export class MedivetUsersService {
@@ -20,7 +20,7 @@ export class MedivetUsersService {
         private vetSpecializationsService: MedivetVetSpecializationService
     ) { }
 
-    async createUser(user: MedivetCreateUserDto) : Promise<MedivetUser> {
+    async createUser(user: MedivetCreateUserDto): Promise<MedivetUser> {
         const userWithExistingEmail = await this.findOneByEmail(user.email);
 
         if (userWithExistingEmail) throw new BadRequestException(ErrorMessagesConstants.USER_WITH_THIS_EMAIL_ALREADY_EXISTS);
@@ -49,10 +49,10 @@ export class MedivetUsersService {
             flatNumber: address.flatNumber,
             street: address.street,
             zipCode: address.zipCode,
-        }
+        };
         user.birthDate = birthDate;
         user.gender = gender;
-       
+
         await this.usersRepository.save(user);
         return user;
     }
@@ -81,12 +81,12 @@ export class MedivetUsersService {
         return await this.usersRepository.findOne({ where: { email } });
     }
 
-    validateUserBirthDate(user: MedivetCreateUserDto): void  {
-        const {birthDate} = user;
+    validateUserBirthDate(user: MedivetCreateUserDto): void {
+        const { birthDate } = user;
         const date18YearsAgo = new Date();
         date18YearsAgo.setFullYear(date18YearsAgo.getFullYear() - 18);
 
-        if(birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
+        if (birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
         if (birthDate > date18YearsAgo) throw new BadRequestException(ErrorMessagesConstants.USER_HAS_TO_BE_AT_LEAST_18_YEARS_OF_AGE);
     }
 
@@ -95,10 +95,10 @@ export class MedivetUsersService {
 
         if (!await this.hashingService.validateHashingValue(oldPassword, userEntity.password))
             throw new BadRequestException(ErrorMessagesConstants.WRONG_OLD_PASSWORD);
-        
+
         if (await this.hashingService.validateHashingValue(newPassword, userEntity.password))
             throw new BadRequestException(ErrorMessagesConstants.NEW_PASSWORD_THE_SAME_AS_OLD_PASSWORD);
-        
+
         userEntity.password = await this.hashingService.hashValue(newPassword);
         await this.usersRepository.save(userEntity);
         return userEntity;
@@ -133,7 +133,7 @@ export class MedivetUsersService {
         const specializations = [];
 
         const vetSpecializationsInUse = vet.clinics.map(clinic => clinic.specializations).flat().map(spec => spec.id);
-      
+
         for (let i = 0; i < vetSpecializationsInUse.length; i++) {
             const specializationId = vetSpecializationsInUse[i];
 
@@ -145,7 +145,7 @@ export class MedivetUsersService {
             const specializationId = specializationIds[i];
 
             const specialization = await this.vetSpecializationsService.findVetSpecializationById(specializationId);
-                
+
             if (specialization) specializations.push(specialization);
         }
 
@@ -169,7 +169,7 @@ export class MedivetUsersService {
                 'priceLists',
             ]
         });
-        
+
         if (city) {
             vets = vets.filter(vet => vet?.address?.city?.toLowerCase() === city.toLowerCase());
         }
@@ -199,22 +199,22 @@ export class MedivetUsersService {
                 const bOpinions = b.opinions;
                 const aOpinionsAverageRate = aOpinions.length === 0 ? 0 : aOpinions.reduce((acc, cur) => acc + cur.rate, 0) / aOpinions.length;
                 const bOpinionsAverageRate = bOpinions.length === 0 ? 0 : bOpinions.reduce((acc, cur) => acc + cur.rate, 0) / bOpinions.length;
-                
+
                 switch (sortingMode) {
                     case MedivetSortingModeEnum.ASC:
                         return aName.localeCompare(bName);
                     case MedivetSortingModeEnum.DESC:
                         return bName.localeCompare(aName);
-                    case MedivetSortingModeEnum.HIGHEST_RATE: 
+                    case MedivetSortingModeEnum.HIGHEST_RATE:
                         return bOpinionsAverageRate - aOpinionsAverageRate;
-                    case MedivetSortingModeEnum.LOWEST_RATE: 
+                    case MedivetSortingModeEnum.LOWEST_RATE:
                         return aOpinionsAverageRate - bOpinionsAverageRate;
-                    case MedivetSortingModeEnum.MOST_OPINIONS: 
+                    case MedivetSortingModeEnum.MOST_OPINIONS:
                         return bOpinions.length - aOpinions.length;
-                    case MedivetSortingModeEnum.LEAST_OPINIONS: 
+                    case MedivetSortingModeEnum.LEAST_OPINIONS:
                         return aOpinions.length - bOpinions.length;
                 }
-            })
+            });
         }
 
         const pageSize = searchVetDto.pageSize || 10;

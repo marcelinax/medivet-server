@@ -1,21 +1,20 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, Post, Request, UseGuards, UseInterceptors } from "@nestjs/common";
-import { MedivetSecurityAuthService } from "@/medivet-security/services/medivet-security-auth.service";
-import { MedivetAuthLoginDto } from '@/medivet-security/dto/medivet-auth-login.dto';
-import { PathConstants } from "@/medivet-commons/constants/path.constants";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
-import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
-import { MedivetAuthTokenDto } from "@/medivet-security/dto/medivet-auth-token.dto";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
-import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
-import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
-import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
-import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
-import { UnauthorizedException } from "@nestjs/common";
+import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
-import { MedivetResetPasswordRequestDto } from '@/medivet-security/dto/medivet-reset-password-request.dto';
+import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
+import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
+import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
+import { MedivetAuthLoginDto } from '@/medivet-security/dto/medivet-auth-login.dto';
+import { MedivetAuthTokenDto } from "@/medivet-security/dto/medivet-auth-token.dto";
 import { MedivetResetPasswordByTokenDto } from "@/medivet-security/dto/medivet-reset-password-by-token.dto";
+import { MedivetResetPasswordRequestDto } from '@/medivet-security/dto/medivet-reset-password-request.dto';
+import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
+import { MedivetSecurityAuthService } from "@/medivet-security/services/medivet-security-auth.service";
+import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { Body, ClassSerializerInterceptor, Controller, Get, Post, Request, UnauthorizedException, UseGuards, UseInterceptors } from "@nestjs/common";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
 @ApiTags(ApiTagsConstants.AUTH)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -24,7 +23,7 @@ export default class MedivetSecurityAuthController {
     constructor(
         private readonly securityAuthService: MedivetSecurityAuthService
     ) { }
-    
+
     @ApiOperation({
         summary: `Generate new user's authorization token`,
         description: `Only generates when user's credentials are valid`
@@ -40,7 +39,7 @@ export default class MedivetSecurityAuthController {
     @ApiUnauthorizedResponse({
         description: `${ErrorMessagesConstants.USER_WITH_THIS_EMAIL_DOES_NOT_EXIST} / ${ErrorMessagesConstants.WRONG_PASSWORD}`,
         type: UnathorizedExceptionDto
-        })
+    })
     @Post(PathConstants.LOGIN)
     login(
         @Body()
@@ -64,9 +63,10 @@ export default class MedivetSecurityAuthController {
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Get(PathConstants.VALIDATE_TOKEN)
-    async validateToken(@CurrentUser() user: MedivetUser): Promise<OkMessageDto>{
+    async validateToken(@CurrentUser() user: MedivetUser): Promise<OkMessageDto> {
+        console.log(user);
         if (!user) throw new UnauthorizedException();
-        return {message: SuccessMessageConstants.TOKEN_IS_VALID}
+        return { message: SuccessMessageConstants.TOKEN_IS_VALID };
     }
 
     @ApiOperation({
@@ -85,7 +85,7 @@ export default class MedivetSecurityAuthController {
     @Post(PathConstants.LOGOUT)
     async logout(@Request() req: Request): Promise<OkMessageDto> {
         await this.securityAuthService.logout(req.headers['authorization']);
-        return {message: SuccessMessageConstants.LOGOUT_USER }
+        return { message: SuccessMessageConstants.LOGOUT_USER };
     }
 
     @ApiOperation({
@@ -105,7 +105,7 @@ export default class MedivetSecurityAuthController {
         type: BadRequestExceptionDto
     })
     @Post(PathConstants.SEND_RESET_PASSWORD_LINK_VIA_EMAIL)
-    async sendPasswordResetLinkEmail(@Body() resetPasswordRequestDto: MedivetResetPasswordRequestDto): Promise<OkMessageDto>{
+    async sendPasswordResetLinkEmail(@Body() resetPasswordRequestDto: MedivetResetPasswordRequestDto): Promise<OkMessageDto> {
         const { email } = resetPasswordRequestDto;
         await this.securityAuthService.sendResetUserPasswordLink(email);
         return { message: SuccessMessageConstants.SENT_RESET_PASSWORD_EMAIL };
