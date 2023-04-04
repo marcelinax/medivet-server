@@ -8,6 +8,7 @@ export class PathConstants {
     public static OPINIONS = 'opinions';
     public static PRICE_LISTS = 'price-lists';
     public static APPOINTMENTS = 'appointments';
+    public static ANIMAL_BREEDS = 'animal-breeds';
 
     public static LOGIN = 'login';
     public static ME = 'me';

@@ -2,7 +2,7 @@ export class ErrorMessagesConstants {
     public static MISSING_REQUIRED_QUERY_PARAM = 'Missing required query param:';
     public static TERMS_ARE_NOT_ACCEPTED = 'Terms are not accepted';
     public static USER_WITH_THIS_EMAIL_ALREADY_EXISTS = 'User with this email already exists.';
-    public static USER_WITH_THIS_ID_DOES_NOT_EXIST = 'User with this id does not exist.'
+    public static USER_WITH_THIS_ID_DOES_NOT_EXIST = 'User with this id does not exist.';
     public static USER_WITH_THIS_EMAIL_DOES_NOT_EXIST = 'User with this email does not exist.';
     public static USER_HAS_TO_BE_AT_LEAST_18_YEARS_OF_AGE = 'User has to be at least 18 years of age.';
     public static BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY = 'Birth date cannot be later than today.';
@@ -38,4 +38,7 @@ export class ErrorMessagesConstants {
     public static CANNOT_REMOVE_VET_CLINIC_WHICH_IS_IN_USE = 'Cannot remove vet clinic which is in use';
     public static YOU_ARE_NOT_ABLE_TO_UPDATE_THIS_VET_CLINIC = 'You are not able to update this vet clinic.';
     public static PRICE_LIST_FOR_THIS_CLINIC_AND_SPECIALIZATION_IN_VET_PRICE_LISTS_DOES_NOT_EXIST = 'Price list for this clinic and specialization in vet price lists does not exist.';
+    public static ANIMAL_BREED_WITH_THIS_ID_DOES_NOT_EXIST = 'Animal breed with this id does not exist.';
+    public static ANIMAL_BREED_ALREADY_EXISTS = 'Animal breed already exists.';
+    public static CANNOT_REMOVE_ANIMAL_BREED_WHICH_IS_IN_USE = 'Cannot remove animal breed which is in use';
 }

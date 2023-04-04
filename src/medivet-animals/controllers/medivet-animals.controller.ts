@@ -1,31 +1,31 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
-import { MedivetAnimalsService } from "@/medivet-animals/services/medivet-animals.service";
-import {  ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-animal.dto";
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
+import { MedivetAnimalProfilePhotosService } from "@/medivet-animals/services/medivet-animal-profile-photos.service";
+import { MedivetAnimalsService } from "@/medivet-animals/services/medivet-animals.service";
+import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
+import { PathConstants } from '@/medivet-commons/constants/path.constants';
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { UnathorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
-import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
-import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
-import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
-import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
-import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
-import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
-import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-animal.dto";
-import { PathConstants } from '@/medivet-commons/constants/path.constants';
-import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
-import { MedivetStorageAnimalProfilePhotoInterceptor } from '@/medivet-storage/interceptors/medivet-storage-animal-profile-photo.interceptor';
-import { MedivetAnimalProfilePhotosService } from "@/medivet-animals/services/medivet-animal-profile-photos.service";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
+import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
+import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
+import { MedivetStorageAnimalProfilePhotoInterceptor } from '@/medivet-storage/interceptors/medivet-storage-animal-profile-photo.interceptor';
+import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
+import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
 @ApiTags(ApiTagsConstants.ANIMALS)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller(PathConstants.ANIMALS)
-export class MedivetAnimalsController{
+export class MedivetAnimalsController {
     constructor(
         private animalsService: MedivetAnimalsService,
-        private animalsProfilePhotosService: MedivetAnimalProfilePhotosService
+        private animalsProfilePhotosService: MedivetAnimalProfilePhotosService,
     ) { }
-    
+
     @ApiOperation({
         summary: 'Create new animal',
         description: `Creates new user's animal and returns it`
@@ -127,7 +127,7 @@ export class MedivetAnimalsController{
                 },
             },
         },
-        })
+    })
     @ApiCreatedResponse({
         description: 'The new animal profile photo has been uploaded',
         type: MedivetAnimal
@@ -194,7 +194,7 @@ export class MedivetAnimalsController{
         @Param('id') animalId: number,
         @CurrentUser() user: MedivetUser,
         @Body() updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
-            return this.animalsService.updateAnimal(animalId, user, updateAnimalDto);
+        return this.animalsService.updateAnimal(animalId, user, updateAnimalDto);
     }
 
     @ApiOperation({
@@ -222,8 +222,8 @@ export class MedivetAnimalsController{
         @Param('id') animalId: number,
         @CurrentUser() user: MedivetUser
     ): Promise<MedivetAnimal> {
-            const animal = await this.animalsService.findOneAnimalById(animalId);
-            return this.animalsService.archiveAnimal(animal, user);
+        const animal = await this.animalsService.findOneAnimalById(animalId);
+        return this.animalsService.archiveAnimal(animal, user);
     }
 
     @ApiOperation({
@@ -251,8 +251,7 @@ export class MedivetAnimalsController{
         @Param('id') animalId: number,
         @CurrentUser() user: MedivetUser
     ): Promise<MedivetAnimal> {
-            const animal = await this.animalsService.findOneAnimalById(animalId);
-            return this.animalsService.restoreAnimal(animal, user);
+        const animal = await this.animalsService.findOneAnimalById(animalId);
+        return this.animalsService.restoreAnimal(animal, user);
     }
-
 }

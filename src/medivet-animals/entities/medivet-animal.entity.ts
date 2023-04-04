@@ -1,11 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { MedivetAnimalBreed } from '@/medivet-animals/entities/medivet-animal-breed.entity';
 import { MedivetAnimalType } from "@/medivet-animals/enums/medivet-animal-type.enum";
-import {  MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
-import { Transform } from "class-transformer";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
-import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
+import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { ApiProperty } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 const env = envConfig();
 
@@ -16,7 +17,7 @@ export class MedivetAnimal {
     id: number;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({ nullable: false })
     name: string;
 
     @ApiProperty()
@@ -32,15 +33,15 @@ export class MedivetAnimal {
     type: MedivetAnimalType;
 
     @ApiProperty()
-    @CreateDateColumn({nullable: false})
+    @CreateDateColumn({ nullable: false })
     birthDate: Date;
 
     @ApiProperty()
-    @Column({nullable: false})
-    breed: string;
+    @ManyToOne(() => MedivetAnimalBreed, animalBreed => animalBreed.id)
+    breed: MedivetAnimalBreed;
 
     @ApiProperty()
-    @Column({default: ''})
+    @Column({ default: '' })
     coatColor: string;
 
     @ApiProperty()
@@ -52,8 +53,8 @@ export class MedivetAnimal {
     gender: MedivetGenderEnum;
 
     @ApiProperty()
-    @Transform(({value}) => value ? env.ROOT_URL + value : value)
-    @Column({default: ''})
+    @Transform(({ value }) => value ? env.ROOT_URL + value : value)
+    @Column({ default: '' })
     profilePhotoUrl: string;
 
     @ApiProperty()

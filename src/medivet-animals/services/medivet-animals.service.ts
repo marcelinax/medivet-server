@@ -1,28 +1,31 @@
+import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-animal.dto";
+import { MedivetSearchAnimalDto } from '@/medivet-animals/dto/medivet-search-animal.dto';
+import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
+import { MedivetAnimalBreedsService } from '@/medivet-animals/services/medivet-animal-breeds.service';
+import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
+import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from 'typeorm';
-import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
-import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-animal.dto";
-import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
-import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
-import { MedivetSearchAnimalDto } from '@/medivet-animals/dto/medivet-search-animal.dto';
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 
 @Injectable()
 export class MedivetAnimalsService {
     constructor(
-        @InjectRepository(MedivetAnimal) private animalsRepository: Repository<MedivetAnimal>
+        @InjectRepository(MedivetAnimal) private animalsRepository: Repository<MedivetAnimal>,
+        private animalBreedsService: MedivetAnimalBreedsService
     ) { }
-    
-    async createAnimal(createAnimalDto: MedivetCreateAnimalDto, owner: MedivetUser): Promise<MedivetAnimal> {
 
-       this.validateAnimalBirthDate(createAnimalDto.birthDate);
+    async createAnimal(createAnimalDto: MedivetCreateAnimalDto, owner: MedivetUser): Promise<MedivetAnimal> {
+        this.validateAnimalBirthDate(createAnimalDto.birthDate);
+
+        const breed = await this.animalBreedsService.findOneAnimalBreedById(createAnimalDto.breedId);
 
         const newAnimal = this.animalsRepository.create({
             name: createAnimalDto.name,
             birthDate: createAnimalDto.birthDate,
-            breed: this.parseAnimalBreedToPascalCase(createAnimalDto.breed),
+            breed,
             gender: createAnimalDto.gender,
             type: createAnimalDto.type,
             coatColor: createAnimalDto.coatColor,
@@ -33,45 +36,35 @@ export class MedivetAnimalsService {
     }
 
     private validateAnimalBirthDate(birthDate: Date): void {
-        if(birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
-    }
-
-    private parseAnimalBreedToPascalCase(breed: string): string {
-        const words = breed.split(' ');
-        return words.map(word => {
-            const firstLetter = word[0].toUpperCase();
-            const restLetters = word.slice(1);
-            return firstLetter + restLetters;
-        }).join(' ');
+        if (birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
     }
 
     async findOneAnimalById(id: number): Promise<MedivetAnimal> {
-        const animal = await this.animalsRepository.findOne({ where: { id }, relations: ['owner'] });
+        const animal = await this.animalsRepository.findOne({ where: { id }, relations: ['owner', 'breed'] });
         if (!animal) throw new NotFoundException(ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST);
         return animal;
     }
 
     private async findAllAnimalsAssignedToOwner(user: MedivetUser): Promise<MedivetAnimal[]> {
-        const animals = await this.animalsRepository.find({ where: { owner: { id: user.id } }, relations: ['owner'] });
+        const animals = await this.animalsRepository.find({ where: { owner: { id: user.id } }, relations: ['owner', 'breed'] });
         animals.forEach(animal => {
             delete animal.owner;
-        })
+        });
         return animals;
     }
 
     async findOneAnimalAssignedToOwner(animalId: number, user: MedivetUser): Promise<MedivetAnimal> {
-        const animal = await this.animalsRepository.findOne({ where: { id: animalId, owner: { id: user.id } }, relations: ['owner']   });
+        const animal = await this.animalsRepository.findOne({ where: { id: animalId, owner: { id: user.id } }, relations: ['owner', 'breed'] });
         if (!animal) throw new NotFoundException([ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST]);
         const newAnimal = { ...animal };
         delete newAnimal.owner;
 
         return newAnimal;
     }
-    
 
     async serachAllAnimalsAssignedToOwner(user: MedivetUser, searchAnimalDto: MedivetSearchAnimalDto): Promise<MedivetAnimal[]> {
         let animals = await this.findAllAnimalsAssignedToOwner(user);
-        
+
         if (searchAnimalDto.animalName) {
             animals = animals.filter(animal => animal.name.toLowerCase().includes(searchAnimalDto.animalName.toLowerCase()));
         }
@@ -80,14 +73,14 @@ export class MedivetAnimalsService {
             animals = animals.sort((a, b) => {
                 const aName: string = a.name.toLowerCase();
                 const bName: string = b.name.toLowerCase();
-                
+
                 switch (searchAnimalDto.sortingMode) {
                     case MedivetSortingModeEnum.ASC:
                         return aName.localeCompare(bName);
                     case MedivetSortingModeEnum.DESC:
-                            return bName.localeCompare(aName);
+                        return bName.localeCompare(aName);
                 }
-            })
+            });
         }
 
         const pageSize = searchAnimalDto.pageSize || 10;
@@ -102,10 +95,12 @@ export class MedivetAnimalsService {
 
     async updateAnimal(animalId: number, user: MedivetUser, updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
         const animal = await this.findOneAnimalById(animalId);
-        const { birthDate, breed, coatColor, gender, name, type } = updateAnimalDto;
+        const { birthDate, breedId, coatColor, gender, name, type } = updateAnimalDto;
 
         if (!this.checkIfUserIsAnimalOwner(user, animal)) throw new UnauthorizedException();
         this.validateAnimalBirthDate(updateAnimalDto.birthDate);
+
+        const breed = await this.animalBreedsService.findOneAnimalBreedById(breedId);
 
         animal.birthDate = birthDate;
         animal.breed = breed;
@@ -132,7 +127,7 @@ export class MedivetAnimalsService {
 
     async restoreAnimal(animal: MedivetAnimal, user: MedivetUser): Promise<MedivetAnimal> {
         if (animal.owner.id !== user.id) throw new UnauthorizedException([ErrorMessagesConstants.USER_IS_UNAUTHORIZED_TO_DO_THIS_ACTION]);
-        
+
         animal.status = MedivetStatusEnum.ACTIVE;
         await this.animalsRepository.save(animal);
         return animal;
