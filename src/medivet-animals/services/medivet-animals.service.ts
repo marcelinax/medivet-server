@@ -2,7 +2,6 @@ import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-ani
 import { MedivetSearchAnimalDto } from '@/medivet-animals/dto/medivet-search-animal.dto';
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
 import { MedivetAnimalBreedsService } from '@/medivet-animals/services/medivet-animal-breeds.service';
-import { MedivetAnimalCoatColorsService } from "@/medivet-animals/services/medivet-animal-coat-colors.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
@@ -10,6 +9,7 @@ import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from 'typeorm';
+import { MedivetAnimalCoatColorsService } from "@/medivet-animals/services/medivet-animal-coat-colors.service";
 
 @Injectable()
 export class MedivetAnimalsService {
