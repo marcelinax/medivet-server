@@ -18,4 +18,12 @@ export class MedivetSearchAnimalBreedDto extends OffsetPaginationDto {
     @IsOptional()
     @IsString()
     animalType?: string;
+
+    @ApiProperty({
+        example: 'golden',
+        required: false
+    })
+    @IsOptional()
+    @IsString()
+    search?: string;
 }

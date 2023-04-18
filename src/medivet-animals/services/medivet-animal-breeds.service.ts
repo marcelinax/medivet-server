@@ -36,7 +36,7 @@ export class MedivetAnimalBreedsService {
         });
 
         if (!existingBreed) return false;
-        return false;
+        return true;
     }
 
     async findOneAnimalBreedById(id: number): Promise<MedivetAnimalBreed> {
@@ -59,6 +59,11 @@ export class MedivetAnimalBreedsService {
         if (searchAnimalBreedDto.animalType) {
             breeds = breeds.filter(breed => breed.type.toLowerCase().includes(searchAnimalBreedDto.animalType.toLowerCase()));
         };
+
+        if (searchAnimalBreedDto.search) {
+            breeds = breeds.filter(breed => breed.type.toLowerCase().includes(searchAnimalBreedDto.animalType.toLowerCase())
+                || breed.name.toLowerCase().includes(searchAnimalBreedDto.breedName.toLowerCase()));
+        }
 
         const pageSize = searchAnimalBreedDto.pageSize || 10;
         const offset = searchAnimalBreedDto.offset || 0;

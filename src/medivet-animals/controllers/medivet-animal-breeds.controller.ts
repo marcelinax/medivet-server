@@ -12,7 +12,7 @@ import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
 import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
 @ApiTags(ApiTagsConstants.ANIMAL_BREEDS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -146,12 +146,15 @@ export class MedivetAnimalBreedsController {
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
     })
+    @ApiQuery({ name: 'animalType', required: false, type: String })
+    @ApiQuery({ name: 'breedName', required: false, type: String })
+    @ApiQuery({ name: 'search', required: false, type: String })
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Get()
     async getClinics(
-        @Query('breedName') breedName: string, @Query('animalType') animalType: string,
-        @Query('pageSize') pageSize: number, @Query('offset') offset: number
+        @Query('pageSize') pageSize: number, @Query('offset') offset: number,
+        @Query('breedName') breedName?: string, @Query('animalType') animalType?: string
     ): Promise<MedivetAnimalBreed[]> {
         return this.animalBreedsSerivce.searchAnimalBreeds({
             breedName,
