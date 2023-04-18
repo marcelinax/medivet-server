@@ -1,6 +1,6 @@
-import { MedivetCreateAnimalBreedDto } from '@/medivet-animals/dto/medivet-create-animal-bread.dto';
-import { MedivetAnimalBreed } from '@/medivet-animals/entities/medivet-animal-breed.entity';
-import { MedivetAnimalBreedsService } from '@/medivet-animals/services/medivet-animal-breeds.service';
+import { MedivetCreateAnimalCoatColorDto } from '@/medivet-animals/dto/medivet-create-animal-coat-color.dto';
+import { MedivetAnimalCoatColor } from '@/medivet-animals/entities/medivet-animal-coat-color.entity';
+import { MedivetAnimalCoatColorsService } from '@/medivet-animals/services/medivet-animal-coat-colors.service';
 import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { SuccessMessageConstants } from '@/medivet-commons/constants/success-message.constants';
@@ -14,21 +14,21 @@ import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
-@ApiTags(ApiTagsConstants.ANIMAL_BREEDS)
+@ApiTags(ApiTagsConstants.ANIMAL_COAT_COLORS)
 @UseInterceptors(ClassSerializerInterceptor)
-@Controller(PathConstants.ANIMAL_BREEDS)
-export class MedivetAnimalBreedsController {
+@Controller(PathConstants.ANIMAL_COAT_COLORS)
+export class MedivetAnimalCoatColorsController {
     constructor(
-        private animalBreedsSerivce: MedivetAnimalBreedsService,
+        private animalCoatColorsSerivce: MedivetAnimalCoatColorsService,
     ) { }
 
     @ApiOperation({
-        summary: 'Create new animal breed',
-        description: `Creates new animal's breed depending on animal type and returns it`
+        summary: 'Create new animal coat color',
+        description: `Creates new animal's coat color and returns it`
     })
     @ApiOkResponse({
-        description: 'Animal breed has been successfully created',
-        type: MedivetAnimalBreed
+        description: 'Animal coat color has been successfully created',
+        type: MedivetAnimalCoatColor
     })
     @ApiNotFoundResponse({
         description: 'Form validation error array',
@@ -43,20 +43,20 @@ export class MedivetAnimalBreedsController {
     @Role(MedivetUserRole.ADMIN)
     @UseGuards(JwtAuthGuard)
     @Post()
-    createAnimalBreed(@Body() createAnimalBreedDto: MedivetCreateAnimalBreedDto): Promise<MedivetAnimalBreed> {
-        return this.animalBreedsSerivce.createAnimalBreed(createAnimalBreedDto);
+    createAnimalCoatColor(@Body() createAnimalCoatColorDto: MedivetCreateAnimalCoatColorDto): Promise<MedivetAnimalCoatColor> {
+        return this.animalCoatColorsSerivce.createAnimalCoatColor(createAnimalCoatColorDto);
     }
 
     @ApiOperation({
-        summary: 'Gets animal breed',
-        description: 'Finds animal breed by id and returns it'
+        summary: 'Gets animal coat colors',
+        description: 'Finds animal coat colors by id and returns it'
     })
     @ApiOkResponse({
-        description: 'Returns animal breed data',
-        type: MedivetAnimalBreed
+        description: 'Returns animal coat color data',
+        type: MedivetAnimalCoatColor
     })
     @ApiNotFoundResponse({
-        description: 'Animal breed does not exist',
+        description: 'Animal coat color does not exist',
         type: BadRequestExceptionDto
     })
     @ApiUnauthorizedResponse({
@@ -68,20 +68,20 @@ export class MedivetAnimalBreedsController {
     @Role(MedivetUserRole.ADMIN)
     @UseGuards(JwtAuthGuard)
     @Get(PathConstants.ID_PARAM)
-    async getAnimalBreed(@Param('id') breedId: number): Promise<MedivetAnimalBreed> {
-        return this.animalBreedsSerivce.findOneAnimalBreedById(breedId);
+    async getAnimalCoatColor(@Param('id') coatColorId: number): Promise<MedivetAnimalCoatColor> {
+        return this.animalCoatColorsSerivce.findOneAnimalCoatColorById(coatColorId);
     }
 
     @ApiOperation({
-        summary: 'Removes existing animal breed',
-        description: 'Removes existing animal breed only when it is not in use'
+        summary: 'Removes existing animal coat color',
+        description: 'Removes existing animal coat color only when it is not in use'
     })
     @ApiBadRequestResponse({
-        description: 'You cannot remove animal breed which is in use.',
+        description: 'You cannot remove animal coat color which is in use.',
         type: BadRequestExceptionDto
     })
     @ApiOkResponse({
-        description: 'Animal breed has been removed successfully',
+        description: 'Animal coat color has been removed successfully',
         type: OkMessageDto
     })
     @ApiUnauthorizedResponse({
@@ -93,28 +93,28 @@ export class MedivetAnimalBreedsController {
     @Role(MedivetUserRole.ADMIN)
     @UseGuards(JwtAuthGuard)
     @Delete(PathConstants.ID_PARAM)
-    async removeAnimalBreed(
-        @Param('id') breedId: number
+    async removeAnimalCoatColor(
+        @Param('id') coatColorId: number
     )
         : Promise<OkMessageDto> {
-        await this.animalBreedsSerivce.removeAnimalBreed(breedId);
-        return { message: SuccessMessageConstants.ANIMAL_BREED_HAS_BEN_REMOVED_SUCCESSFULLY };
+        await this.animalCoatColorsSerivce.removeAnimalCoatColor(coatColorId);
+        return { message: SuccessMessageConstants.ANIMAL_COAT_COLOR_HAS_BEN_REMOVED_SUCCESSFULLY };
     }
 
     @ApiOperation({
-        summary: 'Updates existing animal breed',
-        description: 'Updates existing animal breed by id and returns it'
+        summary: 'Updates existing animal coat color',
+        description: 'Updates existing animal coat color by id and returns it'
     })
     @ApiOkResponse({
-        description: 'Animal breed has been updated successfully',
-        type: MedivetAnimalBreed
+        description: 'Animal coat color has been updated successfully',
+        type: MedivetAnimalCoatColor
     })
     @ApiBadRequestResponse({
         description: 'Invalid array form',
         type: BadRequestExceptionDto
     })
     @ApiNotFoundResponse({
-        description: 'Animal breed id does not exist',
+        description: 'Animal coat color id does not exist',
         type: BadRequestExceptionDto
     })
     @ApiUnauthorizedResponse({
@@ -126,39 +126,37 @@ export class MedivetAnimalBreedsController {
     @Role(MedivetUserRole.ADMIN)
     @UseGuards(JwtAuthGuard)
     @Put(PathConstants.ID_PARAM)
-    async updateAnimalBreed(
-        @Param('id') breedId: number,
-        @Body() updateBreedDto: MedivetCreateAnimalBreedDto
-    ): Promise<MedivetAnimalBreed> {
-        return await this.animalBreedsSerivce.updateAnimalBreed(breedId, updateBreedDto);
+    async updateAnimalCoatColor(
+        @Param('id') coatColorId: number,
+        @Body() updateCoatColorDto: MedivetCreateAnimalCoatColorDto
+    ): Promise<MedivetAnimalCoatColor> {
+        return await this.animalCoatColorsSerivce.updateAnimalCoatColor(coatColorId, updateCoatColorDto);
     }
 
     @ApiOperation({
-        summary: 'Returns searched animal breeds',
-        description: 'Enables search animal breeds by name and animal type'
+        summary: 'Returns searched animal coat colors',
+        description: 'Enables search animal coat colors by name'
     })
     @ApiOkResponse({
-        description: 'Returns array of matched animal breeds',
-        type: MedivetAnimalBreed,
+        description: 'Returns array of matched animal coat colors',
+        type: MedivetAnimalCoatColor,
         isArray: true
     })
     @ApiUnauthorizedResponse({
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
     })
-    @ApiQuery({ name: 'animalType', required: false, type: String })
-    @ApiQuery({ name: 'breedName', required: false, type: String })
+    @ApiQuery({ name: 'coatColorName', required: false, type: String })
     @ApiQuery({ name: 'search', required: false, type: String })
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Get()
-    async getAnimalBreeds(
+    async getAnimalCoatColors(
         @Query('pageSize') pageSize: number, @Query('offset') offset: number,
-        @Query('breedName') breedName?: string, @Query('animalType') animalType?: string
-    ): Promise<MedivetAnimalBreed[]> {
-        return this.animalBreedsSerivce.searchAnimalBreeds({
-            breedName,
-            animalType,
+        @Query('coatColorName') coatColorName?: string
+    ): Promise<MedivetAnimalCoatColor[]> {
+        return this.animalCoatColorsSerivce.searchAnimalCoatColors({
+            coatColorName,
             pageSize,
             offset,
         });

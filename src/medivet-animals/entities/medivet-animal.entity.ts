@@ -1,4 +1,5 @@
 import { MedivetAnimalBreed } from '@/medivet-animals/entities/medivet-animal-breed.entity';
+import { MedivetAnimalCoatColor } from '@/medivet-animals/entities/medivet-animal-coat-color.entity';
 import { MedivetAnimalType } from "@/medivet-animals/enums/medivet-animal-type.enum";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
@@ -41,8 +42,8 @@ export class MedivetAnimal {
     breed: MedivetAnimalBreed;
 
     @ApiProperty()
-    @Column({ default: '' })
-    coatColor: string;
+    @ManyToOne(() => MedivetAnimalCoatColor, animalCoatColor => animalCoatColor.id)
+    coatColor: MedivetAnimalCoatColor;
 
     @ApiProperty()
     @Column({

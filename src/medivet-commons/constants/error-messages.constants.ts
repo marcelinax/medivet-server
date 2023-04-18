@@ -41,4 +41,7 @@ export class ErrorMessagesConstants {
     public static ANIMAL_BREED_WITH_THIS_ID_DOES_NOT_EXIST = 'Animal breed with this id does not exist.';
     public static ANIMAL_BREED_ALREADY_EXISTS = 'Animal breed already exists.';
     public static CANNOT_REMOVE_ANIMAL_BREED_WHICH_IS_IN_USE = 'Cannot remove animal breed which is in use';
+    public static ANIMAL_COAT_COLOR_ALREADY_EXISTS = 'Animal coat color already exists.';
+    public static CANNOT_REMOVE_ANIMAL_COAT_COLOR_WHICH_IS_IN_USE = 'Cannot remove animal coat color which is in use';
+    public static ANIMAL_COAT_COLOR_WITH_THIS_ID_DOES_NOT_EXIST = 'Animal coat color with this id does not exist.';
 }

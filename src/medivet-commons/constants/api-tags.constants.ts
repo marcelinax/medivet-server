@@ -9,4 +9,5 @@ export class ApiTagsConstants {
     public static PRICE_LISTS = 'price-lists';
     public static APPOINTMENTS = 'appointments';
     public static ANIMAL_BREEDS = 'animal-breeds';
+    public static ANIMAL_COAT_COLORS = 'animal-coat-colors';
 }

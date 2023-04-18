@@ -2,6 +2,7 @@ import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-ani
 import { MedivetSearchAnimalDto } from '@/medivet-animals/dto/medivet-search-animal.dto';
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
 import { MedivetAnimalBreedsService } from '@/medivet-animals/services/medivet-animal-breeds.service';
+import { MedivetAnimalCoatColorsService } from "@/medivet-animals/services/medivet-animal-coat-colors.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
@@ -14,13 +15,15 @@ import { Repository } from 'typeorm';
 export class MedivetAnimalsService {
     constructor(
         @InjectRepository(MedivetAnimal) private animalsRepository: Repository<MedivetAnimal>,
-        private animalBreedsService: MedivetAnimalBreedsService
+        private animalBreedsService: MedivetAnimalBreedsService,
+        private animalCoatColorsService: MedivetAnimalCoatColorsService,
     ) { }
 
     async createAnimal(createAnimalDto: MedivetCreateAnimalDto, owner: MedivetUser): Promise<MedivetAnimal> {
         this.validateAnimalBirthDate(createAnimalDto.birthDate);
 
         const breed = await this.animalBreedsService.findOneAnimalBreedById(createAnimalDto.breedId);
+        const coatColor = await this.animalCoatColorsService.findOneAnimalCoatColorById(createAnimalDto.coatColorId);
 
         const newAnimal = this.animalsRepository.create({
             name: createAnimalDto.name,
@@ -28,7 +31,7 @@ export class MedivetAnimalsService {
             breed,
             gender: createAnimalDto.gender,
             type: createAnimalDto.type,
-            coatColor: createAnimalDto.coatColor,
+            coatColor,
             owner
         });
         await this.animalsRepository.save(newAnimal);
@@ -95,12 +98,13 @@ export class MedivetAnimalsService {
 
     async updateAnimal(animalId: number, user: MedivetUser, updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
         const animal = await this.findOneAnimalById(animalId);
-        const { birthDate, breedId, coatColor, gender, name, type } = updateAnimalDto;
+        const { birthDate, breedId, coatColorId, gender, name, type } = updateAnimalDto;
 
         if (!this.checkIfUserIsAnimalOwner(user, animal)) throw new UnauthorizedException();
         this.validateAnimalBirthDate(updateAnimalDto.birthDate);
 
         const breed = await this.animalBreedsService.findOneAnimalBreedById(breedId);
+        const coatColor = await this.animalCoatColorsService.findOneAnimalCoatColorById(coatColorId);
 
         animal.birthDate = birthDate;
         animal.breed = breed;

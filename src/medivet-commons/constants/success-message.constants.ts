@@ -9,4 +9,5 @@ export class SuccessMessageConstants {
     public static VET_CLINIC_HAS_BEEN_UNASSIGNED_SUCCESSFULLY = 'Vet clinic has been unassigned successfully.';
     public static VET_CLINIC_HAS_BEEN_REMOVED_SUCCESSFULLY = 'Vet clinic has been removed successfully.';
     public static ANIMAL_BREED_HAS_BEN_REMOVED_SUCCESSFULLY = 'Animal breed has been removed successfully.';
+    public static ANIMAL_COAT_COLOR_HAS_BEN_REMOVED_SUCCESSFULLY = 'Animal coat color has been removed successfully.';
 }
