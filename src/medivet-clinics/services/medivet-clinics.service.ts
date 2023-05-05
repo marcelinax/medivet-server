@@ -35,33 +35,32 @@ export class MedivetClinicsService {
 
     }
 
-    async findClinicById(id: number): Promise<MedivetClinic> {
+    async findClinicById(id: number, include?: string[]): Promise<MedivetClinic> {
         const clinic = await this.clinicsRepository.findOne({
             where: { id },
-            relations: [
-                'vets',
-                'vets.specializations',
-                'vets.vet.receptionTimes',
-                'vets.vet.receptionTimes.clinic',
-                'vets.vet.specializations',
-                'receptionTimes',
-                'receptionTimes.clinic'
-            ],
+            relations: include ?? []
+            // relations: [
+            //     'vets',
+            //     'vets.specializations',
+            //     'vets.vet.receptionTimes',
+            //     'vets.vet.receptionTimes.clinic',
+            //     'vets.vet.specializations',
+            //     'receptionTimes',
+            //     'receptionTimes.clinic'
+            // ],
         });
 
         if (!clinic) throw new NotFoundException([ErrorMessagesConstants.CLINIC_WITH_THIS_ID_DOES_NOT_EXIST]);
         return clinic;
     }
 
-    async findClinicsAssignedToVet(vetId: number,): Promise<MedivetClinic[]> {
+    async findClinicsAssignedToVet(vetId: number, include?: string[]): Promise<MedivetClinic[]> {
+        console.log(include);
         const clinics = await this.clinicsRepository.find({
             where: {
                 vets: { vet: { id: vetId } }
             },
-            relations: [
-                'vets',
-                'vets.vet'
-            ]
+            relations: include ?? []
         });
 
         return clinics;
@@ -108,22 +107,23 @@ export class MedivetClinicsService {
         return { message: SuccessMessageConstants.VET_CLINIC_HAS_BEEN_UNASSIGNED_SUCCESSFULLY };
     }
 
-    async findAllClinics(): Promise<MedivetClinic[]> {
+    async findAllClinics(include?: string[]): Promise<MedivetClinic[]> {
         return this.clinicsRepository.find({
-            relations: [
-                'vets',
-                'vets.specializations',
-                'vets.vet.receptionTimes',
-                'vets.vet.receptionTimes.clinic',
-                'vets.vet.specializations',
-                'receptionTimes',
-                'receptionTimes.clinic'
-            ]
+            relations: include ?? [],
+            // relations: [
+            //     'vets',
+            //     'vets.specializations',
+            //     'vets.vet.receptionTimes',
+            //     'vets.vet.receptionTimes.clinic',
+            //     'vets.vet.specializations',
+            //     'receptionTimes',
+            //     'receptionTimes.clinic'
+            // ]
         });
     }
 
     async searchClinics(searchClinicDto: MedivetSearchClinicDto): Promise<MedivetClinic[]> {
-        let clinics = await this.findAllClinics();
+        let clinics = await this.findAllClinics(searchClinicDto?.include);
 
         if (searchClinicDto.name) {
             clinics = clinics.filter(clinic => clinic.name.toLowerCase().includes(searchClinicDto.name.toLowerCase()));

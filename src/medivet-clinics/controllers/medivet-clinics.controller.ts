@@ -15,8 +15,8 @@ import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
 import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
 import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { MedivetUserRole } from '@/medivet-users/enums/medivet-user-role.enum';
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseArrayPipe, Post, Put, Query, UseGuards, UseInterceptors } from "@nestjs/common";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
 @ApiTags(ApiTagsConstants.CLINICS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -124,13 +124,16 @@ export class MedivetClinicsController {
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
     })
+    @ApiQuery({ name: 'include', required: false, type: Array<String> })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.VET)
     @UseGuards(JwtAuthGuard)
     @Get()
-    async getAllClinics(): Promise<MedivetClinic[]> {
-        return this.clinicsService.findAllClinics();
+    async getAllClinics(
+        @Query('include', new ParseArrayPipe({ items: String, separator: ',', optional: true })) include?: string[]
+    ): Promise<MedivetClinic[]> {
+        return this.clinicsService.findAllClinics(include);
     }
 
     @ApiOperation({
@@ -182,13 +185,17 @@ export class MedivetClinicsController {
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
     })
+    @ApiQuery({ name: 'include', required: false, type: Array<String> })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.VET)
     @UseGuards(JwtAuthGuard)
     @Get(PathConstants.ASSIGNED_TO_VET)
-    async getAllClinicsAssignedToVet(@CurrentUser() user: MedivetUser): Promise<MedivetClinic[]> {
-        return this.clinicsService.findClinicsAssignedToVet(user.id);
+    async getAllClinicsAssignedToVet(
+        @CurrentUser() user: MedivetUser,
+        @Query('include', new ParseArrayPipe({ items: String, separator: ',', optional: true })) include?: string[]
+    ): Promise<MedivetClinic[]> {
+        return this.clinicsService.findClinicsAssignedToVet(user.id, include);
     }
 
     @ApiOperation({
@@ -207,12 +214,16 @@ export class MedivetClinicsController {
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
     })
+    @ApiQuery({ name: 'include', required: false, type: Array<String> })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.VET)
     @UseGuards(JwtAuthGuard)
     @Get(PathConstants.ID_PARAM)
-    async getClinic(@Param('id') clinicId: number): Promise<MedivetClinic> {
+    async getClinic(
+        @Param('id') clinicId: number,
+        @Query('include', new ParseArrayPipe({ items: String, separator: ',', optional: true })) include?: string[]
+    ): Promise<MedivetClinic> {
         return this.clinicsService.findClinicById(clinicId);
     }
 
