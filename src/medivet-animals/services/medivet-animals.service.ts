@@ -110,7 +110,7 @@ export class MedivetAnimalsService {
     }
 
     async updateAnimal(animalId: number, user: MedivetUser, updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
-        const animal = await this.findOneAnimalById(animalId);
+        const animal = await this.findOneAnimalById(animalId, ['owner', 'breed', 'coatColor']);
         const { birthDate, breedId, coatColorId, gender, name, type } = updateAnimalDto;
 
         if (!this.checkIfUserIsAnimalOwner(user, animal)) throw new UnauthorizedException();

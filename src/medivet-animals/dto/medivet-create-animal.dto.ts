@@ -3,7 +3,7 @@ import { ValidationMessagesConstants } from '@/medivet-commons/constants/validat
 import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+import { IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
 
 export class MedivetCreateAnimalDto {
     @ApiProperty({

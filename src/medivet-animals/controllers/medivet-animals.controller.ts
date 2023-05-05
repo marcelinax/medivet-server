@@ -199,7 +199,8 @@ export class MedivetAnimalsController {
     async updateAnimal(
         @Param('id') animalId: number,
         @CurrentUser() user: MedivetUser,
-        @Body() updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
+        @Body() updateAnimalDto: MedivetCreateAnimalDto,
+    ): Promise<MedivetAnimal> {
         return this.animalsService.updateAnimal(animalId, user, updateAnimalDto);
     }
 
