@@ -45,22 +45,33 @@ export class MedivetAnimalsService {
         if (birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
     }
 
-    async findOneAnimalById(id: number): Promise<MedivetAnimal> {
-        const animal = await this.animalsRepository.findOne({ where: { id }, relations: ['owner', 'breed', 'coatColor'] });
+    async findOneAnimalById(id: number, include?: string[]): Promise<MedivetAnimal> {
+        const animal = await this.animalsRepository.findOne(
+            {
+                where: { id },
+                // relations: ['owner', 'breed', 'coatColor']
+                relations: include ?? []
+            });
         if (!animal) throw new NotFoundException(ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST);
         return animal;
     }
 
-    private async findAllAnimalsAssignedToOwner(user: MedivetUser): Promise<MedivetAnimal[]> {
-        const animals = await this.animalsRepository.find({ where: { owner: { id: user.id } }, relations: ['owner', 'breed', 'coatColor'] });
-        animals.forEach(animal => {
-            delete animal.owner;
-        });
+    private async findAllAnimalsAssignedToOwner(user: MedivetUser, include?: string[]): Promise<MedivetAnimal[]> {
+        const animals = await this.animalsRepository.find(
+            {
+                where: { owner: { id: user.id } },
+                // relations: ['owner', 'breed', 'coatColor']
+                relations: include ?? []
+            });
         return animals;
     }
 
-    async findOneAnimalAssignedToOwner(animalId: number, user: MedivetUser): Promise<MedivetAnimal> {
-        const animal = await this.animalsRepository.findOne({ where: { id: animalId, owner: { id: user.id } }, relations: ['owner', 'breed', 'coatColor'] });
+    async findOneAnimalAssignedToOwner(animalId: number, user: MedivetUser, include?: string[]): Promise<MedivetAnimal> {
+        const animal = await this.animalsRepository.findOne({
+            where: { id: animalId, owner: { id: user.id } },
+            // relations: ['owner', 'breed', 'coatColor']
+            relations: include ?? []
+        });
         if (!animal) throw new NotFoundException([ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST]);
         delete animal.owner;
 
@@ -68,7 +79,7 @@ export class MedivetAnimalsService {
     }
 
     async serachAllAnimalsAssignedToOwner(user: MedivetUser, searchAnimalDto: MedivetSearchAnimalDto): Promise<MedivetAnimal[]> {
-        let animals = await this.findAllAnimalsAssignedToOwner(user);
+        let animals = await this.findAllAnimalsAssignedToOwner(user, searchAnimalDto?.include);
 
         if (searchAnimalDto.animalName) {
             animals = animals.filter(animal => animal.name.toLowerCase().includes(searchAnimalDto.animalName.toLowerCase()));

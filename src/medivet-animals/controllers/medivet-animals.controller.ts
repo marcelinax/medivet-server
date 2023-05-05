@@ -14,8 +14,8 @@ import { MedivetStorageAnimalProfilePhotoInterceptor } from '@/medivet-storage/i
 import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, NotFoundException, Param, ParseArrayPipe, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
 @ApiTags(ApiTagsConstants.ANIMALS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -64,6 +64,7 @@ export class MedivetAnimalsController {
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
     })
+    @ApiQuery({ name: 'include', type: Array<String>, required: false })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.PATIENT)
@@ -75,12 +76,14 @@ export class MedivetAnimalsController {
         @Query('sortingMode') sortingMode: MedivetSortingModeEnum,
         @Query('pageSize') pageSize: number,
         @Query('offset') offset: number,
+        @Query('include', new ParseArrayPipe({ items: String, optional: true, separator: ',' })) include?: string[]
     ): Promise<MedivetAnimal[]> {
         return this.animalsService.serachAllAnimalsAssignedToOwner(owner, {
             animalName,
             sortingMode,
             pageSize,
-            offset
+            offset,
+            include
         });
     }
 
@@ -100,6 +103,7 @@ export class MedivetAnimalsController {
         description: 'Bad authorization / user is not owner for animal',
         type: UnathorizedExceptionDto
     })
+    @ApiQuery({ name: 'include', required: false, type: Array<String> })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.PATIENT)
@@ -107,9 +111,10 @@ export class MedivetAnimalsController {
     @Get(PathConstants.MY + PathConstants.ID_PARAM)
     async getOwnerAnimal(
         @CurrentUser() owner: MedivetUser,
-        @Param('id') animalId: number
+        @Param('id') animalId: number,
+        @Query('include', new ParseArrayPipe({ items: String, optional: true, separator: ',' })) include?: string[]
     ): Promise<MedivetAnimal> {
-        return this.animalsService.findOneAnimalAssignedToOwner(animalId, owner);
+        return this.animalsService.findOneAnimalAssignedToOwner(animalId, owner, include);
     }
 
     @ApiOperation({
@@ -142,8 +147,9 @@ export class MedivetAnimalsController {
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(MedivetStorageAnimalProfilePhotoInterceptor)
     @Post(PathConstants.UPLOAD_PROFILE_PHOTO + PathConstants.ID_PARAM)
-    async uploadNewAnimalProfilePhoto(@UploadedFile() file: Express.Multer.File, @Param('id') animalId: number) {
-        const animal = await this.animalsService.findOneAnimalById(animalId);
+    async uploadNewAnimalProfilePhoto(
+        @UploadedFile() file: Express.Multer.File, @Param('id') animalId: number) {
+        const animal = await this.animalsService.findOneAnimalById(animalId, ['breed', 'coatColor']);
         return this.animalsProfilePhotosService.updateAnimalProfilePhoto(animal, file.path.replaceAll('\\', '/'));
     }
 
@@ -165,7 +171,7 @@ export class MedivetAnimalsController {
     @UseGuards(JwtAuthGuard)
     @Delete(PathConstants.REMOVE_PROFILE_PHOTO + PathConstants.ID_PARAM)
     async removeAnimalProfilePhoto(@Param('id') animalId: number) {
-        const animal = await this.animalsService.findOneAnimalById(animalId);
+        const animal = await this.animalsService.findOneAnimalById(animalId, ['breed', 'coatColor']);
         return this.animalsProfilePhotosService.removeAnimalProfilePhoto(animal);
     }
 
@@ -213,6 +219,7 @@ export class MedivetAnimalsController {
         description: `Bad authorization / user is not animal's owner`,
         type: UnathorizedExceptionDto
     })
+    @ApiQuery({ name: 'include', required: false, type: Array<String> })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.PATIENT)
@@ -220,9 +227,10 @@ export class MedivetAnimalsController {
     @Put(PathConstants.ARCHVIE + PathConstants.ID_PARAM)
     async archivieAnimal(
         @Param('id') animalId: number,
-        @CurrentUser() user: MedivetUser
+        @CurrentUser() user: MedivetUser,
+        @Query('include', new ParseArrayPipe({ items: String, optional: true, separator: ',' })) include?: string[]
     ): Promise<MedivetAnimal> {
-        const animal = await this.animalsService.findOneAnimalById(animalId);
+        const animal = await this.animalsService.findOneAnimalById(animalId, include);
         return this.animalsService.archiveAnimal(animal, user);
     }
 
@@ -242,6 +250,7 @@ export class MedivetAnimalsController {
         description: `Bad authorization / user is not animal's owner`,
         type: UnathorizedExceptionDto
     })
+    @ApiQuery({ name: 'include', required: false, type: Array<String> })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.PATIENT)
@@ -249,9 +258,10 @@ export class MedivetAnimalsController {
     @Put(PathConstants.RESTORE + PathConstants.ID_PARAM)
     async restoreAnimal(
         @Param('id') animalId: number,
-        @CurrentUser() user: MedivetUser
+        @CurrentUser() user: MedivetUser,
+        @Query('include', new ParseArrayPipe({ items: String, optional: true, separator: ',' })) include?: string[]
     ): Promise<MedivetAnimal> {
-        const animal = await this.animalsService.findOneAnimalById(animalId);
+        const animal = await this.animalsService.findOneAnimalById(animalId, include);
         return this.animalsService.restoreAnimal(animal, user);
     }
 }
