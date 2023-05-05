@@ -1,14 +1,14 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { MedivetOpinion } from '@/medivet-opinions/entities/medivet-opinion.entity';
-import { Repository } from 'typeorm';
-import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
-import { MedivetCreateOpinionDto } from '@/medivet-opinions/dto/medivet-create-opinion.dto';
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { MedivetCreateOpinionDto } from '@/medivet-opinions/dto/medivet-create-opinion.dto';
+import { MedivetSearchOpinionDto } from "@/medivet-opinions/dto/medivet-search-opinion.dto";
+import { MedivetOpinion } from '@/medivet-opinions/entities/medivet-opinion.entity';
+import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
-import { MedivetSearchOpinionDto } from "@/medivet-opinions/dto/medivet-search-opinion.dto";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class MedivetOpinionsService {
@@ -16,11 +16,11 @@ export class MedivetOpinionsService {
         @InjectRepository(MedivetOpinion) private opinionsRepository: Repository<MedivetOpinion>,
         private usersService: MedivetUsersService
     ) { }
-    
+
     async createOpinion(user: MedivetUser, createOpinionDto: MedivetCreateOpinionDto): Promise<MedivetOpinion> {
         const { message, rate, vetId } = createOpinionDto;
 
-        const  possibleVet = await this.usersService.findOneById(vetId);
+        const possibleVet = await this.usersService.findOneById(vetId, ['opinions,opinions.issuer']);
 
         if (possibleVet) {
             if (user.id === possibleVet.id) throw new BadRequestException([ErrorMessagesConstants.VET_CANNOT_GIVE_YOURSELF_OPINION]);
@@ -41,7 +41,7 @@ export class MedivetOpinionsService {
     }
 
     async findAllOpinionsAssignedToVet(vetId: number): Promise<MedivetOpinion[]> {
-        const vet = await this.usersService.findOneById(vetId);
+        const vet = await this.usersService.findOneById(vetId, ['optinions,opinions.issuer']);
 
         if (vet) {
             return this.opinionsRepository.find({ where: { vet: { id: vetId } }, relations: ['issuer'] });
@@ -50,7 +50,7 @@ export class MedivetOpinionsService {
 
     async searchVetOpinions(vetId: number, searchOpinionDto: MedivetSearchOpinionDto): Promise<MedivetOpinion[]> {
         let opinions = await this.findAllOpinionsAssignedToVet(vetId);
-        
+
         if (searchOpinionDto.sortingMode) {
             opinions = opinions.sort((a, b) => {
                 switch (searchOpinionDto.sortingMode) {
@@ -81,6 +81,6 @@ export class MedivetOpinionsService {
     }
 
     private paginateOpinions(pageSize: number, offset: number, opinions: MedivetOpinion[]): MedivetOpinion[] {
-        return opinions.filter((_, index) => index >=offset && index < pageSize + offset)
+        return opinions.filter((_, index) => index >= offset && index < pageSize + offset);
     }
 }

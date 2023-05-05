@@ -14,15 +14,15 @@ export class MedivetClinicToVetWithSpecializationsService {
     constructor(
         @InjectRepository(MedivetClinicToVetWithSpecializations) private clinicToVetWithSpecializationsRepository: Repository<MedivetClinicToVetWithSpecializations>,
         private usersService: MedivetUsersService,
-        @Inject(forwardRef(() => MedivetClinicsService)) 
+        @Inject(forwardRef(() => MedivetClinicsService))
         private clinicsService: MedivetClinicsService
     ) { }
-    
+
     async createRelationshipBetweenClinicAndVetWithSpecializations(createClinicToVetWithSpecializationsDto: MedivetCreateClinicToVetWithSpecializationsDto)
         : Promise<MedivetClinicToVetWithSpecializations> {
         const { clinicId, specializationIds, vetId } = createClinicToVetWithSpecializationsDto;
 
-        const vet = await this.usersService.findVetById(vetId);
+        const vet = await this.usersService.findVetById(vetId, ['clinics,clinics.clinic']);
         const clinic = await this.clinicsService.findClinicById(clinicId);
 
         if (vet && clinic) {
@@ -45,10 +45,10 @@ export class MedivetClinicToVetWithSpecializationsService {
     }
 
     private getAllVetSpecializationsToAssign(vet: MedivetUser, specializationIds: number[]): MedivetVetSpecialization[] {
-        return specializationIds.map( (specId) => {
+        return specializationIds.map((specId) => {
             if (!this.checkIfVetHasThisSpecialization(specId, vet))
                 throw new NotFoundException([ErrorMessagesConstants.VET_SPECIALIZATION_IS_NOT_ASSIGNED_TO_THIS_VET]);
-            
+
             const specialization = vet.specializations.find(spec => spec.id === specId);
             if (specialization) return specialization;
         });
@@ -63,7 +63,7 @@ export class MedivetClinicToVetWithSpecializationsService {
         const existingRelationship = await this.clinicToVetWithSpecializationsRepository.findOne({
             where: {
                 vet: { id: vetId },
-                clinic: {id: clinicId}
+                clinic: { id: clinicId }
             },
             relations: ['vet', 'clinic']
         });
@@ -80,7 +80,7 @@ export class MedivetClinicToVetWithSpecializationsService {
         if (existingRelationship) {
             const isRelatedVet = existingRelationship.vet.id === vet.id;
             const isRelatedClinic = !!vet.clinics.find(clinic => clinic.clinic.id === existingRelationship.clinic.id);
-            
+
             if (isRelatedVet && isRelatedClinic) {
                 await this.clinicToVetWithSpecializationsRepository.remove(existingRelationship);
             }
@@ -91,11 +91,11 @@ export class MedivetClinicToVetWithSpecializationsService {
     async checkIfClinicIsAssigned(clinicId: number): Promise<boolean> {
         const existingRelationship = await this.clinicToVetWithSpecializationsRepository.findOne({
             where: {
-                clinic: {id: clinicId}
+                clinic: { id: clinicId }
             },
             relations: ['clinic']
         });
-       
+
         return !!existingRelationship;
     }
 }

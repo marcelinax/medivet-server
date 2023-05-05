@@ -1,8 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsOptional, IsString } from "class-validator";
 import { OffsetPaginationDto } from '@/medivet-commons/dto/offset-pagination.dto';
 import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsArray, IsEnum, IsOptional, IsString } from "class-validator";
 
 export class MedivetSearchVetDto extends OffsetPaginationDto {
     @ApiProperty({
@@ -52,4 +52,13 @@ export class MedivetSearchVetDto extends OffsetPaginationDto {
     @IsOptional()
     @IsString()
     clinicName?: string;
+
+
+    @ApiProperty({
+        example: 'animals',
+        required: false
+    })
+    @IsOptional()
+    @IsArray()
+    include?: string[];
 }

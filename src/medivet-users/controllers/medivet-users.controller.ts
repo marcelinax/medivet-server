@@ -2,26 +2,24 @@ import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { ErrorExceptionDto } from "@/medivet-commons/dto/error-exception.dto";
-import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
-import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
-import { ClassSerializerInterceptor, Get, Param, Query, UseGuards } from "@nestjs/common";
-import { UseInterceptors } from "@nestjs/common";
-import { Body, Controller, Post } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiConflictResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
-import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
-import { Role } from "../decorators/medivet-role.decorator";
-import { MedivetUserRole } from '@/medivet-users/enums/medivet-user-role.enum';
-import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
-import { MedivetCreateUserDto } from '@/medivet-users/dto/medivet-create-user.dto';
 import { MedivetGenderEnum } from '@/medivet-commons/enums/medivet-gender.enum';
 import { MedivetSortingModeEnum } from '@/medivet-commons/enums/medivet-sorting-mode.enum';
+import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
+import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
+import { MedivetCreateUserDto } from '@/medivet-users/dto/medivet-create-user.dto';
+import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { MedivetUserRole } from '@/medivet-users/enums/medivet-user-role.enum';
+import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
+import { Body, ClassSerializerInterceptor, Controller, Get, Param, ParseArrayPipe, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiConflictResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { Role } from "../decorators/medivet-role.decorator";
 
 @ApiTags(ApiTagsConstants.USERS)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller(PathConstants.USERS)
 export class MedivetUsersController {
-    constructor(private usersService: MedivetUsersService){}
+    constructor(private usersService: MedivetUsersService) { }
 
     @ApiOperation({
         summary: 'Create new user',
@@ -38,7 +36,7 @@ export class MedivetUsersController {
     @ApiBadRequestResponse({
         description: 'Not all fields were presented.',
         type: BadRequestExceptionDto
-        })
+    })
     @Post()
     createMedivetUser(@Body() body: MedivetCreateUserDto): Promise<MedivetUser> {
         return this.usersService.createUser(body);
@@ -57,6 +55,7 @@ export class MedivetUsersController {
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
     })
+    @ApiQuery({ name: 'include', type: Array<String>, required: false })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.PATIENT)
@@ -71,6 +70,7 @@ export class MedivetUsersController {
         @Query('sortingMode') sortingMode: MedivetSortingModeEnum,
         @Query('pageSize') pageSize: number,
         @Query('offset') offset: number,
+        @Query('include', new ParseArrayPipe({ items: String, optional: true, separator: ',' })) include?: string[]
     ): Promise<MedivetUser[]> {
         return this.usersService.searchVets({
             name,
@@ -80,7 +80,8 @@ export class MedivetUsersController {
             gender,
             sortingMode,
             pageSize,
-            offset
+            offset,
+            include
         });
     }
 
@@ -100,14 +101,16 @@ export class MedivetUsersController {
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
     })
+    @ApiQuery({ name: 'include', type: Array<String>, required: false })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.PATIENT)
     @UseGuards(JwtAuthGuard)
     @Get(PathConstants.VET + PathConstants.ID_PARAM)
     async getVet(
-        @Param('id') userId: number
+        @Param('id') userId: number,
+        @Query('include', new ParseArrayPipe({ items: String, separator: ',', optional: true })) include?: string[]
     ): Promise<MedivetUser> {
-        return this.usersService.findVetById(userId);
+        return this.usersService.findVetById(userId, include);
     }
 }

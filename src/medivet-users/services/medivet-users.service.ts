@@ -57,21 +57,23 @@ export class MedivetUsersService {
         return user;
     }
 
-    async findOneById(id: number): Promise<MedivetUser> {
+    async findOneById(id: number, include?: string[]): Promise<MedivetUser> {
         const user = await this.usersRepository.findOne({
-            where: { id }, relations: [
-                'clinics',
-                'clinics.clinic',
-                'clinics.specializations',
-                'clinics.clinic.receptionTimes',
-                'opinions',
-                'opinions.issuer',
-                'priceLists',
-                'priceLists.clinic',
-                'priceLists.specialization',
-                'priceLists.purposes',
-                'specializations'
-            ]
+            where: { id },
+            relations: include ?? []
+            // relations: [
+            //     'clinics',
+            //     'clinics.clinic',
+            //     'clinics.specializations',
+            //     'clinics.clinic.receptionTimes',
+            //     'opinions',
+            //     'opinions.issuer',
+            //     'priceLists',
+            //     'priceLists.clinic',
+            //     'priceLists.specialization',
+            //     'priceLists.purposes',
+            //     'specializations'
+            // ]
         });
         if (!user) throw new NotFoundException(ErrorMessagesConstants.USER_WITH_THIS_ID_DOES_NOT_EXIST);
         return user;
@@ -114,8 +116,8 @@ export class MedivetUsersService {
         await this.usersRepository.save(user);
     }
 
-    async findVetById(id: number): Promise<MedivetUser> {
-        const possibleVet = await this.findOneById(id);
+    async findVetById(id: number, include?: string[]): Promise<MedivetUser> {
+        const possibleVet = await this.findOneById(id, include);
 
         if (possibleVet) {
             if (possibleVet.role !== MedivetUserRole.VET) {
@@ -160,14 +162,15 @@ export class MedivetUsersService {
             where: {
                 role: MedivetUserRole.VET
             },
-            relations: [
-                'specializations',
-                'clinics',
-                'clinics.clinic',
-                'opinions',
-                'receptionTimes',
-                'priceLists',
-            ]
+            relations: searchVetDto?.include ?? []
+            // relations: [
+            //     'specializations',
+            //     'clinics',
+            //     'clinics.clinic',
+            //     'opinions',
+            //     'receptionTimes',
+            //     'priceLists',
+            // ]
         });
 
         if (city) {
