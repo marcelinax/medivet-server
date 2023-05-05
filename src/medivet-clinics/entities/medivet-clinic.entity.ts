@@ -1,9 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { AddressDto } from '@/medivet-commons/dto/address.dto';
-import { MedivetClinicsReceptionTime } from '@/medivet-clinics/entities/medivet-clinics-reception-time.entity';
 import { MedivetClinicToVetWithSpecializations } from "@/medivet-clinics/entities/medivet-clinic-to-vet-with-specializations.entity";
-import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
+import { MedivetClinicsReceptionTime } from '@/medivet-clinics/entities/medivet-clinics-reception-time.entity';
+import { AddressDto } from '@/medivet-commons/dto/address.dto';
+import { ApiProperty } from "@nestjs/swagger";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class MedivetClinic {
@@ -30,8 +29,4 @@ export class MedivetClinic {
     @ApiProperty()
     @OneToMany(() => MedivetClinicsReceptionTime, time => time.clinic)
     receptionTimes: MedivetClinicsReceptionTime[];
-
-    @ApiProperty({type: () => MedivetUser})
-    @ManyToOne(() => MedivetUser, user => user.createdClinics)
-    creator: MedivetUser;
 }

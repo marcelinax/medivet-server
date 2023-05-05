@@ -2,6 +2,7 @@ import { MedivetCreateAnimalDto } from "@/medivet-animals/dto/medivet-create-ani
 import { MedivetSearchAnimalDto } from '@/medivet-animals/dto/medivet-search-animal.dto';
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
 import { MedivetAnimalBreedsService } from '@/medivet-animals/services/medivet-animal-breeds.service';
+import { MedivetAnimalCoatColorsService } from "@/medivet-animals/services/medivet-animal-coat-colors.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
@@ -9,7 +10,6 @@ import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from 'typeorm';
-import { MedivetAnimalCoatColorsService } from "@/medivet-animals/services/medivet-animal-coat-colors.service";
 
 @Injectable()
 export class MedivetAnimalsService {
@@ -35,7 +35,10 @@ export class MedivetAnimalsService {
             owner
         });
         await this.animalsRepository.save(newAnimal);
-        return newAnimal;
+        const animalToReturn = { ...newAnimal };
+        delete animalToReturn.coatColor;
+
+        return animalToReturn;
     }
 
     private validateAnimalBirthDate(birthDate: Date): void {
@@ -43,13 +46,13 @@ export class MedivetAnimalsService {
     }
 
     async findOneAnimalById(id: number): Promise<MedivetAnimal> {
-        const animal = await this.animalsRepository.findOne({ where: { id }, relations: ['owner', 'breed'] });
+        const animal = await this.animalsRepository.findOne({ where: { id }, relations: ['owner', 'breed', 'coatColor'] });
         if (!animal) throw new NotFoundException(ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST);
         return animal;
     }
 
     private async findAllAnimalsAssignedToOwner(user: MedivetUser): Promise<MedivetAnimal[]> {
-        const animals = await this.animalsRepository.find({ where: { owner: { id: user.id } }, relations: ['owner', 'breed'] });
+        const animals = await this.animalsRepository.find({ where: { owner: { id: user.id } }, relations: ['owner', 'breed', 'coatColor'] });
         animals.forEach(animal => {
             delete animal.owner;
         });
@@ -57,12 +60,11 @@ export class MedivetAnimalsService {
     }
 
     async findOneAnimalAssignedToOwner(animalId: number, user: MedivetUser): Promise<MedivetAnimal> {
-        const animal = await this.animalsRepository.findOne({ where: { id: animalId, owner: { id: user.id } }, relations: ['owner', 'breed'] });
+        const animal = await this.animalsRepository.findOne({ where: { id: animalId, owner: { id: user.id } }, relations: ['owner', 'breed', 'coatColor'] });
         if (!animal) throw new NotFoundException([ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST]);
-        const newAnimal = { ...animal };
-        delete newAnimal.owner;
+        delete animal.owner;
 
-        return newAnimal;
+        return animal;
     }
 
     async serachAllAnimalsAssignedToOwner(user: MedivetUser, searchAnimalDto: MedivetSearchAnimalDto): Promise<MedivetAnimal[]> {

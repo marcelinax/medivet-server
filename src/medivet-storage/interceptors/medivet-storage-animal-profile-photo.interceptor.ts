@@ -9,7 +9,7 @@ export const MedivetStorageAnimalProfilePhotoInterceptor = FileInterceptor('file
         filename: (_req, file, callback) => {
             const fileExtensionName = extname(file.originalname);
             const fileName = uuidv4();
-            callback(null, `${fileName}-anima-profile-photo${fileExtensionName}`);
+            callback(null, `${fileName}-animal-profile-photo${fileExtensionName}`);
         }
     })
-})
+});
