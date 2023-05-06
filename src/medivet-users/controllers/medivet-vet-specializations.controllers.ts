@@ -25,7 +25,7 @@ export class MedivetVetSpecializationController {
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
     })
-    @ApiQuery({ name: 'name', required: false, type: String })
+    @ApiQuery({ name: 'search', required: false, type: String })
     @ApiQuery({ name: 'offset', required: false, type: Number })
     @ApiQuery({ name: 'pageSize', required: false, type: Number })
     @ApiBearerAuth()
@@ -34,12 +34,12 @@ export class MedivetVetSpecializationController {
     async searchVetSpecializations(
         @Query('pageSize') pageSize: number,
         @Query('offset') offset: number,
-        @Query('name') name?: string
+        @Query('search') search?: string
     ): Promise<MedivetVetSpecialization[]> {
         return this.vetSpecializationService.searchVetSpecialization({
             pageSize,
             offset,
-            name
+            search
         });
     }
 }
