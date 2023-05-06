@@ -1,10 +1,10 @@
+import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import medivetVetSpecializationsDataset from '@/medivet-users/datasets/medivet-vet-specializations.dataset.json';
+import { MedivetSearchVetSpecializationDto } from '@/medivet-users/dto/medivet-search-vet-specialization.dto';
+import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
-import { Repository } from 'typeorm';
-import medivetVetSpecializationsDataset from '@/medivet-users/datasets/medivet-vet-specializations.dataset.json';
-import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-
+import { ILike, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class MedivetVetSpecializationService {
@@ -12,11 +12,10 @@ export class MedivetVetSpecializationService {
         this.synchronizeDataset();
     }
 
-
     async synchronizeDataset(): Promise<void> {
         const count = await this.medivetVetSpecializationRepository.count();
         if (count !== 0) return;
-         medivetVetSpecializationsDataset?.forEach(async specialization => {
+        medivetVetSpecializationsDataset?.forEach(async specialization => {
             await this.createVetSpecialization(specialization.id, specialization.namePl);
         });
     }
@@ -30,13 +29,20 @@ export class MedivetVetSpecializationService {
         return vetSpecialization;
     }
 
-    async getAllVetSpecialization(): Promise<MedivetVetSpecialization[]> {
-        return this.medivetVetSpecializationRepository.find();
-    }
+    async searchVetSpecialization(searchVetSpecializationDto: MedivetSearchVetSpecializationDto): Promise<MedivetVetSpecialization[]> {
+        const pageSize = searchVetSpecializationDto.pageSize || 20;
+        const offset = searchVetSpecializationDto.offset || 0;
+        const name = searchVetSpecializationDto?.name || '';
 
-    async searchVetSpecialization(name: string): Promise<MedivetVetSpecialization[]> {
-        return this.medivetVetSpecializationRepository.createQueryBuilder('medivet-vet-specialization').
-            where('medivet-vet-specialization.namePl = :name', { name }).getMany();
+        return await this.medivetVetSpecializationRepository.find({
+            take: pageSize,
+            skip: offset,
+            where: { namePl: name ? ILike(`%${name}%`) : Not('') }
+        });
+
+        return await this.medivetVetSpecializationRepository.createQueryBuilder('medivet-vet-specialization').
+            where('medivet-vet-specialization.namePl :name', { name }).getMany();
+
     }
 
     async findVetSpecializationById(id: number): Promise<MedivetVetSpecialization> {

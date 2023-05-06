@@ -1,19 +1,19 @@
-import { Controller, Get, Query, UseGuards } from "@nestjs/common";
-import { MedivetVetSpecializationService } from '@/medivet-users/services/medivet-vet-specialization.service';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
-import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
-import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
-import { JwtAuthGuard } from '@/medivet-security/guards/medivet-jwt-auth.guard';
 import { ApiTagsConstants } from '@/medivet-commons/constants/api-tags.constants';
 import { PathConstants } from '@/medivet-commons/constants/path.constants';
+import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
+import { JwtAuthGuard } from '@/medivet-security/guards/medivet-jwt-auth.guard';
+import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
+import { MedivetVetSpecializationService } from '@/medivet-users/services/medivet-vet-specialization.service';
+import { Controller, Get, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
 @ApiTags(ApiTagsConstants.VET_SPECIALIZATION)
 @Controller(PathConstants.VET_SPECIALIZATIONS)
 export class MedivetVetSpecializationController {
     constructor(private vetSpecializationService: MedivetVetSpecializationService) { }
-    
+
     @ApiOperation({
-        summary: 'Search for vet specializations',
+        summary: 'Gets vet specializations filtered by params',
         description: 'Returns array of matched vet specializations'
     })
     @ApiOkResponse({
@@ -25,30 +25,21 @@ export class MedivetVetSpecializationController {
         description: 'Bad authorization',
         type: UnathorizedExceptionDto
     })
-    @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
-    @Get(PathConstants.SEARCH)
-    async searchVetSpecializations(@Query('name') name: string): Promise<MedivetVetSpecialization[]> {
-        return this.vetSpecializationService.searchVetSpecialization(name);
-    }
-
-    @ApiOperation({
-        summary: 'Gets all vet specializations',
-        description: 'Returns array of vet specializations'
-    })
-    @ApiOkResponse({
-        description: 'Returns list of all vet specializations',
-        type: MedivetVetSpecialization,
-        isArray: true
-    })
-    @ApiUnauthorizedResponse({
-        description: 'Bad authorization',
-        type: UnathorizedExceptionDto
-    })
+    @ApiQuery({ name: 'name', required: false, type: String })
+    @ApiQuery({ name: 'offset', required: false, type: Number })
+    @ApiQuery({ name: 'pageSize', required: false, type: Number })
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Get()
-    async getAll(): Promise<MedivetVetSpecialization[]> {
-        return this.vetSpecializationService.getAllVetSpecialization();
+    async searchVetSpecializations(
+        @Query('pageSize') pageSize: number,
+        @Query('offset') offset: number,
+        @Query('name') name?: string
+    ): Promise<MedivetVetSpecialization[]> {
+        return this.vetSpecializationService.searchVetSpecialization({
+            pageSize,
+            offset,
+            name
+        });
     }
 }
