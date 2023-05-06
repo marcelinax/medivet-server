@@ -32,17 +32,13 @@ export class MedivetVetSpecializationService {
     async searchVetSpecialization(searchVetSpecializationDto: MedivetSearchVetSpecializationDto): Promise<MedivetVetSpecialization[]> {
         const pageSize = searchVetSpecializationDto.pageSize || 20;
         const offset = searchVetSpecializationDto.offset || 0;
-        const name = searchVetSpecializationDto?.name || '';
+        const search = searchVetSpecializationDto?.search || '';
 
         return await this.medivetVetSpecializationRepository.find({
             take: pageSize,
             skip: offset,
-            where: { namePl: name ? ILike(`%${name}%`) : Not('') }
+            where: { namePl: search ? ILike(`%${search}%`) : Not('') }
         });
-
-        return await this.medivetVetSpecializationRepository.createQueryBuilder('medivet-vet-specialization').
-            where('medivet-vet-specialization.namePl :name', { name }).getMany();
-
     }
 
     async findVetSpecializationById(id: number): Promise<MedivetVetSpecialization> {

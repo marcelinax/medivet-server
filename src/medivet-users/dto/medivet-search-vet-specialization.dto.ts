@@ -9,5 +9,5 @@ export class MedivetSearchVetSpecializationDto extends OffsetPaginationDto {
     })
     @IsOptional()
     @IsString()
-    name?: string;
+    search?: string;
 }
