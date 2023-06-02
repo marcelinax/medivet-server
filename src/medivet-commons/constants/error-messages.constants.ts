@@ -42,4 +42,7 @@ export class ErrorMessagesConstants {
     public static ANIMAL_COAT_COLOR_ALREADY_EXISTS = 'Animal coat color already exists.';
     public static CANNOT_REMOVE_ANIMAL_COAT_COLOR_WHICH_IS_IN_USE = 'Cannot remove animal coat color which is in use';
     public static ANIMAL_COAT_COLOR_WITH_THIS_ID_DOES_NOT_EXIST = 'Animal coat color with this id does not exist.';
+    public static VET_SPECIALIZATION_ALREADY_EXISTS = 'Vet specialization already exists.';
+    public static VET_SPECIALIZATION_WITH_THIS_ID_DOES_NOT_EXIST = 'Vet specialization with this id does not exist,';
+    public static CANNOT_REMOVE_VET_SPECIALIZATION_WHICH_IS_IN_USE = 'Cannot remove vet specialization which is in use';
 }

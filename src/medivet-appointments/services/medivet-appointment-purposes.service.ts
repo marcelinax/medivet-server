@@ -15,26 +15,26 @@ export class MedivetAppointmentPurposesService {
         @InjectRepository(MedivetAppointmentPurpose) private appointmentPurposesRepository: Repository<MedivetAppointmentPurpose>,
         private vetSpecializationsService: MedivetVetSpecializationService
     ) { }
-    
+
     async createAppointmentPurpose(
         vet: MedivetUser,
         createAppointmentPurposeDto: MedivetCreateAppointmentPurposeDto
     ): Promise<MedivetAppointmentPurpose> {
-        const { clinicId, name, price, specializationId} = createAppointmentPurposeDto;
-        const possibleSpecialization = await this.vetSpecializationsService.findVetSpecializationById(specializationId);
+        const { clinicId, name, price, specializationId } = createAppointmentPurposeDto;
+        const possibleSpecialization = await this.vetSpecializationsService.findOneVetSpecializationById(specializationId);
 
         if (possibleSpecialization) {
             if (!this.checkIfVetHasThisSpecialization(possibleSpecialization, vet))
                 throw new NotFoundException([ErrorMessagesConstants.VET_SPECIALIZATION_IS_NOT_ASSIGNED_TO_THIS_VET]);
-            
+
             if (!this.checkIfVetIsAssignedToThisClinic(clinicId, vet))
                 throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
-            
-            if(this.checkIfVetAppointmentPurposeExists(vet.id, clinicId, name))
+
+            if (this.checkIfVetAppointmentPurposeExists(vet.id, clinicId, name))
                 throw new BadRequestException([ErrorMessagesConstants.APPOINTMENT_PURPOSE_ALREADY_EXISTS]);
-            
+
             const clinic = vet.clinics.find(clinic => clinic.clinic.id === clinicId);
-            
+
             const newAppointmentPurpose = this.appointmentPurposesRepository.create({
                 clinic: clinic.clinic,
                 vet,
@@ -53,22 +53,22 @@ export class MedivetAppointmentPurposesService {
     ): Promise<MedivetAppointmentPurpose> {
         const { name, price, clinicId, specializationId } = createAppointmentPurposeDto;
         const appointmentPurpose = await this.findVetAppointmentPurpose(vet.id, clinicId, name);
-        const possibleSpecialization = await this.vetSpecializationsService.findVetSpecializationById(specializationId);
+        const possibleSpecialization = await this.vetSpecializationsService.findOneVetSpecializationById(specializationId);
 
         if (!appointmentPurpose) throw new NotFoundException([ErrorMessagesConstants.APPOINTMENT_PURPOSE_DOES_NOT_EXIST]);
 
         if (possibleSpecialization) {
             if (!this.checkIfVetHasThisSpecialization(possibleSpecialization, vet))
-            throw new NotFoundException([ErrorMessagesConstants.VET_SPECIALIZATION_IS_NOT_ASSIGNED_TO_THIS_VET]);
-            
-        if (!this.checkIfVetIsAssignedToThisClinic(clinicId, vet))
-            throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
+                throw new NotFoundException([ErrorMessagesConstants.VET_SPECIALIZATION_IS_NOT_ASSIGNED_TO_THIS_VET]);
 
-        appointmentPurpose.name = name;
-        appointmentPurpose.price = price;
+            if (!this.checkIfVetIsAssignedToThisClinic(clinicId, vet))
+                throw new NotFoundException([ErrorMessagesConstants.VET_CLINIC_IS_NOT_ASSIGNED_TO_THIS_VET]);
 
-        await this.appointmentPurposesRepository.save(appointmentPurpose);
-        return appointmentPurpose;
+            appointmentPurpose.name = name;
+            appointmentPurpose.price = price;
+
+            await this.appointmentPurposesRepository.save(appointmentPurpose);
+            return appointmentPurpose;
         }
     }
 
@@ -108,7 +108,7 @@ export class MedivetAppointmentPurposesService {
 
     async searchAppointmentPurposes(vet: MedivetUser, searchAppointmentPurposeDto: MedivetSearchAppointmentPurposeDto): Promise<MedivetAppointmentPurpose[]> {
         const { clinicId, specializationId, name } = searchAppointmentPurposeDto;
-       
+
         let appointmentPurposes = await this.findAllVetAppointmentPurposes(vet.id, clinicId);
         const priceList = vet.priceLists.find(priceList => priceList.specialization.id === specializationId);
 

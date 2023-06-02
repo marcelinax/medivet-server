@@ -146,7 +146,7 @@ export class MedivetUsersService {
         for (let i = 0; i < specializationIds.length; i++) {
             const specializationId = specializationIds[i];
 
-            const specialization = await this.vetSpecializationsService.findVetSpecializationById(specializationId);
+            const specialization = await this.vetSpecializationsService.findOneVetSpecializationById(specializationId);
 
             if (specialization) specializations.push(specialization);
         }

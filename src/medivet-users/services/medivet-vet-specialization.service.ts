@@ -1,51 +1,87 @@
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import medivetVetSpecializationsDataset from '@/medivet-users/datasets/medivet-vet-specializations.dataset.json';
+import { MedivetCreateVetSpecializationDto } from '@/medivet-users/dto/medivet-create-vet-specialization.dto';
 import { MedivetSearchVetSpecializationDto } from '@/medivet-users/dto/medivet-search-vet-specialization.dto';
+import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ILike, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class MedivetVetSpecializationService {
-    constructor(@InjectRepository(MedivetVetSpecialization) private medivetVetSpecializationRepository: Repository<MedivetVetSpecialization>) {
-        this.synchronizeDataset();
+    constructor(
+        @InjectRepository(MedivetVetSpecialization) private vetSpecializationRepository: Repository<MedivetVetSpecialization>,
+        @InjectRepository(MedivetUser) private userRepository: Repository<MedivetUser>
+    ) { }
+
+    async createVetSpecialization(createVetSpecializationDto: MedivetCreateVetSpecializationDto): Promise<MedivetVetSpecialization> {
+        if (await this.checkIfVetSpecializationAlreadyExists(createVetSpecializationDto))
+            throw new BadRequestException([ErrorMessagesConstants.VET_SPECIALIZATION_ALREADY_EXISTS]);
+
+        const newVetSpecialization = this.vetSpecializationRepository.create({
+            name: createVetSpecializationDto.name,
+
+        });
+        await this.vetSpecializationRepository.save(newVetSpecialization);
+        return newVetSpecialization;
     }
 
-    async synchronizeDataset(): Promise<void> {
-        const count = await this.medivetVetSpecializationRepository.count();
-        if (count !== 0) return;
-        medivetVetSpecializationsDataset?.forEach(async specialization => {
-            await this.createVetSpecialization(specialization.id, specialization.namePl);
+    private async checkIfVetSpecializationAlreadyExists(createVetSpecializationDto: MedivetCreateVetSpecializationDto): Promise<boolean> {
+        const { name } = createVetSpecializationDto;
+        const existingVetSpecialization = await this.vetSpecializationRepository.findOne({
+            where: {
+                name,
+            }
         });
+
+        if (!existingVetSpecialization) return false;
+        return true;
     }
 
-    async createVetSpecialization(id: number, namePl: string): Promise<MedivetVetSpecialization> {
-        const vetSpecialization = this.medivetVetSpecializationRepository.create({
-            id,
-            namePl
-        });
-        await this.medivetVetSpecializationRepository.save(vetSpecialization);
+    async findOneVetSpecializationById(id: number): Promise<MedivetVetSpecialization> {
+        const vetSpecialization = await this.vetSpecializationRepository.findOne({ where: { id } });
+        if (!vetSpecialization) throw new NotFoundException(ErrorMessagesConstants.VET_SPECIALIZATION_WITH_THIS_ID_DOES_NOT_EXIST);
         return vetSpecialization;
     }
 
+    async removeVetSpecialization(vetSpecializationId: number): Promise<void> {
+        const vetSpecialization = await this.findOneVetSpecializationById(vetSpecializationId);
+
+        if (vetSpecialization) {
+            const vetSpecializationInUse = await this.checkIfVetSpecializationIsInUse(vetSpecializationId);
+            if (vetSpecializationInUse)
+                throw new BadRequestException([ErrorMessagesConstants.CANNOT_REMOVE_VET_SPECIALIZATION_WHICH_IS_IN_USE]);
+            this.vetSpecializationRepository.remove(vetSpecialization);
+        }
+    }
+
+    private async checkIfVetSpecializationIsInUse(vetSpecializationId: number): Promise<boolean> {
+        const vetSpecialization = this.userRepository.findOne({ where: { specializations: { id: vetSpecializationId } } });
+        return !!vetSpecialization;
+    };
+
+    async updateVetSpecialization(vetSpecializationId: number, updateVetSpecializationDto: MedivetCreateVetSpecializationDto): Promise<MedivetVetSpecialization> {
+        const vetSpecialization = await this.findOneVetSpecializationById(vetSpecializationId);
+        const { name } = updateVetSpecializationDto;
+
+        if (vetSpecialization) {
+            vetSpecialization.name = name;
+
+            await this.vetSpecializationRepository.save(vetSpecialization);
+            return vetSpecialization;
+        }
+    }
+
     async searchVetSpecialization(searchVetSpecializationDto: MedivetSearchVetSpecializationDto): Promise<MedivetVetSpecialization[]> {
-        const pageSize = searchVetSpecializationDto.pageSize || 20;
+        const pageSize = searchVetSpecializationDto.pageSize || 10;
         const offset = searchVetSpecializationDto.offset || 0;
         const search = searchVetSpecializationDto?.search || '';
 
-        return await this.medivetVetSpecializationRepository.find({
+        return await this.vetSpecializationRepository.find({
             take: pageSize,
             skip: offset,
-            where: { namePl: search ? ILike(`%${search}%`) : Not('') }
+            where: { name: search ? ILike(`%${search}%`) : Not('') }
         });
-    }
-
-    async findVetSpecializationById(id: number): Promise<MedivetVetSpecialization> {
-        const specialization = await this.medivetVetSpecializationRepository.findOne({ where: { id } });
-
-        if (!specialization) throw new NotFoundException([ErrorMessagesConstants.VET_SPECIALIZATION_DOES_NOT_EXIST]);
-        return specialization;
     }
 
 }

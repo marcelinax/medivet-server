@@ -1,10 +1,10 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport'; 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { envConfig } from '@/medivet-commons/configurations/env-config';
+import { MedivetSecurityAuthService } from '@/medivet-security/services/medivet-security-auth.service';
 import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
 import { MedivetUsersService } from '@/medivet-users/services/medivet-users.service';
-import { MedivetSecurityAuthService } from '@/medivet-security/services/medivet-security-auth.service';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
 
 const env = envConfig();
 
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (!await this.authSecurityService.validateAuthToken(token)) throw new UnauthorizedException();
     await this.authSecurityService.setTokenLastUseDate(token);
-    const user = await this.usersService.findOneById(payload.id);
+    const user = await this.usersService.findOneById(payload.id, ['specializations']);
     return user;
   }
 }
