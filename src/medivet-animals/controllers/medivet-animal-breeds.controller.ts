@@ -147,17 +147,16 @@ export class MedivetAnimalBreedsController {
         type: UnathorizedExceptionDto
     })
     @ApiQuery({ name: 'animalType', required: false, type: String })
-    @ApiQuery({ name: 'breedName', required: false, type: String })
     @ApiQuery({ name: 'search', required: false, type: String })
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Get()
     async getAnimalBreeds(
         @Query('pageSize') pageSize: number, @Query('offset') offset: number,
-        @Query('breedName') breedName?: string, @Query('animalType') animalType?: string
+        @Query('search') search?: string, @Query('animalType') animalType?: string
     ): Promise<MedivetAnimalBreed[]> {
         return this.animalBreedsSerivce.searchAnimalBreeds({
-            breedName,
+            search,
             animalType,
             pageSize,
             offset,

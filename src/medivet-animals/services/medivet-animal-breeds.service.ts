@@ -53,16 +53,14 @@ export class MedivetAnimalBreedsService {
     async searchAnimalBreeds(searchAnimalBreedDto: MedivetSearchAnimalBreedDto): Promise<MedivetAnimalBreed[]> {
         let breeds = await this.findAllAnimalBreeds();
 
-        if (searchAnimalBreedDto.breedName) {
-            breeds = breeds.filter(breed => breed.name.toLowerCase().includes(searchAnimalBreedDto.breedName.toLowerCase()));
-        };
         if (searchAnimalBreedDto.animalType) {
             breeds = breeds.filter(breed => breed.type.toLowerCase().includes(searchAnimalBreedDto.animalType.toLowerCase()));
         };
 
         if (searchAnimalBreedDto.search) {
-            breeds = breeds.filter(breed => breed.type.toLowerCase().includes(searchAnimalBreedDto.animalType.toLowerCase())
-                || breed.name.toLowerCase().includes(searchAnimalBreedDto.breedName.toLowerCase()));
+            const searchToLowerCase = searchAnimalBreedDto.search.toLowerCase();
+            breeds = breeds.filter(breed => breed.type.toLowerCase().includes(searchToLowerCase)
+                || breed.name.toLowerCase().includes(searchToLowerCase));
         }
 
         const pageSize = searchAnimalBreedDto.pageSize || 10;

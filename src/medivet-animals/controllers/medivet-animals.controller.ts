@@ -52,8 +52,8 @@ export class MedivetAnimalsController {
     }
 
     @ApiOperation({
-        summary: `Search authorized owner's animals`,
-        description: `Enables search owner's animal by it's name`
+        summary: `Get authorized owner's animals`,
+        description: `Enables get owner's animal searching by name`
     })
     @ApiOkResponse({
         description: `Returns list off all authorized owner's animals`,
@@ -65,21 +65,23 @@ export class MedivetAnimalsController {
         type: UnathorizedExceptionDto
     })
     @ApiQuery({ name: 'include', type: Array<String>, required: false })
+    @ApiQuery({ name: 'sortingMode', type: String, required: false })
+    @ApiQuery({ name: 'search', type: String, required: false })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.PATIENT)
     @UseGuards(JwtAuthGuard)
-    @Get(PathConstants.SEARCH + '/' + PathConstants.MY)
+    @Get(PathConstants.MY)
     getMyAnimals(
         @CurrentUser() owner: MedivetUser,
-        @Query('animalName') animalName: string,
+        @Query('search') search: string,
         @Query('sortingMode') sortingMode: MedivetSortingModeEnum,
         @Query('pageSize') pageSize: number,
         @Query('offset') offset: number,
         @Query('include', new ParseArrayPipe({ items: String, optional: true, separator: ',' })) include?: string[]
     ): Promise<MedivetAnimal[]> {
         return this.animalsService.serachAllAnimalsAssignedToOwner(owner, {
-            animalName,
+            search,
             sortingMode,
             pageSize,
             offset,

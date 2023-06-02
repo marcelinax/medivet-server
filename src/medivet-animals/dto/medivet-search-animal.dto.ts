@@ -10,7 +10,7 @@ export class MedivetSearchAnimalDto extends OffsetPaginationDto {
     })
     @IsOptional()
     @IsString()
-    animalName?: string;
+    search?: string;
 
     @ApiProperty({
         example: MedivetSortingModeEnum.ASC,

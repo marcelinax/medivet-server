@@ -4,14 +4,6 @@ import { IsOptional, IsString } from "class-validator";
 
 export class MedivetSearchAnimalBreedDto extends OffsetPaginationDto {
     @ApiProperty({
-        example: 'Golden Retriver',
-        required: false
-    })
-    @IsOptional()
-    @IsString()
-    breedName?: string;
-
-    @ApiProperty({
         example: 'Dog',
         required: false
     })
@@ -20,7 +12,7 @@ export class MedivetSearchAnimalBreedDto extends OffsetPaginationDto {
     animalType?: string;
 
     @ApiProperty({
-        example: 'golden',
+        example: 'Golden Retriver',
         required: false
     })
     @IsOptional()

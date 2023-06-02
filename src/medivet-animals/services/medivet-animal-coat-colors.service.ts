@@ -49,12 +49,8 @@ export class MedivetAnimalCoatColorsService {
     async searchAnimalCoatColors(searchAnimalCoatColorDto: MedivetSearchAnimalCoatColorDto): Promise<MedivetAnimalCoatColor[]> {
         let coatColors = await this.findAllAnimalCoatColors();
 
-        if (searchAnimalCoatColorDto.coatColorName) {
-            coatColors = coatColors.filter(color => color.name.toLowerCase().includes(searchAnimalCoatColorDto.coatColorName.toLowerCase()));
-        };
-
         if (searchAnimalCoatColorDto.search) {
-            coatColors = coatColors.filter(color => color.name.toLowerCase().includes(searchAnimalCoatColorDto.coatColorName.toLowerCase()));
+            coatColors = coatColors.filter(color => color.name.toLowerCase().includes(searchAnimalCoatColorDto.search.toLowerCase()));
         }
 
         const pageSize = searchAnimalCoatColorDto.pageSize || 10;

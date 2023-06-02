@@ -64,7 +64,6 @@ export default class MedivetSecurityAuthController {
     @UseGuards(JwtAuthGuard)
     @Get(PathConstants.VALIDATE_TOKEN)
     async validateToken(@CurrentUser() user: MedivetUser): Promise<OkMessageDto> {
-        console.log(user);
         if (!user) throw new UnauthorizedException();
         return { message: SuccessMessageConstants.TOKEN_IS_VALID };
     }

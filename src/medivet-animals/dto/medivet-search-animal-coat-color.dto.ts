@@ -9,13 +9,5 @@ export class MedivetSearchAnimalCoatColorDto extends OffsetPaginationDto {
     })
     @IsOptional()
     @IsString()
-    coatColorName?: string;
-
-    @ApiProperty({
-        example: 'czar',
-        required: false
-    })
-    @IsOptional()
-    @IsString()
     search?: string;
 }

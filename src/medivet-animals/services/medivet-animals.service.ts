@@ -81,8 +81,8 @@ export class MedivetAnimalsService {
     async serachAllAnimalsAssignedToOwner(user: MedivetUser, searchAnimalDto: MedivetSearchAnimalDto): Promise<MedivetAnimal[]> {
         let animals = await this.findAllAnimalsAssignedToOwner(user, searchAnimalDto?.include);
 
-        if (searchAnimalDto.animalName) {
-            animals = animals.filter(animal => animal.name.toLowerCase().includes(searchAnimalDto.animalName.toLowerCase()));
+        if (searchAnimalDto.search) {
+            animals = animals.filter(animal => animal.name.toLowerCase().includes(searchAnimalDto.search.toLowerCase()));
         }
 
         if (searchAnimalDto.sortingMode) {

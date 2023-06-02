@@ -186,6 +186,7 @@ export class MedivetClinicsController {
         type: UnathorizedExceptionDto
     })
     @ApiQuery({ name: 'include', required: false, type: Array<String> })
+    @ApiQuery({ name: 'include', required: false, type: Array<String> })
     @ApiBearerAuth()
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.VET)
@@ -193,9 +194,10 @@ export class MedivetClinicsController {
     @Get(PathConstants.ASSIGNED_TO_VET)
     async getAllClinicsAssignedToVet(
         @CurrentUser() user: MedivetUser,
+        @Query('pageSize') pageSize: number, @Query('offset') offset: number,
         @Query('include', new ParseArrayPipe({ items: String, separator: ',', optional: true })) include?: string[]
     ): Promise<MedivetClinic[]> {
-        return this.clinicsService.findClinicsAssignedToVet(user.id, include);
+        return this.clinicsService.findClinicsAssignedToVet(user.id, { pageSize, offset }, include);
     }
 
     @ApiOperation({

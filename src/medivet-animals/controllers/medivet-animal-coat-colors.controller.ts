@@ -153,10 +153,10 @@ export class MedivetAnimalCoatColorsController {
     @Get()
     async getAnimalCoatColors(
         @Query('pageSize') pageSize: number, @Query('offset') offset: number,
-        @Query('coatColorName') coatColorName?: string
+        @Query('search') search?: string
     ): Promise<MedivetAnimalCoatColor[]> {
         return this.animalCoatColorsSerivce.searchAnimalCoatColors({
-            coatColorName,
+            search,
             pageSize,
             offset,
         });

@@ -54,8 +54,7 @@ export class MedivetClinicsService {
         return clinic;
     }
 
-    async findClinicsAssignedToVet(vetId: number, include?: string[]): Promise<MedivetClinic[]> {
-        console.log(include);
+    async findClinicsAssignedToVet(vetId: number, searchClinicDto: MedivetSearchClinicDto, include?: string[]): Promise<MedivetClinic[]> {
         const clinics = await this.clinicsRepository.find({
             where: {
                 vets: { vet: { id: vetId } }
@@ -63,7 +62,9 @@ export class MedivetClinicsService {
             relations: include ?? []
         });
 
-        return clinics;
+        const pageSize = searchClinicDto.pageSize || 10;
+        const offset = searchClinicDto.offset || 0;
+        return this.paginateClinics(clinics, offset, pageSize);
     }
 
     private async checkIfClinicAlreadyExists(createClinicDto: MedivetCreateClinicDto): Promise<boolean> {
