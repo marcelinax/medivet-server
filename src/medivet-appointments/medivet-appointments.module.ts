@@ -1,24 +1,23 @@
-import { Module } from "@nestjs/common";
-import { MedivetAppointmentsService } from '@/medivet-appointments/services/medivet-appointments.service';
 import { MedivetAppointmentsController } from '@/medivet-appointments/controllers/medivet-appointments.controller';
-import { MedivetAppointmentPurposesService } from '@/medivet-appointments/services/medivet-appointment-purposes.service';
-import { MedivetAppointmentPurpose } from '@/medivet-appointments/entities/medivet-appointment-purpose.entity';
-import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { MedivetUsersModule } from "@/medivet-users/medivet-users.module";
+import { MedivetAppointmentsService } from '@/medivet-appointments/services/medivet-appointments.service';
 import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity";
+import { MedivetVetSpecializationsModule } from '@/medivet-specializations/medivet-vet-specializations.module';
+import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
+import { MedivetUsersModule } from "@/medivet-users/medivet-users.module";
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
-            MedivetAppointmentPurpose,
             MedivetUser,
             MedivetClinic
         ]),
-        MedivetUsersModule
+        MedivetUsersModule,
+        MedivetVetSpecializationsModule
     ],
-    providers: [MedivetAppointmentsService, MedivetAppointmentPurposesService],
+    providers: [MedivetAppointmentsService],
     controllers: [MedivetAppointmentsController],
-    exports: [MedivetAppointmentPurposesService]
+    exports: []
 })
-export class MedivetAppointmentsModule {}
+export class MedivetAppointmentsModule { }

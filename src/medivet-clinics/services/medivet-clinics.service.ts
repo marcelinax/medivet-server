@@ -1,8 +1,6 @@
-import { MedivetAssignVetToClinicDto } from "@/medivet-clinics/dto/medivet-assign-vet-to-clinic.dto";
 import { MedivetCreateClinicDto } from "@/medivet-clinics/dto/medivet-create-clinic.dto";
 import { MedivetSearchClinicDto } from '@/medivet-clinics/dto/medivet-search-clinic.dto';
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
-import { MedivetClinicToVetWithSpecializationsService } from '@/medivet-clinics/services/medivet-clinic-to-vet-with-specializations.service';
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
@@ -18,7 +16,6 @@ export class MedivetClinicsService {
     constructor(
         @InjectRepository(MedivetClinic) private clinicsRepository: Repository<MedivetClinic>,
         private usersService: MedivetUsersService,
-        private clinicToVetWithSpecializationsService: MedivetClinicToVetWithSpecializationsService
     ) { }
 
     async createClinic(createClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {
@@ -39,15 +36,6 @@ export class MedivetClinicsService {
         const clinic = await this.clinicsRepository.findOne({
             where: { id },
             relations: include ?? []
-            // relations: [
-            //     'vets',
-            //     'vets.specializations',
-            //     'vets.vet.receptionTimes',
-            //     'vets.vet.receptionTimes.clinic',
-            //     'vets.vet.specializations',
-            //     'receptionTimes',
-            //     'receptionTimes.clinic'
-            // ],
         });
 
         if (!clinic) throw new NotFoundException([ErrorMessagesConstants.CLINIC_WITH_THIS_ID_DOES_NOT_EXIST]);
@@ -57,7 +45,7 @@ export class MedivetClinicsService {
     async findClinicsAssignedToVet(vetId: number, searchClinicDto: MedivetSearchClinicDto, include?: string[]): Promise<MedivetClinic[]> {
         const clinics = await this.clinicsRepository.find({
             where: {
-                vets: { vet: { id: vetId } }
+                vets: { id: vetId }
             },
             relations: include ?? []
         });
@@ -85,41 +73,27 @@ export class MedivetClinicsService {
     async assignVetToClinic(
         vet: MedivetUser,
         clinicId: number,
-        assignVetToClinicDto: MedivetAssignVetToClinicDto)
+    )
         : Promise<MedivetUser> {
-        const { specializationIds } = assignVetToClinicDto;
 
-        const assignedClinic = await this.clinicToVetWithSpecializationsService
-            .createRelationshipBetweenClinicAndVetWithSpecializations(
-                {
-                    clinicId,
-                    vetId: vet.id,
-                    specializationIds
-                }
-            );
+        const clinic = await this.findClinicById(clinicId);
 
-        vet.clinics = [...vet.clinics, assignedClinic];
-        await this.usersService.saveUser(vet);
-        return vet;
+        if (clinic) {
+            vet.clinics = [...vet.clinics, clinic];
+            await this.usersService.saveUser(vet);
+            return vet;
+        }
     }
 
     async unassignVetFromClinic(vet: MedivetUser, clinicId: number): Promise<OkMessageDto> {
-        await this.clinicToVetWithSpecializationsService.removeRelationshipBetweenClinicAndVetWithSpecializations(clinicId, vet);
+        // vet bedzie musiał wysłać zapytanie do admina o usunięcie, dopiero po zatwierdzeniu bedzie to mozliwe
+        // await this.clinicToVetWithSpecializationsService.removeRelationshipBetweenClinicAndVetWithSpecializations(clinicId, vet);
         return { message: SuccessMessageConstants.VET_CLINIC_HAS_BEEN_UNASSIGNED_SUCCESSFULLY };
     }
 
     async findAllClinics(include?: string[]): Promise<MedivetClinic[]> {
         return this.clinicsRepository.find({
             relations: include ?? [],
-            // relations: [
-            //     'vets',
-            //     'vets.specializations',
-            //     'vets.vet.receptionTimes',
-            //     'vets.vet.receptionTimes.clinic',
-            //     'vets.vet.specializations',
-            //     'receptionTimes',
-            //     'receptionTimes.clinic'
-            // ]
         });
     }
 
@@ -178,12 +152,17 @@ export class MedivetClinicsService {
         const clinic = await this.findClinicById(clinicId);
 
         if (clinic) {
-            const isClinicInUse = await this.clinicToVetWithSpecializationsService.checkIfClinicIsAssigned(clinicId);
+            const isClinicInUse = this.checkIfClinicIsInUse(clinic);
             if (isClinicInUse)
                 throw new BadRequestException([ErrorMessagesConstants.CANNOT_REMOVE_VET_CLINIC_WHICH_IS_IN_USE]);
 
             await this.clinicsRepository.remove(clinic);
         }
+    }
+
+
+    private checkIfClinicIsInUse(clinic: MedivetClinic): boolean {
+        return !!clinic.vets.find(vet => vet.id);
     }
 
     async updateClinic(clinicId: number, updateClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {

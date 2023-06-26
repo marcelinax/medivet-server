@@ -1,30 +1,31 @@
 import { MedivetSecurityModule } from "@/medivet-security/medivet-security.module";
+import { MedivetVetSpecialization } from '@/medivet-specializations/entities/medivet-vet-specialization.entity';
+import { MedivetVetSpecializationsModule } from '@/medivet-specializations/medivet-vet-specializations.module';
+import { MedivetUsersMeController } from "@/medivet-users/controllers/medivet-users-me.controller";
 import { MedivetUsersController } from "@/medivet-users/controllers/medivet-users.controller";
+import { MedivetUserDeleteLog } from "@/medivet-users/entities/medivet-user-delete-log.entity";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { MedivetAnonymizeUserService } from "@/medivet-users/services/medivet-anonymize-user.service";
+import { MedivetUserProfilePhotosService } from "@/medivet-users/services/medivet-user-profile-photos.service";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
 import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { MedivetUsersMeController } from "@/medivet-users/controllers/medivet-users-me.controller";
-import { MedivetUserDeleteLog } from "@/medivet-users/entities/medivet-user-delete-log.entity";
-import { MedivetAnonymizeUserService } from "@/medivet-users/services/medivet-anonymize-user.service";
-import { MedivetVetSpecializationService } from '@/medivet-users/services/medivet-vet-specialization.service';
-import { MedivetUserProfilePhotosService } from "@/medivet-users/services/medivet-user-profile-photos.service";
-import { MedivetVetSpecializationController } from "@/medivet-users/controllers/medivet-vet-specializations.controllers";
-import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
+
 @Module({
     imports: [
-TypeOrmModule.forFeature([
+        TypeOrmModule.forFeature([
             MedivetUser,
             MedivetUserDeleteLog,
             MedivetVetSpecialization
         ]),
+        forwardRef(() => MedivetVetSpecializationsModule),
         forwardRef(() => MedivetSecurityModule),
     ],
-    controllers: [MedivetUsersController, MedivetUsersMeController, MedivetVetSpecializationController],
+    controllers: [MedivetUsersController, MedivetUsersMeController],
     providers: [MedivetUsersService, MedivetAnonymizeUserService,
-        MedivetUserProfilePhotosService, MedivetVetSpecializationService],
+        MedivetUserProfilePhotosService],
     exports: [MedivetUsersService, MedivetAnonymizeUserService,
-        MedivetUserProfilePhotosService, MedivetVetSpecializationService]
+        MedivetUserProfilePhotosService]
 })
 
-export class MedivetUsersModule {}
+export class MedivetUsersModule { }

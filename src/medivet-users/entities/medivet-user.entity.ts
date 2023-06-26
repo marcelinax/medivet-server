@@ -1,11 +1,9 @@
-import { MedivetClinicToVetWithSpecializations } from "@/medivet-clinics/entities/medivet-clinic-to-vet-with-specializations.entity";
-import { MedivetClinicsReceptionTime } from "@/medivet-clinics/entities/medivet-clinics-reception-time.entity";
+import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { AddressDto } from "@/medivet-commons/dto/address.dto";
 import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { MedivetOpinion } from '@/medivet-opinions/entities/medivet-opinion.entity';
-import { MedivetPriceList } from "@/medivet-price-lists/entities/medivet-price-list.entity";
-import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
+import { MedivetVetSpecialization } from '@/medivet-specializations/entities/medivet-vet-specialization.entity';
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Transform } from "class-transformer";
@@ -72,18 +70,11 @@ export class MedivetUser {
     specializations: MedivetVetSpecialization[];
 
     @ApiProperty()
-    @OneToMany(() => MedivetClinicToVetWithSpecializations, ctv => ctv.vet)
-    clinics: MedivetClinicToVetWithSpecializations[];
-
-    @ApiProperty()
-    @OneToMany(() => MedivetClinicsReceptionTime, time => time.vet)
-    receptionTimes: MedivetClinicsReceptionTime[];
+    @ManyToMany(() => MedivetClinic)
+    @JoinTable({ name: 'medivet-bind-vet-clinics' })
+    clinics: MedivetClinic[];
 
     @ApiProperty({ type: () => MedivetOpinion })
     @OneToMany(() => MedivetOpinion, opinion => opinion.vet)
     opinions: MedivetOpinion[];
-
-    @ApiProperty({ type: () => MedivetPriceList })
-    @OneToMany(() => MedivetPriceList, priceList => priceList.vet)
-    priceLists: MedivetPriceList[];
 }

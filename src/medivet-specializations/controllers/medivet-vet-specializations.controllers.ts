@@ -6,13 +6,13 @@ import { OkMessageDto } from '@/medivet-commons/dto/ok-message.dto';
 import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
 import { JwtAuthGuard } from '@/medivet-security/guards/medivet-jwt-auth.guard';
 import { MedivetRoleGuard } from '@/medivet-security/guards/medivet-role.guard';
-import { MedivetCreateVetSpecializationDto } from '@/medivet-users/dto/medivet-create-vet-specialization.dto';
-import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
-import { MedivetVetSpecializationService } from '@/medivet-users/services/medivet-vet-specialization.service';
+import { MedivetCreateVetSpecializationDto } from '@/medivet-specializations/dto/medivet-create-vet-specialization.dto';
+import { MedivetVetSpecialization } from '@/medivet-specializations/entities/medivet-vet-specialization.entity';
+import { MedivetVetSpecializationService } from '@/medivet-specializations/services/medivet-vet-specialization.service';
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
-import { Role } from '../decorators/medivet-role.decorator';
-import { MedivetUserRole } from '../enums/medivet-user-role.enum';
+import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
+import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 
 @ApiTags(ApiTagsConstants.VET_SPECIALIZATION)
 @Controller(PathConstants.VET_SPECIALIZATIONS)

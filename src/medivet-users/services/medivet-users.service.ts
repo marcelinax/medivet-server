@@ -1,13 +1,13 @@
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSortingModeEnum } from '@/medivet-commons/enums/medivet-sorting-mode.enum';
 import { MedivetSecurityHashingService } from "@/medivet-security/services/medivet-security-hashing.service";
+import { MedivetVetSpecializationService } from '@/medivet-specializations/services/medivet-vet-specialization.service';
 import { MedivetCreateUserDto } from "@/medivet-users/dto/medivet-create-user.dto";
 import { MedivetSearchVetDto } from "@/medivet-users/dto/medivet-search-vet.dto";
 import { MedivetUpdateMyVetSpecializationsDto } from "@/medivet-users/dto/medivet-update-my-vet-specializations.dto";
 import { MedivetUpdateUserDto } from '@/medivet-users/dto/medivet-update-user.dto';
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
-import { MedivetVetSpecializationService } from '@/medivet-users/services/medivet-vet-specialization.service';
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -61,19 +61,6 @@ export class MedivetUsersService {
         const user = await this.usersRepository.findOne({
             where: { id },
             relations: include ?? []
-            // relations: [
-            //     'clinics',
-            //     'clinics.clinic',
-            //     'clinics.specializations',
-            //     'clinics.clinic.receptionTimes',
-            //     'opinions',
-            //     'opinions.issuer',
-            //     'priceLists',
-            //     'priceLists.clinic',
-            //     'priceLists.specialization',
-            //     'priceLists.purposes',
-            //     'specializations'
-            // ]
         });
         if (!user) throw new NotFoundException(ErrorMessagesConstants.USER_WITH_THIS_ID_DOES_NOT_EXIST);
         return user;
@@ -134,7 +121,9 @@ export class MedivetUsersService {
         const { specializationIds } = updateMyVetSpecializationsDto;
         const specializations = [];
 
-        const vetSpecializationsInUse = vet.clinics.map(clinic => clinic.specializations).flat().map(spec => spec.id);
+        // trzeba bedzie wyciagnac z dostępności lekarza
+        // const vetSpecializationsInUse = vet.clinics.map(clinic => clinic.specializations).flat().map(spec => spec.id);
+        const vetSpecializationsInUse = [];
 
         for (let i = 0; i < vetSpecializationsInUse.length; i++) {
             const specializationId = vetSpecializationsInUse[i];
@@ -163,14 +152,6 @@ export class MedivetUsersService {
                 role: MedivetUserRole.VET
             },
             relations: searchVetDto?.include ?? []
-            // relations: [
-            //     'specializations',
-            //     'clinics',
-            //     'clinics.clinic',
-            //     'opinions',
-            //     'receptionTimes',
-            //     'priceLists',
-            // ]
         });
 
         if (city) {
@@ -191,7 +172,7 @@ export class MedivetUsersService {
         }
 
         if (clinicName) {
-            vets = vets.filter(vet => vet.clinics.some(clinic => clinic?.clinic?.name?.toLowerCase()?.includes(clinicName.toLowerCase())));
+            vets = vets.filter(vet => vet.clinics.some(clinic => clinic?.name?.toLowerCase()?.includes(clinicName.toLowerCase())));
         }
 
         if (sortingMode) {

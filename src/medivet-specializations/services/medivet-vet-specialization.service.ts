@@ -1,8 +1,8 @@
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { MedivetCreateVetSpecializationDto } from '@/medivet-users/dto/medivet-create-vet-specialization.dto';
-import { MedivetSearchVetSpecializationDto } from '@/medivet-users/dto/medivet-search-vet-specialization.dto';
+import { MedivetCreateVetSpecializationDto } from '@/medivet-specializations/dto/medivet-create-vet-specialization.dto';
+import { MedivetVetSpecialization } from '@/medivet-specializations/entities/medivet-vet-specialization.entity';
+import { MedivetSearchVetSpecializationDto } from '@/medivet-specializations/dto/medivet-search-vet-specialization.dto';
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
-import { MedivetVetSpecialization } from '@/medivet-users/entities/medivet-vet-specialization.entity';
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ILike, Not, Repository } from 'typeorm';
@@ -77,7 +77,7 @@ export class MedivetVetSpecializationService {
         const offset = searchVetSpecializationDto.offset || 0;
         const search = searchVetSpecializationDto?.search || '';
 
-        return await this.vetSpecializationRepository.find({
+        return this.vetSpecializationRepository.find({
             take: pageSize,
             skip: offset,
             where: { name: search ? ILike(`%${search}%`) : Not('') }
