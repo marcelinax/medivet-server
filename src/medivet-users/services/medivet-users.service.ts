@@ -1,5 +1,6 @@
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSortingModeEnum } from '@/medivet-commons/enums/medivet-sorting-mode.enum';
+import { paginateData } from "@/medivet-commons/utils";
 import { MedivetSecurityHashingService } from "@/medivet-security/services/medivet-security-hashing.service";
 import { MedivetVetSpecializationService } from '@/medivet-specializations/services/medivet-vet-specialization.service';
 import { MedivetCreateUserDto } from "@/medivet-users/dto/medivet-create-user.dto";
@@ -146,6 +147,7 @@ export class MedivetUsersService {
     }
 
     async searchVets(searchVetDto: MedivetSearchVetDto): Promise<MedivetUser[]> {
+        // osobne szukanie dla admina
         const { city, gender, name, sortingMode, specializationIds, clinicName } = searchVetDto;
         let vets = await this.usersRepository.find({
             where: {
@@ -171,9 +173,9 @@ export class MedivetUsersService {
             vets = vets.filter(vet => vet.specializations.some(spec => specializationIdsArray.includes(spec.id)));
         }
 
-        if (clinicName) {
-            vets = vets.filter(vet => vet.clinics.some(clinic => clinic?.name?.toLowerCase()?.includes(clinicName.toLowerCase())));
-        }
+        // if (clinicName) {
+        //     vets = vets.filter(vet => vet.clinics.some(clinic => clinic?.?.name?.toLowerCase()?.includes(clinicName.toLowerCase())));
+        // }
 
         if (sortingMode) {
             vets = vets.sort((a, b) => {
@@ -201,13 +203,6 @@ export class MedivetUsersService {
             });
         }
 
-        const pageSize = searchVetDto.pageSize || 10;
-        const offset = searchVetDto.offset || 0;
-
-        return this.paginateVets(vets, pageSize, offset);
-    }
-
-    private paginateVets(vets: MedivetUser[], pageSize: number, offset: number): MedivetUser[] {
-        return vets.filter((_, index) => index >= offset && index < pageSize + offset);
+        return paginateData(vets, { pageSize: searchVetDto.pageSize, offset: searchVetDto.offset });
     }
 }

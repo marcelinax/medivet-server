@@ -1,5 +1,6 @@
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { paginateData } from "@/medivet-commons/utils";
 import { MedivetCreateOpinionDto } from '@/medivet-opinions/dto/medivet-create-opinion.dto';
 import { MedivetSearchOpinionDto } from "@/medivet-opinions/dto/medivet-search-opinion.dto";
 import { MedivetOpinion } from '@/medivet-opinions/entities/medivet-opinion.entity';
@@ -74,13 +75,6 @@ export class MedivetOpinionsService {
             });
         };
 
-        const pageSize = searchOpinionDto.pageSize || 10;
-        const offset = searchOpinionDto.offset || 0;
-
-        return this.paginateOpinions(pageSize, offset, opinions);
-    }
-
-    private paginateOpinions(pageSize: number, offset: number, opinions: MedivetOpinion[]): MedivetOpinion[] {
-        return opinions.filter((_, index) => index >= offset && index < pageSize + offset);
+        return paginateData(opinions, { pageSize: searchOpinionDto.pageSize, offset: searchOpinionDto.offset });
     }
 }

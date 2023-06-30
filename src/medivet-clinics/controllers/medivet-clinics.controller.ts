@@ -8,7 +8,7 @@ import { BadRequestExceptionDto } from '@/medivet-commons/dto/bad-request-except
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnathorizedExceptionDto } from '@/medivet-commons/dto/unauthorized-exception.dto';
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
-import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
+import { CurrentUser } from '@/medivet-security/decorators/medivet-current-user.decorator';
 import { JwtAuthGuard } from '@/medivet-security/guards/medivet-jwt-auth.guard';
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
 import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
@@ -17,7 +17,6 @@ import { MedivetUserRole } from '@/medivet-users/enums/medivet-user-role.enum';
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseArrayPipe, Post, Put, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
-// najpierw vet wysyła prośbę do admina o przypisanie się do kliniki, dopiero po zatwierdzeniu moze edytować wszelkie informacje dla tej kliniki
 @ApiTags(ApiTagsConstants.CLINICS)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller(PathConstants.CLINICS)
@@ -50,62 +49,6 @@ export class MedivetClinicsController {
         @Body() createClinicDto: MedivetCreateClinicDto
     ): Promise<MedivetClinic> {
         return this.clinicsService.createClinic(createClinicDto);
-    }
-
-    @ApiOperation({
-        summary: 'Assigns vet clinics to vet',
-        description: 'Assigns vet clinics to vet and returns vet'
-    })
-    @ApiOkResponse({
-        description: 'Vet clinic has been successfully assigned to vet',
-        type: MedivetUser
-    })
-    @ApiNotFoundResponse({
-        description: 'Vet clinic does not exist',
-        type: BadRequestExceptionDto
-    })
-    @ApiUnauthorizedResponse({
-        description: 'Bad authorization',
-        type: UnathorizedExceptionDto
-    })
-    @ApiBearerAuth()
-    @UseGuards(MedivetRoleGuard)
-    @Role(MedivetUserRole.VET)
-    @UseGuards(JwtAuthGuard)
-    @Post(PathConstants.ASSIGN_VET + PathConstants.ID_PARAM)
-    async assignClinicToVet(
-        @Param('id') clinicId: number,
-        @CurrentUser() user: MedivetUser,
-    ): Promise<MedivetUser> {
-        return this.clinicsService.assignVetToClinic(user, clinicId);
-    }
-
-    @ApiOperation({
-        summary: 'Unassigns vet clinics from vet',
-        description: 'Unasssigns vet clinics from vet and returns vet'
-    })
-    @ApiOkResponse({
-        description: 'Vet clinic has been successfully unassigned from vet',
-        type: MedivetUser
-    })
-    @ApiNotFoundResponse({
-        description: 'Vet clinic does not exist',
-        type: BadRequestExceptionDto
-    })
-    @ApiUnauthorizedResponse({
-        description: 'Bad authorization',
-        type: UnathorizedExceptionDto
-    })
-    @ApiBearerAuth()
-    @UseGuards(MedivetRoleGuard)
-    @Role(MedivetUserRole.VET)
-    @UseGuards(JwtAuthGuard)
-    @Delete(PathConstants.UNASSIGN_VET + PathConstants.ID_PARAM)
-    async unassignClinicFromVet(
-        @Param('id') clinicId: number,
-        @CurrentUser() user: MedivetUser
-    ): Promise<OkMessageDto> {
-        return this.clinicsService.unassignVetFromClinic(user, clinicId);
     }
 
     @ApiOperation({
@@ -187,13 +130,13 @@ export class MedivetClinicsController {
     @UseGuards(MedivetRoleGuard)
     @Role(MedivetUserRole.VET)
     @UseGuards(JwtAuthGuard)
-    @Get(PathConstants.ASSIGNED_TO_VET)
+    @Get(PathConstants.ASSIGNED)
     async getAllClinicsAssignedToVet(
         @CurrentUser() user: MedivetUser,
         @Query('pageSize') pageSize: number, @Query('offset') offset: number,
         @Query('include', new ParseArrayPipe({ items: String, separator: ',', optional: true })) include?: string[]
     ): Promise<MedivetClinic[]> {
-        return this.clinicsService.findClinicsAssignedToVet(user.id, { pageSize, offset }, include);
+        return this.clinicsService.getAssignedVetClinics(user.id, { pageSize, offset }, include);
     }
 
     @ApiOperation({

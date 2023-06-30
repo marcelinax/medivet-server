@@ -1,11 +1,12 @@
 import { MedivetCreateAnimalCoatColorDto } from "@/medivet-animals/dto/medivet-create-animal-coat-color.dto";
+import { MedivetSearchAnimalCoatColorDto } from '@/medivet-animals/dto/medivet-search-animal-coat-color.dto';
 import { MedivetAnimalCoatColor } from '@/medivet-animals/entities/medivet-animal-coat-color.entity';
+import { MedivetAnimal } from '@/medivet-animals/entities/medivet-animal.entity';
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { paginateData } from "@/medivet-commons/utils";
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { MedivetSearchAnimalCoatColorDto } from '@/medivet-animals/dto/medivet-search-animal-coat-color.dto';
-import { MedivetAnimal } from '@/medivet-animals/entities/medivet-animal.entity';
 
 @Injectable()
 export class MedivetAnimalCoatColorsService {
@@ -53,13 +54,7 @@ export class MedivetAnimalCoatColorsService {
             coatColors = coatColors.filter(color => color.name.toLowerCase().includes(searchAnimalCoatColorDto.search.toLowerCase()));
         }
 
-        const pageSize = searchAnimalCoatColorDto.pageSize || 10;
-        const offset = searchAnimalCoatColorDto.offset || 0;
-        return this.paginateAnimalCoatColors(offset, pageSize, coatColors);
-    }
-
-    private paginateAnimalCoatColors(offset: number, pageSize: number, coatColors: MedivetAnimalCoatColor[]): MedivetAnimalCoatColor[] {
-        return coatColors.filter((_, index) => index >= offset && index < offset + pageSize);
+        return paginateData(coatColors, { offset: searchAnimalCoatColorDto.offset, pageSize: searchAnimalCoatColorDto.pageSize });
     }
 
     async removeAnimalCoatColor(coatColorId: number): Promise<void> {

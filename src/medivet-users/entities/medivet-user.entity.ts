@@ -1,3 +1,4 @@
+import { MedivetClinicAssignmentRequest } from "@/medivet-clinics/entities/medivet-clinic-assignment-request.entity";
 import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { AddressDto } from "@/medivet-commons/dto/address.dto";
@@ -73,6 +74,10 @@ export class MedivetUser {
     @ManyToMany(() => MedivetClinic)
     @JoinTable({ name: 'medivet-bind-vet-clinics' })
     clinics: MedivetClinic[];
+
+    @ApiProperty()
+    @OneToMany(() => MedivetClinicAssignmentRequest, request => request.user)
+    clinicAssignmentRequest: MedivetClinicAssignmentRequest[];
 
     @ApiProperty({ type: () => MedivetOpinion })
     @OneToMany(() => MedivetOpinion, opinion => opinion.vet)

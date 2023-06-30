@@ -1,5 +1,4 @@
 import { MedivetAnimalsModule } from '@/medivet-animals/medivet-animals.module';
-import { MedivetAppointmentsModule } from '@/medivet-appointments/medivet-appointments.module';
 import { MedivetClinicsModule } from '@/medivet-clinics/medivet-clinics.module';
 import { envConfig } from '@/medivet-commons/configurations/env-config';
 import { MedivetMailerModule } from '@/medivet-mailer/medivet-mailer.module';
@@ -41,7 +40,6 @@ import { join } from 'path';
     MedivetAnimalsModule,
     MedivetClinicsModule,
     MedivetOpinionsModule,
-    MedivetAppointmentsModule,
     MedivetVetSpecializationsModule
   ],
 })

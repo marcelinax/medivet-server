@@ -2,10 +2,10 @@ import { MedivetCreateClinicDto } from "@/medivet-clinics/dto/medivet-create-cli
 import { MedivetSearchClinicDto } from '@/medivet-clinics/dto/medivet-search-clinic.dto';
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
-import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
+import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
-import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
+import { paginateData } from "@/medivet-commons/utils";
+import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersService } from '@/medivet-users/services/medivet-users.service';
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -42,19 +42,6 @@ export class MedivetClinicsService {
         return clinic;
     }
 
-    async findClinicsAssignedToVet(vetId: number, searchClinicDto: MedivetSearchClinicDto, include?: string[]): Promise<MedivetClinic[]> {
-        const clinics = await this.clinicsRepository.find({
-            where: {
-                vets: { id: vetId }
-            },
-            relations: include ?? []
-        });
-
-        const pageSize = searchClinicDto.pageSize || 10;
-        const offset = searchClinicDto.offset || 0;
-        return this.paginateClinics(clinics, offset, pageSize);
-    }
-
     private async checkIfClinicAlreadyExists(createClinicDto: MedivetCreateClinicDto): Promise<boolean> {
         const { name, address } = createClinicDto;
         const existingClinic = await this.clinicsRepository.findOne({
@@ -68,27 +55,6 @@ export class MedivetClinicsService {
             address.city === existingClinic.address.city && address.street === existingClinic.address.street &&
             address.flatNumber === existingClinic.address.flatNumber) return true;
         return false;
-    }
-
-    async assignVetToClinic(
-        vet: MedivetUser,
-        clinicId: number,
-    )
-        : Promise<MedivetUser> {
-
-        const clinic = await this.findClinicById(clinicId);
-
-        if (clinic) {
-            vet.clinics = [...vet.clinics, clinic];
-            await this.usersService.saveUser(vet);
-            return vet;
-        }
-    }
-
-    async unassignVetFromClinic(vet: MedivetUser, clinicId: number): Promise<OkMessageDto> {
-        // vet bedzie musiał wysłać zapytanie do admina o usunięcie, dopiero po zatwierdzeniu bedzie to mozliwe
-        // await this.clinicToVetWithSpecializationsService.removeRelationshipBetweenClinicAndVetWithSpecializations(clinicId, vet);
-        return { message: SuccessMessageConstants.VET_CLINIC_HAS_BEEN_UNASSIGNED_SUCCESSFULLY };
     }
 
     async findAllClinics(include?: string[]): Promise<MedivetClinic[]> {
@@ -138,14 +104,7 @@ export class MedivetClinicsService {
             });
         }
 
-        const pageSize = searchClinicDto.pageSize || 10;
-        const offset = searchClinicDto.offset || 0;
-
-        return this.paginateClinics(clinics, offset, pageSize);
-    }
-
-    private paginateClinics(clinics: MedivetClinic[], offset: number, pageSize: number): MedivetClinic[] {
-        return clinics.filter((_, index) => index >= offset && index < offset + pageSize);
+        return paginateData(clinics, { offset: searchClinicDto.offset, pageSize: searchClinicDto.pageSize });
     }
 
     async removeClinic(clinicId: number): Promise<void> {
@@ -178,6 +137,22 @@ export class MedivetClinicsService {
             await this.clinicsRepository.save(clinic);
             return clinic;
         }
+    }
+
+
+    async getAssignedVetClinics(vetId: number, paginationDto: OffsetPaginationDto, include?: string[]): Promise<MedivetClinic[]> {
+        const clinics = await this.clinicsRepository.find({
+            where: {
+                vets: { id: vetId }
+            },
+            relations: include ?? []
+        });
+
+        return paginateData(clinics, paginationDto);
+    }
+
+    checkIfClinicIsAlreadyAssignedToVet(clinic: MedivetClinic, vet: MedivetUser): boolean {
+        return !!clinic.vets.find(clinicVet => clinicVet.id === vet.id);
     }
 
 }

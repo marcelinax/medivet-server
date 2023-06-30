@@ -5,10 +5,10 @@ export class PathConstants {
     public static VET_SPECIALIZATIONS = 'vet-specializations';
     public static CLINICS = 'clinics';
     public static OPINIONS = 'opinions';
-    public static APPOINTMENTS = 'appointments';
     public static ANIMAL_BREEDS = 'animal-breeds';
     public static ANIMAL_COAT_COLORS = 'animal-coat-colors';
     public static VET_SPECIALIZATION_MEDICAL_SERVICES = 'vet-specialization-medical-services';
+    public static CLINIC_ASSIGNMENT_REQUESTS = 'clinic-assignment-requests';
 
     public static LOGIN = 'login';
     public static ME = 'me';
@@ -20,16 +20,19 @@ export class PathConstants {
     public static SEND_RESET_PASSWORD_LINK_VIA_EMAIL = 'send-reset-password-link-via-email';
     public static RESET_PASSWORD = 'reset-password';
     public static ID_PARAM = '/:id';
+    public static CLINIC_ID_PARAM = '/:clinicId';
     public static UPDATE = 'update';
     public static ARCHVIE = 'archive';
     public static RESTORE = 'restore';
     public static SEARCH = 'search';
-    public static ASSIGN_VET = 'assign-vet';
-    public static UNASSIGN_VET = 'unassign-vet';
     public static MY = 'my';
-    public static PURPOSE = 'purpose';
-    public static ASSIGN_APPOINTMENT_PURPOSES = 'assign-appointment-purposes';
     public static VET = 'vet';
     public static CLINIC = 'clinic';
-    public static ASSIGNED_TO_VET = 'assigned-to-vet';
+    public static ASSIGNMENT_REQUEST = 'assignment-request';
+    public static UNASSIGNMENT_REQUEST = 'unassignment-request';
+    public static ASSIGNED = 'assigned';
+    public static UNASSIGNMENT_CONFIRMATION = 'unassigmnet-confirmation';
+    public static UNASSIGNMENT_REJECTION = 'unassigmnet-rejection';
+    public static ASSIGNMENT_CONFIRMATION = 'assigmnet-confirmation';
+    public static ASSIGNMENT_REJECTION = 'assigmnet-rejection';
 }

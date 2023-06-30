@@ -3,6 +3,7 @@ import { MedivetSearchAnimalBreedDto } from "@/medivet-animals/dto/medivet-searc
 import { MedivetAnimalBreed } from "@/medivet-animals/entities/medivet-animal-breed.entity";
 import { MedivetAnimal } from '@/medivet-animals/entities/medivet-animal.entity';
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { paginateData } from "@/medivet-commons/utils";
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -63,13 +64,7 @@ export class MedivetAnimalBreedsService {
                 || breed.name.toLowerCase().includes(searchToLowerCase));
         }
 
-        const pageSize = searchAnimalBreedDto.pageSize || 10;
-        const offset = searchAnimalBreedDto.offset || 0;
-        return this.paginateAnimalBreeds(offset, pageSize, breeds);
-    }
-
-    private paginateAnimalBreeds(offset: number, pageSize: number, animalBreeds: MedivetAnimalBreed[]): MedivetAnimalBreed[] {
-        return animalBreeds.filter((_, index) => index >= offset && index < offset + pageSize);
+        return paginateData(breeds, { offset: searchAnimalBreedDto.offset, pageSize: searchAnimalBreedDto.pageSize });
     }
 
     async removeAnimalBreed(breedId: number): Promise<void> {

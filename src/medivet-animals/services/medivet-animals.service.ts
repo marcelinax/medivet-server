@@ -6,6 +6,7 @@ import { MedivetAnimalCoatColorsService } from "@/medivet-animals/services/mediv
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
+import { paginateData } from "@/medivet-commons/utils";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -99,14 +100,7 @@ export class MedivetAnimalsService {
             });
         }
 
-        const pageSize = searchAnimalDto.pageSize || 10;
-        const offset = searchAnimalDto.offset || 0;
-
-        return this.paginateAnimals(offset, pageSize, animals);
-    }
-
-    private paginateAnimals(offset: number, pageSize: number, animals: MedivetAnimal[]): MedivetAnimal[] {
-        return animals.filter((_, index) => index >= offset && index < offset + pageSize);
+        return paginateData(animals, { offset: searchAnimalDto.offset, pageSize: searchAnimalDto.pageSize });
     }
 
     async updateAnimal(animalId: number, user: MedivetUser, updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
