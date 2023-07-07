@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (!await this.authSecurityService.validateAuthToken(token)) throw new UnauthorizedException();
     await this.authSecurityService.setTokenLastUseDate(token);
-    const include = ['specializations', 'clinics'];
+    const include = ['specializations', 'clinics', 'vetAvailabilities', 'vetAvailabilities.receptionHours'];
     const user = await this.usersService.findOneById(payload.id, include);
     return user;
   }

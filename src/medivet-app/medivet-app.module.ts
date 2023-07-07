@@ -7,6 +7,7 @@ import { MedivetSecurityModule } from '@/medivet-security/medivet-security.modul
 import { MedivetVetSpecializationsModule } from '@/medivet-specializations/medivet-vet-specializations.module';
 import { MedivetStaticModule } from '@/medivet-static/medivet-static.module';
 import { MedivetUsersModule } from '@/medivet-users/medivet-users.module';
+import { MedivetVetAvailabilitiesModule } from '@/medivet-vet-availabilities/medivet-vet-availabilities.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from "@nestjs/serve-static";
@@ -40,7 +41,8 @@ import { join } from 'path';
     MedivetAnimalsModule,
     MedivetClinicsModule,
     MedivetOpinionsModule,
-    MedivetVetSpecializationsModule
+    MedivetVetSpecializationsModule,
+    MedivetVetAvailabilitiesModule
   ],
 })
 export class MedivetAppModule { }

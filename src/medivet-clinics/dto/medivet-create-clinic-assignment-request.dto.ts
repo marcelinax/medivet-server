@@ -1,4 +1,4 @@
-import { MedivetClinicAssignmentRequestStatus } from "@/medivet-commons/enums/medivet-clinic.enum";
+import { MedivetClinicAssignmentRequestStatus } from "@/medivet-commons/enums/medivet-clinic.enums";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsNotEmpty, IsNumber, IsPositive } from "class-validator";
 

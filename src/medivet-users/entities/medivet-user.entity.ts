@@ -6,6 +6,8 @@ import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { MedivetOpinion } from '@/medivet-opinions/entities/medivet-opinion.entity';
 import { MedivetVetSpecialization } from '@/medivet-specializations/entities/medivet-vet-specialization.entity';
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
+import { MedivetVetAvailabilityReceptionHour } from "@/medivet-vet-availabilities/entities/medivet-vet-availability-reception-hour.entity";
+import { MedivetVetAvailability } from "@/medivet-vet-availabilities/entities/medivet-vet-availability.entity";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Transform } from "class-transformer";
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
@@ -82,4 +84,8 @@ export class MedivetUser {
     @ApiProperty({ type: () => MedivetOpinion })
     @OneToMany(() => MedivetOpinion, opinion => opinion.vet)
     opinions: MedivetOpinion[];
+
+    @ApiProperty({ type: () => MedivetVetAvailability })
+    @OneToMany(() => MedivetVetAvailability, availability => availability.user)
+    vetAvailabilities: MedivetVetAvailability[];
 }

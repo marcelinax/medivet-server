@@ -29,5 +29,5 @@ export class MedivetClinic {
 
     @ApiProperty()
     @OneToMany(() => MedivetClinicAssignmentRequest, request => request.clinic)
-    clinicAssignmentRequest: MedivetClinicAssignmentRequest[];
+    clinicAssignmentRequests: MedivetClinicAssignmentRequest[];
 }

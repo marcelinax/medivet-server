@@ -1,5 +1,5 @@
 import { MedivetClinic } from '@/medivet-clinics/entities/medivet-clinic.entity';
-import { MedivetClinicAssignmentRequestStatus } from "@/medivet-commons/enums/medivet-clinic.enum";
+import { MedivetClinicAssignmentRequestStatus } from "@/medivet-commons/enums/medivet-clinic.enums";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -15,7 +15,7 @@ export class MedivetClinicAssignmentRequest {
     user: MedivetUser;
 
     @ApiProperty({ type: () => MedivetClinic })
-    @ManyToOne(() => MedivetClinic, clinic => clinic.clinicAssignmentRequest)
+    @ManyToOne(() => MedivetClinic, clinic => clinic.clinicAssignmentRequests)
     clinic: MedivetClinic;
 
     @ApiProperty()

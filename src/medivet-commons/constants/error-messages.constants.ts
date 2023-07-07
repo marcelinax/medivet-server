@@ -40,4 +40,5 @@ export class ErrorMessagesConstants {
     public static CANNOT_UNASSIGN_NOT_ASSIGNED_CLINIC = 'Cannot unassign not assigned clinic.';
     public static CLINIC_ASSIGNMENT_REQUEST_WITH_THIS_ID_DOES_NOT_EXIST = 'Clinic assignment request with this id does not exist.';
     public static CLINIC_ASSIGNMENT_REQUEST_ALREADY_EXISTS = 'Clinic assignment request already exists.';
+    public static RECEPTION_HOUR_COLIDATES_WITH_EXISTING_ONE = 'Reception hours colidates with existing one at index:';
 }

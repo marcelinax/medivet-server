@@ -9,6 +9,7 @@ export class PathConstants {
     public static ANIMAL_COAT_COLORS = 'animal-coat-colors';
     public static VET_SPECIALIZATION_MEDICAL_SERVICES = 'vet-specialization-medical-services';
     public static CLINIC_ASSIGNMENT_REQUESTS = 'clinic-assignment-requests';
+    public static VET_AVAILABILITIES = 'vet-availabilities';
 
     public static LOGIN = 'login';
     public static ME = 'me';

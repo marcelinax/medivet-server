@@ -25,6 +25,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         MedivetClinicsService,
         MedivetClinicAssignmentRequestService
     ],
+    exports: [MedivetClinicsService],
     controllers: [MedivetClinicsController, MedivetClinicAssignmentRequestsController]
 })
 export class MedivetClinicsModule { }
