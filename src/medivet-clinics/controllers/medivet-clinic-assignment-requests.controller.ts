@@ -14,7 +14,7 @@ import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ClassSerializerInterceptor, Controller, Get, NotFoundException, Param, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
-@ApiTags(ApiTagsConstants.CLINIC_ASSIGNMENT_REQUEST)
+@ApiTags(ApiTagsConstants.CLINIC_ASSIGNMENT_REQUESTS)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller(PathConstants.CLINIC_ASSIGNMENT_REQUESTS)
 export class MedivetClinicAssignmentRequestsController {

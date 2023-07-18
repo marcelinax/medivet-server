@@ -6,10 +6,10 @@ import { MedivetUsersService } from '@/medivet-users/services/medivet-users.serv
 import { MedivetCreateVetAvailabilityDto } from '@/medivet-vet-availabilities/dto/medivet-create-vet-availability.dto';
 import { MedivetVetAvailabilityReceptionHour } from '@/medivet-vet-availabilities/entities/medivet-vet-availability-reception-hour.entity';
 import { MedivetVetAvailability } from '@/medivet-vet-availabilities/entities/medivet-vet-availability.entity';
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import moment from 'moment';
-import { Repository } from "typeorm";
+import { Not, Repository } from "typeorm";
 import { MedivetCreateVetAvailabilityReceptionHourDto } from '../dto/medivet-create-vet-availability-reception-hour.dto';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class MedivetVetAvailabilitiesService {
     constructor(
         @InjectRepository(MedivetVetAvailability) private vetAvailabilitiesRepository: Repository<MedivetVetAvailability>,
         @InjectRepository(MedivetVetAvailabilityReceptionHour) private vetReceptionHourRepository: Repository<MedivetVetAvailabilityReceptionHour>,
-        private usersSerivce: MedivetUsersService,
+        private usersService: MedivetUsersService,
         private clinicsService: MedivetClinicsService,
         private specializationsService: MedivetVetSpecializationService
     ) { }
@@ -28,8 +28,13 @@ export class MedivetVetAvailabilitiesService {
     ): Promise<MedivetVetAvailability> {
         const { clinicId, userId, specializationId, receptionHours } = createVetAvailabilityDto;
         const clinic = await this.clinicsService.findClinicById(clinicId);
-        const vet = await this.usersSerivce.findVetById(userId);
+        const vet = await this.usersService.findVetById(userId);
         const specialization = await this.specializationsService.findOneVetSpecializationById(specializationId);
+
+        const existingVetAvailability = await this.checkIfVetAvailabilityForClinicAndSpecializationExists(createVetAvailabilityDto);
+        if(existingVetAvailability) {
+          throw  new BadRequestException([ErrorMessagesConstants.VET_AVAILABILITY_FOR_CLINIC_AND_SPECIALIZATION_ALREADY_EXISTS])
+        }
 
         const vetAvailability = this.vetAvailabilitiesRepository.create({
             clinic,
@@ -46,6 +51,19 @@ export class MedivetVetAvailabilitiesService {
         }
         await this.vetAvailabilitiesRepository.save(vetAvailability);
         return vetAvailability;
+    }
+
+    private async checkIfVetAvailabilityForClinicAndSpecializationExists(createVetAvailabilityDto: MedivetCreateVetAvailabilityDto): Promise<boolean> {
+      const {clinicId, specializationId, userId} = createVetAvailabilityDto;
+      const existingVetAvailability = await this.vetAvailabilitiesRepository.findOne({
+        where: {
+          user: {id: userId},
+          clinic: {id: clinicId},
+          specialization: {id: specializationId}
+        },
+      })
+
+      return !!existingVetAvailability;
     }
 
     private getCalculatedReceptionHoursPairDurationInSeconds({ hourFrom, hourTo }: Record<string, string>): number {
@@ -71,8 +89,8 @@ export class MedivetVetAvailabilitiesService {
 
             if (availabilitiesWithSameDay.length === 0) return undefined;
 
-            const allRecepionHours = availabilitiesWithSameDay.map(availability => availability.receptionHours).flat();
-            const allReceptionHoursPairs = allRecepionHours.map(receptionHour => {
+            const allReceptionHours = availabilitiesWithSameDay.map(availability => availability.receptionHours).flat();
+            const allReceptionHoursPairs = allReceptionHours.map(receptionHour => {
                 const pair = { hourFrom: receptionHour.hourFrom, hourTo: receptionHour.hourTo };
                 return { ...pair, duration: this.getCalculatedReceptionHoursPairDurationInSeconds(pair) };
             });
@@ -92,5 +110,38 @@ export class MedivetVetAvailabilitiesService {
         }
 
         return undefined;
+    }
+
+    async findVetAvailabilityById(id: number, include?: string[]): Promise<MedivetVetAvailability> {
+        const vetAvailability = await this.vetAvailabilitiesRepository.findOne({
+            where: { id },
+            relations: include ?? []
+        });
+
+        if (!vetAvailability) {
+            throw new NotFoundException([ErrorMessagesConstants.VET_AVAILABILITY_WITH_THIS_ID_DOES_NOT_EXIST]);
+        }
+        return vetAvailability;
+    }
+
+    async findAllVetAvailabilities(
+        vetId?: number,
+        clinicId?: number,
+        include?: string[]): Promise<MedivetVetAvailability[]> {
+        // let where = {};
+        // if (vetId) {
+        //     where = {
+        //         ...where,
+        //         user: { id: vetId }
+        //     };
+        // }
+
+        return this.vetAvailabilitiesRepository.find({
+            where: {
+                user: { id: vetId ?? Not(undefined) },
+                clinic: { id: clinicId ?? Not(undefined) },
+            },
+          relations: include || []
+        });
     }
 }

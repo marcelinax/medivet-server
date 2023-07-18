@@ -14,7 +14,7 @@ import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { Body, Controller, Delete, Get, Param, ParseArrayPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
-@ApiTags(ApiTagsConstants.VET_SPECIALIZATION_MEDICAL_SERVICE)
+@ApiTags(ApiTagsConstants.VET_SPECIALIZATION_MEDICAL_SERVICES)
 @Controller(PathConstants.VET_SPECIALIZATION_MEDICAL_SERVICES)
 export class MedivetVetSpecializationMedicalServiceController {
     constructor(private vetSpecializationMedicalServiceService: MedivetVetSpecializationMedicalServiceService) { }

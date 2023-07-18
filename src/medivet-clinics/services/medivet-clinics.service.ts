@@ -15,7 +15,6 @@ import { Repository } from 'typeorm';
 export class MedivetClinicsService {
     constructor(
         @InjectRepository(MedivetClinic) private clinicsRepository: Repository<MedivetClinic>,
-        private usersService: MedivetUsersService,
     ) { }
 
     async createClinic(createClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {

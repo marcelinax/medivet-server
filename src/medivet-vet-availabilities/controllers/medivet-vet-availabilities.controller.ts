@@ -11,10 +11,10 @@ import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { MedivetCreateVetAvailabilityDto } from '@/medivet-vet-availabilities/dto/medivet-create-vet-availability.dto';
 import { MedivetVetAvailability } from "@/medivet-vet-availabilities/entities/medivet-vet-availability.entity";
 import { MedivetVetAvailabilitiesService } from "@/medivet-vet-availabilities/services/medivet-vet-availabilities.service";
-import { Body, ClassSerializerInterceptor, Controller, Post, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { Body, ClassSerializerInterceptor, Controller, Get, Param, ParseArrayPipe, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
-@ApiTags(ApiTagsConstants.VET_AVAILABILITY)
+@ApiTags(ApiTagsConstants.VET_AVAILABILITIES)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller(PathConstants.VET_AVAILABILITIES)
 export class MedivetVetAvailabilitiesController {
@@ -48,5 +48,63 @@ export class MedivetVetAvailabilitiesController {
         @CurrentUser() user: MedivetUser
     ): Promise<MedivetVetAvailability> {
         return this.vetAvailabilitiesService.createVetAvailability(createVetAvailabilityDto, user);
+    }
+
+    @ApiOperation({
+        summary: 'Gets all vet availabilities to specific clinic and specialization',
+        description: 'Returns array of all vet availabilities'
+    })
+    @ApiOkResponse({
+        description: 'Returns list of all vet availabilities with specific clinic and specialization',
+        type: MedivetVetAvailability,
+        isArray: true
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiQuery({ name: 'include', required: false, type: Array<String> })
+    @ApiQuery({ name: 'clinicId', required: false, type: Number })
+    @ApiQuery({ name: 'vetId', required: false, type: Number })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Get()
+    async getAllVetAvailabilities(
+        @Query('include', new ParseArrayPipe({ items: String, separator: ',', optional: true })) include?: string[],
+        @Query('clinicId') clinicId?: number,
+        @Query('vetId') vetId?: number,
+    ): Promise<MedivetVetAvailability[]> {
+        return this.vetAvailabilitiesService.findAllVetAvailabilities(vetId, clinicId, include);
+    }
+
+    @ApiOperation({
+        summary: 'Gets vet availability',
+        description: 'Finds vet availability by id and returns it'
+    })
+    @ApiOkResponse({
+        description: 'Returns vet availability data',
+        type: MedivetVetAvailability
+    })
+    @ApiNotFoundResponse({
+        description: 'Vet availability does not exist',
+        type: BadRequestExceptionDto
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Bad authorization',
+        type: UnathorizedExceptionDto
+    })
+    @ApiQuery({ name: 'include', required: false, type: Array<String> })
+    @ApiBearerAuth()
+    @UseGuards(MedivetRoleGuard)
+    @Role(MedivetUserRole.VET)
+    @UseGuards(JwtAuthGuard)
+    @Get(PathConstants.ID_PARAM)
+    async getVetAvailability(
+        @Param('id') vetAvailabilityId: number,
+        @Query('include', new ParseArrayPipe({ items: String, separator: ',', optional: true })) include?: string[]
+    ): Promise<MedivetVetAvailability> {
+        return this.vetAvailabilitiesService.findVetAvailabilityById(vetAvailabilityId, include);
     }
 }
