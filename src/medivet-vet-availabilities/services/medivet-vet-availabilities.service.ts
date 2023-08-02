@@ -1,26 +1,29 @@
-import { MedivetClinicsService } from '@/medivet-clinics/services/medivet-clinics.service';
-import { ErrorMessagesConstants } from '@/medivet-commons/constants/error-messages.constants';
-import { MedivetVetSpecializationService } from '@/medivet-specializations/services/medivet-vet-specialization.service';
-import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
-import { MedivetUsersService } from '@/medivet-users/services/medivet-users.service';
-import { MedivetCreateVetAvailabilityDto } from '@/medivet-vet-availabilities/dto/medivet-create-vet-availability.dto';
-import { MedivetVetAvailabilityReceptionHour } from '@/medivet-vet-availabilities/entities/medivet-vet-availability-reception-hour.entity';
-import { MedivetVetAvailability } from '@/medivet-vet-availabilities/entities/medivet-vet-availability.entity';
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import moment from 'moment';
+import moment from "moment";
 import { Not, Repository } from "typeorm";
-import { MedivetCreateVetAvailabilityReceptionHourDto } from '../dto/medivet-create-vet-availability-reception-hour.dto';
+
+import { MedivetClinicsService } from "@/medivet-clinics/services/medivet-clinics.service";
+import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { MedivetVetSpecializationService } from "@/medivet-specializations/services/medivet-vet-specialization.service";
+import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
+import { MedivetCreateVetAvailabilityDto } from "@/medivet-vet-availabilities/dto/medivet-create-vet-availability.dto";
+import { MedivetVetAvailability } from "@/medivet-vet-availabilities/entities/medivet-vet-availability.entity";
+import { MedivetVetAvailabilityReceptionHour } from "@/medivet-vet-availabilities/entities/medivet-vet-availability-reception-hour.entity";
+
+import { MedivetCreateVetAvailabilityReceptionHourDto } from "../dto/medivet-create-vet-availability-reception-hour.dto";
 
 @Injectable()
 export class MedivetVetAvailabilitiesService {
     constructor(
-        @InjectRepository(MedivetVetAvailability) private vetAvailabilitiesRepository: Repository<MedivetVetAvailability>,
-        @InjectRepository(MedivetVetAvailabilityReceptionHour) private vetReceptionHourRepository: Repository<MedivetVetAvailabilityReceptionHour>,
-        private usersService: MedivetUsersService,
-        private clinicsService: MedivetClinicsService,
-        private specializationsService: MedivetVetSpecializationService
-    ) { }
+    @InjectRepository(MedivetVetAvailability) private vetAvailabilitiesRepository: Repository<MedivetVetAvailability>,
+    @InjectRepository(MedivetVetAvailabilityReceptionHour) private vetReceptionHourRepository: Repository<MedivetVetAvailabilityReceptionHour>,
+    private usersService: MedivetUsersService,
+    private clinicsService: MedivetClinicsService,
+    private specializationsService: MedivetVetSpecializationService
+    ) {
+    }
 
     async createVetAvailability(
         createVetAvailabilityDto: MedivetCreateVetAvailabilityDto,
@@ -32,8 +35,19 @@ export class MedivetVetAvailabilitiesService {
         const specialization = await this.specializationsService.findOneVetSpecializationById(specializationId);
 
         const existingVetAvailability = await this.checkIfVetAvailabilityForClinicAndSpecializationExists(createVetAvailabilityDto);
-        if(existingVetAvailability) {
-          throw  new BadRequestException([ErrorMessagesConstants.VET_AVAILABILITY_FOR_CLINIC_AND_SPECIALIZATION_ALREADY_EXISTS])
+        if (existingVetAvailability) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.VET_AVAILABILITY_FOR_CLINIC_AND_SPECIALIZATION_ALREADY_EXISTS,
+                    property: "all"
+                }
+            ]);
+        }
+
+        for (let i = 0; i < receptionHours.length; i++) {
+            const receptionHour = receptionHours[i];
+            this.validateReceptionHourTime(receptionHour.hourFrom);
+            this.validateReceptionHourTime(receptionHour.hourTo);
         }
 
         const vetAvailability = this.vetAvailabilitiesRepository.create({
@@ -47,39 +61,114 @@ export class MedivetVetAvailabilitiesService {
 
         if (collidatedReceptionHour) {
             const collidatedReceptionHourIndex = receptionHours.indexOf(collidatedReceptionHour);
-            throw new BadRequestException([`${ErrorMessagesConstants.RECEPTION_HOUR_COLIDATES_WITH_EXISTING_ONE} ${collidatedReceptionHourIndex}`]);
+            // throw new BadRequestException([ `${ErrorMessagesConstants.RECEPTION_HOUR_COLIDATES_WITH_EXISTING_ONE} ${collidatedReceptionHourIndex}` ]);
+            // przrobić translacje
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.RECEPTION_HOUR_COLIDATES_WITH_EXISTING_ONE,
+                    property: "receptionHour",
+                    resource: { index: collidatedReceptionHourIndex }
+                }
+            ]);
         }
         await this.vetAvailabilitiesRepository.save(vetAvailability);
         return vetAvailability;
     }
 
-    private async checkIfVetAvailabilityForClinicAndSpecializationExists(createVetAvailabilityDto: MedivetCreateVetAvailabilityDto): Promise<boolean> {
-      const {clinicId, specializationId, userId} = createVetAvailabilityDto;
-      const existingVetAvailability = await this.vetAvailabilitiesRepository.findOne({
-        where: {
-          user: {id: userId},
-          clinic: {id: clinicId},
-          specialization: {id: specializationId}
-        },
-      })
+    async findVetAvailabilityById(id: number, include?: string[]): Promise<MedivetVetAvailability> {
+        const vetAvailability = await this.vetAvailabilitiesRepository.findOne({
+            where: { id },
+            relations: include ?? []
+        });
 
-      return !!existingVetAvailability;
+        if (!vetAvailability) {
+            throw new NotFoundException([
+                {
+                    message: ErrorMessagesConstants.VET_AVAILABILITY_WITH_THIS_ID_DOES_NOT_EXIST,
+                    property: "all"
+                }
+            ]);
+        }
+        return vetAvailability;
+    }
+
+    async findAllVetAvailabilities(
+        vetId?: number,
+        clinicId?: number,
+        include?: string[]
+    ): Promise<MedivetVetAvailability[]> {
+
+        return this.vetAvailabilitiesRepository.find({
+            where: {
+                user: { id: vetId ?? Not(undefined) },
+                clinic: { id: clinicId ?? Not(undefined) },
+            },
+            relations: include || []
+        });
+    }
+
+    private validateReceptionHourTime(time: string): void {
+        if (!time.includes(":")) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.INVALID_RECEPTION_HOUR_TIME_FORMAT,
+                    property: "receptionHourTime"
+                }
+            ]);
+        }
+        const timeParts = time.split(":");
+        const hour = Number(timeParts[0]);
+        const minute = Number(timeParts[1]);
+        const FIRST_HOUR = 0;
+        const LAST_HOUR = 23;
+        const FIRST_MINUTE = 0;
+        const LAST_MINUTE = 59;
+        const isHourValid = hour >= FIRST_HOUR && hour <= LAST_HOUR && Number.isInteger(hour) && timeParts[0].length === 2;
+        if (!isHourValid) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.INVALID_HOUR_FORMAT,
+                    property: "receptionHourTime"
+                }
+            ]);
+        }
+        const isMinuteValid = minute >= FIRST_MINUTE && minute <= LAST_MINUTE && Number.isInteger(minute) && timeParts[1].length === 2;
+        if (!isMinuteValid) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.INVALID_MINUTE_FORMAT,
+                    property: "receptionHourTime"
+                }
+            ]);
+        }
+    }
+
+    private async checkIfVetAvailabilityForClinicAndSpecializationExists(createVetAvailabilityDto: MedivetCreateVetAvailabilityDto): Promise<boolean> {
+        const { clinicId, specializationId, userId } = createVetAvailabilityDto;
+        const existingVetAvailability = await this.vetAvailabilitiesRepository.findOne({
+            where: {
+                user: { id: userId },
+                clinic: { id: clinicId },
+                specialization: { id: specializationId }
+            },
+        });
+
+        return !!existingVetAvailability;
     }
 
     private getCalculatedReceptionHoursPairDurationInSeconds({ hourFrom, hourTo }: Record<string, string>): number {
-        const hourFromParts = hourFrom.split(':');
-        const hourToParts = hourTo.split(':');
+        const hourFromParts = hourFrom.split(":");
+        const hourToParts = hourTo.split(":");
 
-        const a = moment([+hourFromParts[0], +hourFromParts[1], +hourFromParts[2]], "HH:mm:ss");
-        const b = moment([+hourToParts[0], +hourToParts[1], +hourToParts[2]], "HH:mm:ss");
+        const a = moment([ +hourFromParts[0], +hourFromParts[1], +hourFromParts[2] ], "HH:mm:ss");
+        const b = moment([ +hourToParts[0], +hourToParts[1], +hourToParts[2] ], "HH:mm:ss");
 
-        return b.diff(a, 'seconds');
+        return b.diff(a, "seconds");
     }
 
     private checkIfVetAvailabilityReceptionHourColidatesWithAnother(
         createVetAvailabilityDto: MedivetCreateVetAvailabilityDto,
         user: MedivetUser,
-
     ): MedivetCreateVetAvailabilityReceptionHourDto | undefined {
         const vetAvailabilities = user.vetAvailabilities;
         const { receptionHours } = createVetAvailabilityDto;
@@ -91,18 +180,28 @@ export class MedivetVetAvailabilitiesService {
 
             const allReceptionHours = availabilitiesWithSameDay.map(availability => availability.receptionHours).flat();
             const allReceptionHoursPairs = allReceptionHours.map(receptionHour => {
-                const pair = { hourFrom: receptionHour.hourFrom, hourTo: receptionHour.hourTo };
-                return { ...pair, duration: this.getCalculatedReceptionHoursPairDurationInSeconds(pair) };
+                const pair = {
+                    hourFrom: receptionHour.hourFrom,
+                    hourTo: receptionHour.hourTo
+                };
+                return {
+                    ...pair,
+                    duration: this.getCalculatedReceptionHoursPairDurationInSeconds(pair)
+                };
             });
 
-            const receptionHourDurationInSeconds = this.getCalculatedReceptionHoursPairDurationInSeconds({ hourFrom: receptionHour.hourFrom, hourTo: receptionHour.hourTo });
+            const receptionHourDurationInSeconds = this.getCalculatedReceptionHoursPairDurationInSeconds({
+                hourFrom: receptionHour.hourFrom,
+                hourTo: receptionHour.hourTo
+            });
 
             const collidate = allReceptionHoursPairs.some(receptionHourPair => {
                 if ((receptionHourPair.hourFrom >= receptionHour.hourFrom && receptionHourPair.hourTo <= receptionHour.hourTo && receptionHourPair.duration < receptionHourDurationInSeconds)
-                    || (receptionHourPair.hourFrom >= receptionHour.hourFrom && receptionHourPair.hourTo >= receptionHour.hourTo && receptionHourDurationInSeconds >= receptionHourPair.duration)
-                    || (receptionHourPair.hourFrom <= receptionHour.hourFrom && receptionHourPair.hourTo <= receptionHour.hourTo)
-                    || (receptionHourPair.hourFrom <= receptionHour.hourFrom && receptionHourPair.hourTo >= receptionHour.hourTo))
+          || (receptionHourPair.hourFrom >= receptionHour.hourFrom && receptionHourPair.hourTo >= receptionHour.hourTo && receptionHourDurationInSeconds >= receptionHourPair.duration)
+          || (receptionHourPair.hourFrom <= receptionHour.hourFrom && receptionHourPair.hourTo <= receptionHour.hourTo)
+          || (receptionHourPair.hourFrom <= receptionHour.hourFrom && receptionHourPair.hourTo >= receptionHour.hourTo)) {
                     return true;
+                }
                 return false;
             });
 
@@ -110,38 +209,5 @@ export class MedivetVetAvailabilitiesService {
         }
 
         return undefined;
-    }
-
-    async findVetAvailabilityById(id: number, include?: string[]): Promise<MedivetVetAvailability> {
-        const vetAvailability = await this.vetAvailabilitiesRepository.findOne({
-            where: { id },
-            relations: include ?? []
-        });
-
-        if (!vetAvailability) {
-            throw new NotFoundException([ErrorMessagesConstants.VET_AVAILABILITY_WITH_THIS_ID_DOES_NOT_EXIST]);
-        }
-        return vetAvailability;
-    }
-
-    async findAllVetAvailabilities(
-        vetId?: number,
-        clinicId?: number,
-        include?: string[]): Promise<MedivetVetAvailability[]> {
-        // let where = {};
-        // if (vetId) {
-        //     where = {
-        //         ...where,
-        //         user: { id: vetId }
-        //     };
-        // }
-
-        return this.vetAvailabilitiesRepository.find({
-            where: {
-                user: { id: vetId ?? Not(undefined) },
-                clinic: { id: clinicId ?? Not(undefined) },
-            },
-          relations: include || []
-        });
     }
 }

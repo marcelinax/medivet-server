@@ -11,4 +11,5 @@ export class ApiTagsConstants {
     public static VET_SPECIALIZATION_MEDICAL_SERVICES = 'vet-specialization-medical-services';
     public static CLINIC_ASSIGNMENT_REQUESTS = 'clinic-assignment-requests';
     public static VET_AVAILABILITIES = 'vet-availabilities';
+    public static ADMIN_CLINICS = 'admin-clinics';
 }

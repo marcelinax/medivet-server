@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class MedivetSecurityHashingService {
-   async hashValue(value: string): Promise<string> {
-       const saltOrRounds = 10;
-       return bcrypt.hash(value, saltOrRounds);
+    async hashValue(value: string): Promise<string> {
+        const saltOrRounds = 10;
+        return bcrypt.hash(value, saltOrRounds);
     }
 
     async validateHashingValue(value: string, hash: string): Promise<boolean> {
