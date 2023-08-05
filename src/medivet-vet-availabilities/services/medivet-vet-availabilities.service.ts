@@ -5,6 +5,7 @@ import { Not, Repository } from "typeorm";
 
 import { MedivetClinicsService } from "@/medivet-clinics/services/medivet-clinics.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { parseTimeStringToDate } from "@/medivet-commons/utils/date";
 import { MedivetVetSpecializationService } from "@/medivet-specializations/services/medivet-vet-specialization.service";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
@@ -253,28 +254,13 @@ export class MedivetVetAvailabilitiesService {
         firstReceptionHour: MedivetVetAvailabilityReceptionHour | { hourFrom: string; hourTo: string; duration: number },
         secondReceptionHour: MedivetVetAvailabilityReceptionHour | MedivetCreateVetAvailabilityReceptionHourDto,
     ): boolean {
-        const firstHourFromDate = this.parseTimeStringToDate(firstReceptionHour.hourFrom, true);
-        const secondHourFromDate = this.parseTimeStringToDate(secondReceptionHour.hourFrom, true);
-        const firstHourToDate = this.parseTimeStringToDate(firstReceptionHour.hourTo, true);
-        const secondHourToDate = this.parseTimeStringToDate(secondReceptionHour.hourTo, true);
+        const firstHourFromDate = parseTimeStringToDate(firstReceptionHour.hourFrom, true);
+        const secondHourFromDate = parseTimeStringToDate(secondReceptionHour.hourFrom, true);
+        const firstHourToDate = parseTimeStringToDate(firstReceptionHour.hourTo, true);
+        const secondHourToDate = parseTimeStringToDate(secondReceptionHour.hourTo, true);
 
         return firstHourFromDate < secondHourToDate && secondHourFromDate < firstHourToDate;
     }
-
-    private parseTimeStringToDate(time: string, showSeconds?: boolean) {
-        const timeParts = time.split(":");
-        const hour = timeParts[0] ? Number(timeParts[0]) : undefined;
-        const minutes = timeParts[1] ? Number(timeParts[1]) : undefined;
-        const seconds = timeParts[2] && showSeconds ? Number(timeParts[2]) : undefined;
-        const date = moment().toDate();
-
-        if (hour !== undefined) date.setHours(hour);
-        if (minutes !== undefined) date.setMinutes(minutes);
-        if (seconds !== undefined) date.setSeconds(seconds);
-        else date.setSeconds(0);
-
-        return date;
-    };
 
     private validateVetAvailabilityReceptionHours(
         createVetAvailabilityDto: MedivetCreateVetAvailabilityDto,
