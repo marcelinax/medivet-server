@@ -166,7 +166,6 @@ export class MedivetUsersService {
         const { specializationIds } = updateMyVetSpecializationsDto;
         const specializations = [];
 
-        // przetestować
         const vetSpecializationsInUse = vet.vetAvailabilities.map(vetAvailability => vetAvailability.specialization.id);
 
         for (let i = 0; i < vetSpecializationsInUse.length; i++) {

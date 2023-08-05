@@ -38,12 +38,12 @@ export class ErrorMessagesConstants {
   public static CANNOT_UNASSIGN_NOT_ASSIGNED_CLINIC = "Cannot unassign not assigned clinic.";
   public static CLINIC_ASSIGNMENT_REQUEST_WITH_THIS_ID_DOES_NOT_EXIST = "Clinic assignment request with this id does not exist.";
   public static CLINIC_ASSIGNMENT_REQUEST_ALREADY_EXISTS = "Clinic assignment request already exists.";
-  public static RECEPTION_HOUR_COLIDATES_WITH_EXISTING_ONE = "Reception hours colidates with existing one at index:";
+  public static RECEPTION_HOUR_COLLIDATES_WITH_EXISTING_ONE = "Reception hour collidates with existing one.";
+  public static RECEPTION_HOUR_COLLIDATES_WITH_ANOTHER_ONE = "Reception hour collidates with another one.";
   public static VET_AVAILABILITY_WITH_THIS_ID_DOES_NOT_EXIST = "Vet availability with this id does not exist.";
   public static VET_AVAILABILITY_FOR_CLINIC_AND_SPECIALIZATION_ALREADY_EXISTS = "Vet availability for clinic and specialization already exists.";
   public static INVALID_RECEPTION_HOUR_TIME_FORMAT = "Invalid reception hour time format.";
   public static INVALID_HOUR_FORMAT = "Valid format of hour is from 00 to 23.";
   public static INVALID_MINUTE_FORMAT = "Valid format of minute is from 00 to 59.";
-  public static SHOULD_BE_STRING = "Should be string";
-  public static CANNOT_BE_EMPTY = "Cannot be empty";
+  public static HOUR_TO_CANNOT_BE_EARLIER_THAN_HOUR_FROM = "Hour to cannot be earlier than hour from";
 }

@@ -57,20 +57,34 @@ export class MedivetVetAvailabilitiesService {
             user: vet
         });
 
-        const collidatedReceptionHour = this.checkIfVetAvailabilityReceptionHourColidatesWithAnother(createVetAvailabilityDto, user);
+        this.validateVetAvailabilityReceptionHours(createVetAvailabilityDto);
+
+        const collidatedReceptionHour = this.validateVetAvailabilityNewReceptionHoursCollidation(createVetAvailabilityDto);
 
         if (collidatedReceptionHour) {
             const collidatedReceptionHourIndex = receptionHours.indexOf(collidatedReceptionHour);
-            // throw new BadRequestException([ `${ErrorMessagesConstants.RECEPTION_HOUR_COLIDATES_WITH_EXISTING_ONE} ${collidatedReceptionHourIndex}` ]);
-            // przrobić translacje
             throw new BadRequestException([
                 {
-                    message: ErrorMessagesConstants.RECEPTION_HOUR_COLIDATES_WITH_EXISTING_ONE,
+                    message: ErrorMessagesConstants.RECEPTION_HOUR_COLLIDATES_WITH_ANOTHER_ONE,
                     property: "receptionHour",
                     resource: { index: collidatedReceptionHourIndex }
                 }
             ]);
         }
+
+        const collidatedReceptionHourWithExistingOne = this.validateNewVetAvailabilityReceptionHoursCollidationWithExistingOne(createVetAvailabilityDto, user);
+
+        if (collidatedReceptionHourWithExistingOne) {
+            const collidatedReceptionHourIndex = receptionHours.indexOf(collidatedReceptionHourWithExistingOne);
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.RECEPTION_HOUR_COLLIDATES_WITH_EXISTING_ONE,
+                    property: "receptionHour",
+                    resource: { index: collidatedReceptionHourIndex }
+                }
+            ]);
+        }
+
         await this.vetAvailabilitiesRepository.save(vetAvailability);
         return vetAvailability;
     }
@@ -166,12 +180,55 @@ export class MedivetVetAvailabilitiesService {
         return b.diff(a, "seconds");
     }
 
-    private checkIfVetAvailabilityReceptionHourColidatesWithAnother(
+    // validation only for new reception hours
+    private validateVetAvailabilityNewReceptionHoursCollidation(createVetAvailabilityDto: MedivetCreateVetAvailabilityDto): MedivetCreateVetAvailabilityReceptionHourDto | undefined {
+        const { receptionHours } = createVetAvailabilityDto;
+
+        const groupedReceptionHoursByDay: MedivetVetAvailabilityReceptionHour[][] = Object.values(
+            receptionHours.reduce((acc, current) => {
+                acc[current.day] = acc[current.day] ?? [];
+                acc[current.day].push(current);
+                return acc;
+            }, {})
+        );
+
+        let collidatedReceptionHour;
+        const collidate = groupedReceptionHoursByDay.some(groupedReceptionHour => {
+            for (let i = 0; i < groupedReceptionHour.length; i++) {
+                const currentReceptionHour = groupedReceptionHour[i];
+                const currentReceptionHourDurationInSeconds = this.getCalculatedReceptionHoursPairDurationInSeconds({
+                    hourFrom: currentReceptionHour.hourFrom,
+                    hourTo: currentReceptionHour.hourTo
+                });
+
+                for (let j = 1; j < groupedReceptionHour.length; j++) {
+                    const nextReceptionHour = groupedReceptionHour[j];
+                    const nextReceptionHourDurationInSeconds = this.getCalculatedReceptionHoursPairDurationInSeconds({
+                        hourFrom: nextReceptionHour.hourFrom,
+                        hourTo: nextReceptionHour.hourTo
+                    });
+                    const notValid = this.checkIfVetAvailabilityReceptionHourCollidatesWithAnother(nextReceptionHour, currentReceptionHour, nextReceptionHourDurationInSeconds, currentReceptionHourDurationInSeconds);
+
+                    if (notValid) {
+                        collidatedReceptionHour = nextReceptionHour;
+                        return nextReceptionHour;
+                    } else return false;
+                }
+            }
+        });
+
+        if (collidate) return collidatedReceptionHour;
+        return undefined;
+    }
+
+    // validation for new reception hours in comparison to existed reception hours
+    private validateNewVetAvailabilityReceptionHoursCollidationWithExistingOne(
         createVetAvailabilityDto: MedivetCreateVetAvailabilityDto,
         user: MedivetUser,
     ): MedivetCreateVetAvailabilityReceptionHourDto | undefined {
         const vetAvailabilities = user.vetAvailabilities;
         const { receptionHours } = createVetAvailabilityDto;
+
         for (let i = 0; i < receptionHours.length; i++) {
             const receptionHour = receptionHours[i];
             const availabilitiesWithSameDay = vetAvailabilities.filter(availability => availability.receptionHours.find(availabilityReceptionHour => availabilityReceptionHour.day === receptionHour.day));
@@ -196,13 +253,7 @@ export class MedivetVetAvailabilitiesService {
             });
 
             const collidate = allReceptionHoursPairs.some(receptionHourPair => {
-                if ((receptionHourPair.hourFrom >= receptionHour.hourFrom && receptionHourPair.hourTo <= receptionHour.hourTo && receptionHourPair.duration < receptionHourDurationInSeconds)
-          || (receptionHourPair.hourFrom >= receptionHour.hourFrom && receptionHourPair.hourTo >= receptionHour.hourTo && receptionHourDurationInSeconds >= receptionHourPair.duration)
-          || (receptionHourPair.hourFrom <= receptionHour.hourFrom && receptionHourPair.hourTo <= receptionHour.hourTo)
-          || (receptionHourPair.hourFrom <= receptionHour.hourFrom && receptionHourPair.hourTo >= receptionHour.hourTo)) {
-                    return true;
-                }
-                return false;
+                return this.checkIfVetAvailabilityReceptionHourCollidatesWithAnother(receptionHourPair, receptionHour, receptionHourPair.duration, receptionHourDurationInSeconds);
             });
 
             if (collidate) return receptionHour;
@@ -210,4 +261,41 @@ export class MedivetVetAvailabilitiesService {
 
         return undefined;
     }
+
+    private checkIfVetAvailabilityReceptionHourCollidatesWithAnother(
+        firstReceptionHour: MedivetVetAvailabilityReceptionHour | { hourFrom: string; hourTo: string; duration: number },
+        secondReceptionHour: MedivetVetAvailabilityReceptionHour | MedivetCreateVetAvailabilityReceptionHourDto,
+        firstReceptionHourDuration: number,
+        secondReceptionHourDuration: number
+    ): boolean {
+        if ((firstReceptionHour.hourFrom >= secondReceptionHour.hourFrom && firstReceptionHour.hourTo <= secondReceptionHour.hourTo && firstReceptionHourDuration < secondReceptionHourDuration)
+      || (firstReceptionHour.hourFrom >= secondReceptionHour.hourFrom && firstReceptionHour.hourTo >= secondReceptionHour.hourTo && secondReceptionHourDuration >= firstReceptionHourDuration)
+      || (firstReceptionHour.hourFrom <= secondReceptionHour.hourFrom && firstReceptionHour.hourTo <= secondReceptionHour.hourTo)
+      || (firstReceptionHour.hourFrom <= secondReceptionHour.hourFrom && firstReceptionHour.hourTo >= secondReceptionHour.hourTo)
+      || firstReceptionHour.hourFrom >= secondReceptionHour.hourFrom && secondReceptionHour.hourTo < firstReceptionHour.hourTo
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    private validateVetAvailabilityReceptionHours(
+        createVetAvailabilityDto: MedivetCreateVetAvailabilityDto,
+    ): void {
+        const { receptionHours } = createVetAvailabilityDto;
+        for (let i = 0; i < receptionHours.length; i++) {
+            const receptionHour = receptionHours[i];
+
+            if (receptionHour.hourFrom > receptionHour.hourTo) {
+                throw new BadRequestException([
+                    {
+                        message: ErrorMessagesConstants.HOUR_TO_CANNOT_BE_EARLIER_THAN_HOUR_FROM,
+                        property: "receptionHour",
+                        resource: { index: i }
+                    }
+                ]);
+            }
+        }
+    }
+
 }
