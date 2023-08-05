@@ -38,8 +38,8 @@ export class ErrorMessagesConstants {
   public static CANNOT_UNASSIGN_NOT_ASSIGNED_CLINIC = "Cannot unassign not assigned clinic.";
   public static CLINIC_ASSIGNMENT_REQUEST_WITH_THIS_ID_DOES_NOT_EXIST = "Clinic assignment request with this id does not exist.";
   public static CLINIC_ASSIGNMENT_REQUEST_ALREADY_EXISTS = "Clinic assignment request already exists.";
-  public static RECEPTION_HOUR_COLLIDATES_WITH_EXISTING_ONE = "Reception hour collidates with existing one.";
-  public static RECEPTION_HOUR_COLLIDATES_WITH_ANOTHER_ONE = "Reception hour collidates with another one.";
+  public static RECEPTION_HOUR_COLLIDES_WITH_EXISTING_ONE = "Reception hour collides with existing one.";
+  public static RECEPTION_HOUR_COLLIDES_WITH_ANOTHER_ONE = "Reception hour collides with another one.";
   public static VET_AVAILABILITY_WITH_THIS_ID_DOES_NOT_EXIST = "Vet availability with this id does not exist.";
   public static VET_AVAILABILITY_FOR_CLINIC_AND_SPECIALIZATION_ALREADY_EXISTS = "Vet availability for clinic and specialization already exists.";
   public static INVALID_RECEPTION_HOUR_TIME_FORMAT = "Invalid reception hour time format.";

@@ -59,28 +59,28 @@ export class MedivetVetAvailabilitiesService {
 
         this.validateVetAvailabilityReceptionHours(createVetAvailabilityDto);
 
-        const collidatedReceptionHour = this.validateVetAvailabilityNewReceptionHoursCollidation(createVetAvailabilityDto);
+        const collidedReceptionHour = this.validateVetAvailabilityNewReceptionHoursCollision(createVetAvailabilityDto);
 
-        if (collidatedReceptionHour) {
-            const collidatedReceptionHourIndex = receptionHours.indexOf(collidatedReceptionHour);
+        if (collidedReceptionHour) {
+            const collidedReceptionHourIndex = receptionHours.indexOf(collidedReceptionHour);
             throw new BadRequestException([
                 {
-                    message: ErrorMessagesConstants.RECEPTION_HOUR_COLLIDATES_WITH_ANOTHER_ONE,
+                    message: ErrorMessagesConstants.RECEPTION_HOUR_COLLIDES_WITH_ANOTHER_ONE,
                     property: "receptionHour",
-                    resource: { index: collidatedReceptionHourIndex }
+                    resource: { index: collidedReceptionHourIndex }
                 }
             ]);
         }
 
-        const collidatedReceptionHourWithExistingOne = this.validateNewVetAvailabilityReceptionHoursCollidationWithExistingOne(createVetAvailabilityDto, user);
+        const collidedReceptionHourWithExistingOne = this.validateNewVetAvailabilityReceptionHoursCollisionWithExistingOne(createVetAvailabilityDto, user);
 
-        if (collidatedReceptionHourWithExistingOne) {
-            const collidatedReceptionHourIndex = receptionHours.indexOf(collidatedReceptionHourWithExistingOne);
+        if (collidedReceptionHourWithExistingOne) {
+            const collidedReceptionHourIndex = receptionHours.indexOf(collidedReceptionHourWithExistingOne);
             throw new BadRequestException([
                 {
-                    message: ErrorMessagesConstants.RECEPTION_HOUR_COLLIDATES_WITH_EXISTING_ONE,
+                    message: ErrorMessagesConstants.RECEPTION_HOUR_COLLIDES_WITH_EXISTING_ONE,
                     property: "receptionHour",
-                    resource: { index: collidatedReceptionHourIndex }
+                    resource: { index: collidedReceptionHourIndex }
                 }
             ]);
         }
@@ -181,7 +181,7 @@ export class MedivetVetAvailabilitiesService {
     }
 
     // validation only for new reception hours
-    private validateVetAvailabilityNewReceptionHoursCollidation(createVetAvailabilityDto: MedivetCreateVetAvailabilityDto): MedivetCreateVetAvailabilityReceptionHourDto | undefined {
+    private validateVetAvailabilityNewReceptionHoursCollision(createVetAvailabilityDto: MedivetCreateVetAvailabilityDto): MedivetCreateVetAvailabilityReceptionHourDto | undefined {
         const { receptionHours } = createVetAvailabilityDto;
 
         const groupedReceptionHoursByDay: MedivetVetAvailabilityReceptionHour[][] = Object.values(
@@ -192,37 +192,29 @@ export class MedivetVetAvailabilitiesService {
             }, {})
         );
 
-        let collidatedReceptionHour;
-        const collidate = groupedReceptionHoursByDay.some(groupedReceptionHour => {
+        let collidedReceptionHour;
+        const collide = groupedReceptionHoursByDay.some(groupedReceptionHour => {
             for (let i = 0; i < groupedReceptionHour.length; i++) {
                 const currentReceptionHour = groupedReceptionHour[i];
-                const currentReceptionHourDurationInSeconds = this.getCalculatedReceptionHoursPairDurationInSeconds({
-                    hourFrom: currentReceptionHour.hourFrom,
-                    hourTo: currentReceptionHour.hourTo
-                });
 
                 for (let j = 1; j < groupedReceptionHour.length; j++) {
                     const nextReceptionHour = groupedReceptionHour[j];
-                    const nextReceptionHourDurationInSeconds = this.getCalculatedReceptionHoursPairDurationInSeconds({
-                        hourFrom: nextReceptionHour.hourFrom,
-                        hourTo: nextReceptionHour.hourTo
-                    });
-                    const notValid = this.checkIfVetAvailabilityReceptionHourCollidatesWithAnother(nextReceptionHour, currentReceptionHour, nextReceptionHourDurationInSeconds, currentReceptionHourDurationInSeconds);
+                    const notValid = this.checkIfVetAvailabilityReceptionHourCollidesWithAnother(nextReceptionHour, currentReceptionHour);
 
                     if (notValid) {
-                        collidatedReceptionHour = nextReceptionHour;
+                        collidedReceptionHour = nextReceptionHour;
                         return nextReceptionHour;
                     } else return false;
                 }
             }
         });
 
-        if (collidate) return collidatedReceptionHour;
+        if (collide) return collidedReceptionHour;
         return undefined;
     }
 
     // validation for new reception hours in comparison to existed reception hours
-    private validateNewVetAvailabilityReceptionHoursCollidationWithExistingOne(
+    private validateNewVetAvailabilityReceptionHoursCollisionWithExistingOne(
         createVetAvailabilityDto: MedivetCreateVetAvailabilityDto,
         user: MedivetUser,
     ): MedivetCreateVetAvailabilityReceptionHourDto | undefined {
@@ -247,37 +239,42 @@ export class MedivetVetAvailabilitiesService {
                 };
             });
 
-            const receptionHourDurationInSeconds = this.getCalculatedReceptionHoursPairDurationInSeconds({
-                hourFrom: receptionHour.hourFrom,
-                hourTo: receptionHour.hourTo
+            const collide = allReceptionHoursPairs.some(receptionHourPair => {
+                return this.checkIfVetAvailabilityReceptionHourCollidesWithAnother(receptionHourPair, receptionHour);
             });
 
-            const collidate = allReceptionHoursPairs.some(receptionHourPair => {
-                return this.checkIfVetAvailabilityReceptionHourCollidatesWithAnother(receptionHourPair, receptionHour, receptionHourPair.duration, receptionHourDurationInSeconds);
-            });
-
-            if (collidate) return receptionHour;
+            if (collide) return receptionHour;
         }
 
         return undefined;
     }
 
-    private checkIfVetAvailabilityReceptionHourCollidatesWithAnother(
+    private checkIfVetAvailabilityReceptionHourCollidesWithAnother(
         firstReceptionHour: MedivetVetAvailabilityReceptionHour | { hourFrom: string; hourTo: string; duration: number },
         secondReceptionHour: MedivetVetAvailabilityReceptionHour | MedivetCreateVetAvailabilityReceptionHourDto,
-        firstReceptionHourDuration: number,
-        secondReceptionHourDuration: number
     ): boolean {
-        if ((firstReceptionHour.hourFrom >= secondReceptionHour.hourFrom && firstReceptionHour.hourTo <= secondReceptionHour.hourTo && firstReceptionHourDuration < secondReceptionHourDuration)
-      || (firstReceptionHour.hourFrom >= secondReceptionHour.hourFrom && firstReceptionHour.hourTo >= secondReceptionHour.hourTo && secondReceptionHourDuration >= firstReceptionHourDuration)
-      || (firstReceptionHour.hourFrom <= secondReceptionHour.hourFrom && firstReceptionHour.hourTo <= secondReceptionHour.hourTo)
-      || (firstReceptionHour.hourFrom <= secondReceptionHour.hourFrom && firstReceptionHour.hourTo >= secondReceptionHour.hourTo)
-      || firstReceptionHour.hourFrom >= secondReceptionHour.hourFrom && secondReceptionHour.hourTo < firstReceptionHour.hourTo
-        ) {
-            return true;
-        }
-        return false;
+        const firstHourFromDate = this.parseTimeStringToDate(firstReceptionHour.hourFrom, true);
+        const secondHourFromDate = this.parseTimeStringToDate(secondReceptionHour.hourFrom, true);
+        const firstHourToDate = this.parseTimeStringToDate(firstReceptionHour.hourTo, true);
+        const secondHourToDate = this.parseTimeStringToDate(secondReceptionHour.hourTo, true);
+
+        return firstHourFromDate < secondHourToDate && secondHourFromDate < firstHourToDate;
     }
+
+    private parseTimeStringToDate(time: string, showSeconds?: boolean) {
+        const timeParts = time.split(":");
+        const hour = timeParts[0] ? Number(timeParts[0]) : undefined;
+        const minutes = timeParts[1] ? Number(timeParts[1]) : undefined;
+        const seconds = timeParts[2] && showSeconds ? Number(timeParts[2]) : undefined;
+        const date = moment().toDate();
+
+        if (hour !== undefined) date.setHours(hour);
+        if (minutes !== undefined) date.setMinutes(minutes);
+        if (seconds !== undefined) date.setSeconds(seconds);
+        else date.setSeconds(0);
+
+        return date;
+    };
 
     private validateVetAvailabilityReceptionHours(
         createVetAvailabilityDto: MedivetCreateVetAvailabilityDto,
