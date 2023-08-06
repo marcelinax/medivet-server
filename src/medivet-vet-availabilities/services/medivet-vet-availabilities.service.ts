@@ -5,6 +5,8 @@ import { Not, Repository } from "typeorm";
 
 import { MedivetClinicsService } from "@/medivet-clinics/services/medivet-clinics.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { MedivetVetAvailabilityDaySorter } from "@/medivet-commons/enums/medivet-vet-availability.enums";
 import { parseTimeStringToDate } from "@/medivet-commons/utils/date";
 import { MedivetVetSpecializationService } from "@/medivet-specializations/services/medivet-vet-specialization.service";
@@ -110,7 +112,7 @@ export class MedivetVetAvailabilitiesService {
             ]);
         }
 
-        if (include.includes("receptionHours")) {
+        if (include?.includes("receptionHours")) {
             const sortedReceptionHours = this.sortVetAvailabilityReceptionHoursByDayWeek(vetAvailability);
             return {
                 ...vetAvailability,
@@ -210,9 +212,22 @@ export class MedivetVetAvailabilitiesService {
         };
     }
 
+    async removeVetAvailability(vetAvailabilityId: number): Promise<OkMessageDto> {
+        const vetAvailability = await this.findVetAvailabilityById(vetAvailabilityId, [ "specialization", "receptionHours" ]);
+        const receptionHoursRelatedToVetAvailability = await this.vetReceptionHourRepository.find({ where: { vetAvailability: { id: vetAvailabilityId } } });
+
+        await receptionHoursRelatedToVetAvailability.forEach(receptionHour => this.removeReceptionHourRelatedToVetAvailability(receptionHour));
+
+        await this.vetAvailabilitiesRepository.remove(vetAvailability);
+        return { message: SuccessMessageConstants.VET_CLINIC_AVAILABILITY_HAS_BEEN_REMOVED_SUCCESSFULLY };
+    }
+
+    private async removeReceptionHourRelatedToVetAvailability(receptionHour: MedivetVetAvailabilityReceptionHour): Promise<void> {
+        await this.vetReceptionHourRepository.remove(receptionHour);
+    }
+
     private sortVetAvailabilityReceptionHoursByDayWeek(vetAvailability: MedivetVetAvailability): MedivetVetAvailabilityReceptionHour[] {
         const receptionHours = [ ...vetAvailability.receptionHours ];
-        // return receptionHours.sort((a, b) => MedivetVetAvailabilityDaySorter[a.day] - MedivetVetAvailabilityDaySorter[b.day]);
         const sortedByDay = receptionHours.sort((a, b) => MedivetVetAvailabilityDaySorter[a.day] - MedivetVetAvailabilityDaySorter[b.day]);
         return sortedByDay.sort((a, b) => Number(parseTimeStringToDate(a.hourFrom)) - Number(parseTimeStringToDate(b.hourFrom)));
     }

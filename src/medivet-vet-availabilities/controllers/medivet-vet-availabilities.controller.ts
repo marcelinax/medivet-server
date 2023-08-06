@@ -2,6 +2,7 @@ import {
     Body,
     ClassSerializerInterceptor,
     Controller,
+    Delete,
     Get,
     Param,
     ParseArrayPipe,
@@ -25,6 +26,7 @@ import {
 import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
@@ -186,5 +188,30 @@ export class MedivetVetAvailabilitiesController {
     @CurrentUser() user: MedivetUser
   ): Promise<MedivetVetAvailability> {
       return this.vetAvailabilitiesService.updateVetAvailability(vetAvailabilityId, createVetAvailabilityDto, user);
+  }
+
+  @ApiOperation({ summary: "Removes existing vet clinic availability", })
+  @ApiNotFoundResponse({
+      description: "Vet clinic availability does not exist",
+      type: BadRequestExceptionDto
+  })
+  @ApiOkResponse({
+      description: "Vet clinic availability has been removed successfully",
+      type: OkMessageDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role(MedivetUserRole.VET)
+  @UseGuards(JwtAuthGuard)
+  @Delete(PathConstants.ID_PARAM)
+  async removeVetClinicAvailability(
+    @Param("id") vetClinicAvailabilityId: number
+  )
+    : Promise<void> {
+      await this.vetAvailabilitiesService.removeVetAvailability(vetClinicAvailabilityId);
   }
 }
