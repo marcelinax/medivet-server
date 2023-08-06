@@ -5,6 +5,7 @@ import { Not, Repository } from "typeorm";
 
 import { MedivetClinicsService } from "@/medivet-clinics/services/medivet-clinics.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { MedivetVetAvailabilityDaySorter } from "@/medivet-commons/enums/medivet-vet-availability.enums";
 import { parseTimeStringToDate } from "@/medivet-commons/utils/date";
 import { MedivetVetSpecializationService } from "@/medivet-specializations/services/medivet-vet-specialization.service";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
@@ -87,7 +88,11 @@ export class MedivetVetAvailabilitiesService {
         }
 
         await this.vetAvailabilitiesRepository.save(vetAvailability);
-        return vetAvailability;
+        const sortedReceptionHours = this.sortVetAvailabilityReceptionHoursByDayWeek(vetAvailability);
+        return {
+            ...vetAvailability,
+            receptionHours: sortedReceptionHours
+        };
     }
 
     async findVetAvailabilityById(id: number, include?: string[]): Promise<MedivetVetAvailability> {
@@ -103,6 +108,14 @@ export class MedivetVetAvailabilitiesService {
                     property: "all"
                 }
             ]);
+        }
+
+        if (include.includes("receptionHours")) {
+            const sortedReceptionHours = this.sortVetAvailabilityReceptionHoursByDayWeek(vetAvailability);
+            return {
+                ...vetAvailability,
+                receptionHours: sortedReceptionHours
+            };
         }
         return vetAvailability;
     }
@@ -120,6 +133,88 @@ export class MedivetVetAvailabilitiesService {
             },
             relations: include || []
         });
+    }
+
+    async updateVetAvailability(
+        vetAvailabilityId: number,
+        updateVetAvailabilityDto: MedivetCreateVetAvailabilityDto,
+        user: MedivetUser
+    ): Promise<MedivetVetAvailability> {
+        const { specializationId, receptionHours } = updateVetAvailabilityDto;
+        const availability = await this.findVetAvailabilityById(vetAvailabilityId, [ "specialization" ]);
+
+        const isSpecializationDifferent = availability.specialization.id !== specializationId;
+        if (isSpecializationDifferent) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.CANNOT_CHANGE_SPECIALIZATION_FOR_EXISTING_VET_AVAILABILITY,
+                    property: "all"
+                }
+            ]);
+        }
+
+        for (let i = 0; i < receptionHours.length; i++) {
+            const receptionHour = receptionHours[i];
+            this.validateReceptionHourTime(receptionHour.hourFrom);
+            this.validateReceptionHourTime(receptionHour.hourTo);
+        }
+
+        const existingVetAvailabilityReceptionHours = await this.vetReceptionHourRepository.find({ where: { vetAvailability: { id: vetAvailabilityId } } });
+        const newVetAvailabilityReceptionHours = receptionHours.filter(receptionHour => {
+            const isExistingReceptionHour = !!existingVetAvailabilityReceptionHours.find(existingReceptionHour => JSON.stringify(existingReceptionHour) === JSON.stringify(receptionHour));
+            if (!isExistingReceptionHour) return receptionHour;
+
+        });
+
+        availability.receptionHours = [ ...existingVetAvailabilityReceptionHours, ...newVetAvailabilityReceptionHours.map(hour => this.vetReceptionHourRepository.create({ ...hour })) ];
+
+        this.validateVetAvailabilityReceptionHours(updateVetAvailabilityDto);
+
+        const collidedReceptionHour = this.validateVetAvailabilityNewReceptionHoursCollision({
+            ...updateVetAvailabilityDto,
+            receptionHours: newVetAvailabilityReceptionHours,
+        });
+
+        if (collidedReceptionHour) {
+            const collidedReceptionHourIndex = receptionHours.indexOf(collidedReceptionHour);
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.RECEPTION_HOUR_COLLIDES_WITH_ANOTHER_ONE,
+                    property: "receptionHour",
+                    resource: { index: collidedReceptionHourIndex }
+                }
+            ]);
+        }
+
+        const collidedReceptionHourWithExistingOne = this.validateNewVetAvailabilityReceptionHoursCollisionWithExistingOne({
+            ...updateVetAvailabilityDto,
+            receptionHours: [ ...newVetAvailabilityReceptionHours ],
+        }, user);
+
+        if (collidedReceptionHourWithExistingOne) {
+            const collidedReceptionHourIndex = receptionHours.indexOf(collidedReceptionHourWithExistingOne);
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.RECEPTION_HOUR_COLLIDES_WITH_EXISTING_ONE,
+                    property: "receptionHour",
+                    resource: { index: collidedReceptionHourIndex }
+                }
+            ]);
+        }
+
+        await this.vetAvailabilitiesRepository.save(availability);
+        const sortedReceptionHours = this.sortVetAvailabilityReceptionHoursByDayWeek(availability);
+        return {
+            ...availability,
+            receptionHours: sortedReceptionHours
+        };
+    }
+
+    private sortVetAvailabilityReceptionHoursByDayWeek(vetAvailability: MedivetVetAvailability): MedivetVetAvailabilityReceptionHour[] {
+        const receptionHours = [ ...vetAvailability.receptionHours ];
+        // return receptionHours.sort((a, b) => MedivetVetAvailabilityDaySorter[a.day] - MedivetVetAvailabilityDaySorter[b.day]);
+        const sortedByDay = receptionHours.sort((a, b) => MedivetVetAvailabilityDaySorter[a.day] - MedivetVetAvailabilityDaySorter[b.day]);
+        return sortedByDay.sort((a, b) => Number(parseTimeStringToDate(a.hourFrom)) - Number(parseTimeStringToDate(b.hourFrom)));
     }
 
     private validateReceptionHourTime(time: string): void {

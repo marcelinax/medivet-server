@@ -46,4 +46,5 @@ export class ErrorMessagesConstants {
   public static INVALID_HOUR_FORMAT = "Valid format of hour is from 00 to 23.";
   public static INVALID_MINUTE_FORMAT = "Valid format of minute is from 00 to 59.";
   public static HOUR_TO_CANNOT_BE_EARLIER_THAN_HOUR_FROM = "Hour to cannot be earlier than hour from";
+  public static CANNOT_CHANGE_SPECIALIZATION_FOR_EXISTING_VET_AVAILABILITY = "Cannot change specialization for existing vet availability.";
 }

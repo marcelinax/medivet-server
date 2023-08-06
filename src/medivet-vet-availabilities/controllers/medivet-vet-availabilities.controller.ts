@@ -6,6 +6,7 @@ import {
     Param,
     ParseArrayPipe,
     Post,
+    Put,
     Query,
     UseGuards,
     UseInterceptors
@@ -152,5 +153,38 @@ export class MedivetVetAvailabilitiesController {
     })) include?: string[]
   ): Promise<MedivetVetAvailability> {
       return this.vetAvailabilitiesService.findVetAvailabilityById(vetAvailabilityId, include);
+  }
+
+  @ApiOperation({
+      summary: "Updates vet availability",
+      description: "Updates vet availability and returns it"
+  })
+  @ApiOkResponse({
+      description: "Vet availability has been successfully updated",
+      type: MedivetVetAvailability
+  })
+  @ApiNotFoundResponse({
+      description: "Vet availability does not exist",
+      type: BadRequestExceptionDto
+  })
+  @ApiBadRequestResponse({
+      description: "Form validation error array",
+      type: BadRequestExceptionDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role(MedivetUserRole.VET)
+  @UseGuards(JwtAuthGuard)
+  @Put(PathConstants.ID_PARAM)
+  async updateVetAvailability(
+    @Param("id") vetAvailabilityId: number,
+    @Body() createVetAvailabilityDto: MedivetCreateVetAvailabilityDto,
+    @CurrentUser() user: MedivetUser
+  ): Promise<MedivetVetAvailability> {
+      return this.vetAvailabilitiesService.updateVetAvailability(vetAvailabilityId, createVetAvailabilityDto, user);
   }
 }
