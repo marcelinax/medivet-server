@@ -33,8 +33,9 @@ export class PathConstants {
   public static UNASSIGNMENT_REQUEST = "unassignment-request";
   public static ASSIGNED = "assigned";
   public static UNASSIGNED = "unassigned";
-  public static UNASSIGNMENT_CONFIRMATION = "unassigmnet-confirmation";
-  public static UNASSIGNMENT_REJECTION = "unassigmnet-rejection";
-  public static ASSIGNMENT_CONFIRMATION = "assigmnet-confirmation";
-  public static ASSIGNMENT_REJECTION = "assigmnet-rejection";
+  public static UNASSIGNMENT_CONFIRMATION = "unassignment-confirmation";
+  public static UNASSIGNMENT_REJECTION = "unassignment-rejection";
+  public static ASSIGNMENT_CONFIRMATION = "assignmnet-confirmation";
+  public static ASSIGNMENT_REJECTION = "assignmnet-rejection";
+  public static UNASSGINMENT_CANCELLATION = "unassignment-cancellation";
 }

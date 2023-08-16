@@ -191,6 +191,31 @@ export class MedivetClinicAssignmentRequestsController {
       return this.clinicAssignmentRequestsService.rejectClinicUnassignment(id);
   }
 
+  @ApiOperation({ summary: "Cancels clinic unassignment request.", })
+  @ApiOkResponse({
+      description: "Clinic unassignment request has been cancelled",
+      type: OkMessageDto
+  })
+  @ApiBadRequestResponse({
+      description: "Clinic unassignmnet request does not exist",
+      type: NotFoundException
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role(MedivetUserRole.VET)
+  @UseGuards(JwtAuthGuard)
+  @Post(`${PathConstants.CLINIC_ID_PARAM}/${PathConstants.UNASSGINMENT_CANCELLATION}`)
+  async cancelClinicUnssignment(
+    @CurrentUser() user: MedivetUser,
+    @Param("clinicId") clinicId: number,
+  ): Promise<OkMessageDto> {
+      return this.clinicAssignmentRequestsService.cancelClinicUnassignment(clinicId, user);
+  }
+
   @ApiOperation({
       summary: "Gets all clinic assignment requests",
       description: "Returns array of all clinic assignment requests"

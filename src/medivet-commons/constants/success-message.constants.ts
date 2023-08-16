@@ -14,4 +14,5 @@ export class SuccessMessageConstants {
   public static CLINIC_HAS_BEEN_UNASSIGNED_TO_VET = "Clinic has been unassigned to vet.";
   public static REQUEST_HAS_BEEN_REJECTED = "Request has been rejected.";
   public static VET_CLINIC_AVAILABILITY_HAS_BEEN_REMOVED_SUCCESSFULLY = "Vet clinic availability has been removed successfully.";
+  public static CLINIC_UNASSIGNMENT_REQUEST_HAS_BEEN_CANCELLED = "Clinic unassignment request has been cancelled.";
 }

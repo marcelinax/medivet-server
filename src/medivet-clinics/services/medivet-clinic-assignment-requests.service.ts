@@ -25,12 +25,12 @@ export class MedivetClinicAssignmentRequestService {
     }
 
     async findClinicAssignmentRequestById(id: number, include?: string[]): Promise<MedivetClinicAssignmentRequest> {
-        const clinic = await this.assignmentRequestsRepository.findOne({
+        const clinicAssignmentRequest = await this.assignmentRequestsRepository.findOne({
             where: { id },
             relations: include ?? []
         });
 
-        if (!clinic) {
+        if (!clinicAssignmentRequest) {
             throw new NotFoundException([
                 {
                     message: ErrorMessagesConstants.CLINIC_ASSIGNMENT_REQUEST_WITH_THIS_ID_DOES_NOT_EXIST,
@@ -38,7 +38,7 @@ export class MedivetClinicAssignmentRequestService {
                 }
             ]);
         }
-        return clinic;
+        return clinicAssignmentRequest;
     }
 
     async requestToAssignClinic(vet: MedivetUser, clinicId: number): Promise<OkMessageDto> {
@@ -102,6 +102,29 @@ export class MedivetClinicAssignmentRequestService {
         });
         return { message: SuccessMessageConstants.REQUEST_HAS_BEEN_SEND };
     };
+
+    async cancelClinicUnassignment(clinicId: number, vet: MedivetUser): Promise<OkMessageDto> {
+        const doesRequestExist = await this.checkIfAssignmentRequestAlreadyExists(clinicId, vet.id, MedivetClinicAssignmentRequestStatus.TO_UNASSIGN);
+
+        if (!doesRequestExist) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.CANNOT_CANCEL_CLINIC_ASSIGNMENT_REQUEST,
+                    property: "all"
+                }
+            ]);
+        }
+        const requestToUnassign = await this.assignmentRequestsRepository.findOne({
+            where: {
+                clinic: { id: clinicId },
+                user: { id: vet.id },
+                status: MedivetClinicAssignmentRequestStatus.TO_UNASSIGN
+            },
+        });
+        await this.removeClinicRequestAssignment(requestToUnassign);
+
+        return { message: SuccessMessageConstants.CLINIC_UNASSIGNMENT_REQUEST_HAS_BEEN_CANCELLED };
+    }
 
     async searchClinicRequestAssignments(searchDto: MedivetSearchClinicAssignmentRequestDto): Promise<MedivetClinicAssignmentRequest[]> {
         const requests = await this.assignmentRequestsRepository.find({ relations: [ "user", "clinic" ] });
