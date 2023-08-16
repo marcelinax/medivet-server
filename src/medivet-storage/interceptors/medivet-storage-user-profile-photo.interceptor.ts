@@ -3,7 +3,6 @@ import { diskStorage } from "multer";
 import { extname } from "path";
 import { v4 as uuidv4 } from "uuid";
 
-
 export const MedivetStorageUserProfilePhotoInterceptor = FileInterceptor("file", {
     storage: diskStorage({
         destination: "./storage/user-profile-photos",
@@ -13,4 +12,4 @@ export const MedivetStorageUserProfilePhotoInterceptor = FileInterceptor("file",
             callback(null, `${fileName}-user-profile-photo${fileExtensionName}`);
         }
     })
-})
+});

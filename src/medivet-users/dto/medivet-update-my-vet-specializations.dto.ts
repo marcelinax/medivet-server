@@ -3,7 +3,7 @@ import { ArrayNotEmpty, IsArray } from "class-validator";
 
 export class MedivetUpdateMyVetSpecializationsDto {
     @ApiProperty({
-        example: [1, 2],
+        example: [ 1, 2 ],
         required: true
     })
     @IsArray()

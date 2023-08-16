@@ -4,7 +4,7 @@ import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-va
 export class AddressDto {
     @ApiProperty({
         required: true,
-        example: 'Kraków'
+        example: "Kraków"
     })
     @IsString()
     @IsNotEmpty()
@@ -12,7 +12,7 @@ export class AddressDto {
 
     @ApiProperty({
         required: true,
-        example: 'Powstańców Warszawskich'
+        example: "Powstańców Warszawskich"
     })
     @IsString()
     @IsNotEmpty()
@@ -27,9 +27,7 @@ export class AddressDto {
     @IsNumber()
     buildingNumber: number;
 
-    @ApiProperty({
-        example: 3
-    })
+    @ApiProperty({ example: 3 })
     @IsOptional()
     @IsNumber()
     @IsPositive()
@@ -37,7 +35,7 @@ export class AddressDto {
 
     @ApiProperty({
         required: true,
-        example: '31-908'
+        example: "31-908"
     })
     @IsNotEmpty()
     @IsString()

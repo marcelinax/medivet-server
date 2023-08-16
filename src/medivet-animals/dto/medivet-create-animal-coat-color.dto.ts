@@ -1,11 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty, IsString } from "class-validator";
-import { MedivetAnimalType } from "../enums/medivet-animal-type.enum";
+import { IsNotEmpty, IsString } from "class-validator";
 
 export class MedivetCreateAnimalCoatColorDto {
     @ApiProperty({
         required: true,
-        example: 'Czarny'
+        example: "Czarny"
     })
     @IsString()
     @IsNotEmpty()

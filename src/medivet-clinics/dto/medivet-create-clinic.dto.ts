@@ -1,20 +1,19 @@
-import { AddressDto } from "@/medivet-commons/dto/address.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import {  IsDefined, IsNotEmpty, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
+import { IsDefined, IsNotEmpty, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
+
+import { AddressDto } from "@/medivet-commons/dto/address.dto";
 
 export class MedivetCreateClinicDto {
     @ApiProperty({
-        example: 'Medvet',
+        example: "Medvet",
         required: true
     })
     @IsNotEmpty()
     @IsString()
     name: string;
 
-    @ApiProperty({
-        required: true
-    })
+    @ApiProperty({ required: true })
     @IsNotEmpty()
     @IsDefined()
     @ValidateNested()
@@ -22,10 +21,10 @@ export class MedivetCreateClinicDto {
     address: AddressDto;
 
     @ApiProperty({
-        example: '48123789123',
+        example: "48123789123",
         required: false
     })
-    @IsPhoneNumber('PL')
+    @IsPhoneNumber("PL")
     @IsString()
     phoneNumber: string;
 }

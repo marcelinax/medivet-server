@@ -3,7 +3,7 @@ import { IsNotEmpty, IsNumber, IsPositive, IsString, Max, Min, MinLength } from 
 
 export class MedivetCreateOpinionDto {
     @ApiProperty({
-        example: 'Jak najbardziej polecam!',
+        example: "Jak najbardziej polecam!",
         required: true
     })
     @IsString()

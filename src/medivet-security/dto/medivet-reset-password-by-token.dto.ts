@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, MinLength } from "class-validator";
 export class MedivetResetPasswordByTokenDto {
     @ApiProperty({
         required: true,
-        example: 'abKciOiJIUzI1NiIsJnR5cCI6IkpeyJfdWQiOiI2MjE5ZGViYjk0MzRjNGI3YWRmYWU4MTYiLCJ0IjoxNjQ3OTcwNzI1MTU'
+        example: "abKciOiJIUzI1NiIsJnR5cCI6IkpeyJfdWQiOiI2MjE5ZGViYjk0MzRjNGI3YWRmYWU4MTYiLCJ0IjoxNjQ3OTcwNzI1MTU"
     })
     @IsNotEmpty()
     token: string;
@@ -12,7 +12,7 @@ export class MedivetResetPasswordByTokenDto {
     @ApiProperty({
         required: true,
         minLength: 6,
-        example: 'password'
+        example: "password"
     })
     @IsString()
     @IsNotEmpty()

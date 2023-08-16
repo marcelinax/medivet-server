@@ -1,4 +1,4 @@
-import { OffsetPaginationDto } from '@/medivet-commons/dto/offset-pagination.dto';
+import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 
 export const paginateData = (data: any[], paginationDto: OffsetPaginationDto): any[] => {
     const pageSize = paginationDto.pageSize || 10;

@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, MinLength } from "class-validator";
 export class MedivetUpdateUserPasswordDto {
     @ApiProperty({
         required: true,
-        example: 'password1'
+        example: "password1"
     })
     @IsNotEmpty()
     @IsString()
@@ -12,7 +12,7 @@ export class MedivetUpdateUserPasswordDto {
 
     @ApiProperty({
         required: true,
-        example: 'newpassword'
+        example: "newpassword"
     })
     @IsNotEmpty()
     @IsString()

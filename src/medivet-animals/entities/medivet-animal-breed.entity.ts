@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+
 import { MedivetAnimalType } from "../enums/medivet-animal-type.enum";
 
 @Entity()
@@ -12,10 +13,9 @@ export class MedivetAnimalBreed {
     @Column({ nullable: false })
     name: string;
 
-
     @ApiProperty()
     @Column({
-        type: 'enum',
+        type: "enum",
         enum: MedivetAnimalType,
         nullable: false
     })

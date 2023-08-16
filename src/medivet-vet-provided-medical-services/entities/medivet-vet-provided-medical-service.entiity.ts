@@ -1,8 +1,9 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+
 import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity";
 import { MedivetVetSpecializationMedicalService } from "@/medivet-specializations/entities/medivet-vet-specialization-medical-service.entity";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
-import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class MedivetVetProvidedMedicalService {

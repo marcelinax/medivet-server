@@ -1,44 +1,45 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { IsArray, IsEnum, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+
 import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
-import { ApiProperty } from "@nestjs/swagger";
-import {IsArray, IsEnum, IsNumber, IsOptional, IsPositive, IsString} from "class-validator";
 
 export class MedivetSearchAdminClinicDto extends OffsetPaginationDto {
   @ApiProperty({
-    example: 'Medvet',
-    required: false
+      example: "Medvet",
+      required: false
   })
   @IsOptional()
   @IsString()
   name?: string;
 
   @ApiProperty({
-    example: 'Kraków',
-    required: false
+      example: "Kraków",
+      required: false
   })
   @IsOptional()
   @IsString()
   city?: string;
 
   @ApiProperty({
-    example: 'Wesoła',
-    required: false
+      example: "Wesoła",
+      required: false
   })
   @IsOptional()
   @IsString()
   street?: string;
 
   @ApiProperty({
-    example: '31-900',
-    required: false
+      example: "31-900",
+      required: false
   })
   @IsOptional()
   @IsString()
   zipCode?: string;
 
   @ApiProperty({
-    example: 120,
-    required: false
+      example: 120,
+      required: false
   })
   @IsOptional()
   @IsNumber()
@@ -46,8 +47,8 @@ export class MedivetSearchAdminClinicDto extends OffsetPaginationDto {
   buildingNumber?: number;
 
   @ApiProperty({
-    example: 11,
-    required: false
+      example: 11,
+      required: false
   })
   @IsOptional()
   @IsNumber()
@@ -55,24 +56,24 @@ export class MedivetSearchAdminClinicDto extends OffsetPaginationDto {
   flatNumber?: number;
 
   @ApiProperty({
-    example: MedivetSortingModeEnum.DESC,
-    required: false
+      example: MedivetSortingModeEnum.DESC,
+      required: false
   })
   @IsOptional()
   @IsEnum(MedivetSortingModeEnum)
   sortingMode?: MedivetSortingModeEnum;
 
   @ApiProperty({
-    example: 'vets',
-    required: false
+      example: "vets",
+      required: false
   })
   @IsOptional()
   @IsArray()
   include?: string[];
 
   @ApiProperty({
-    example: 'Medvet',
-    required: false
+      example: "Medvet",
+      required: false
   })
   @IsOptional()
   @IsString()

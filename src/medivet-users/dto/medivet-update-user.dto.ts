@@ -1,32 +1,31 @@
-import { ValidationMessagesConstants } from "@/medivet-commons/constants/validation-messages.constants";
-import { AddressDto } from "@/medivet-commons/dto/address.dto";
-import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
 import { IsArray, IsDate, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString } from "class-validator";
 
+import { ValidationMessagesConstants } from "@/medivet-commons/constants/validation-messages.constants";
+import { AddressDto } from "@/medivet-commons/dto/address.dto";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
+
 export class MedivetUpdateUserDto {
     @ApiProperty({
         required: true,
-        example: 'Jan Kowalski'
+        example: "Jan Kowalski"
     })
     @IsString()
     @IsNotEmpty()
     name: string;
 
     @ApiProperty({
-        default: '',
-        example: '48123789123',
+        default: "",
+        example: "48123789123",
         required: false
     })
     @IsOptional()
-    @IsPhoneNumber('PL')
+    @IsPhoneNumber("PL")
     @IsString()
     phoneNumber?: string;
 
-    @ApiProperty({
-        required: true
-    })
+    @ApiProperty({ required: true })
     @Type(() => AddressDto)
     address: AddressDto;
 
@@ -35,9 +34,7 @@ export class MedivetUpdateUserDto {
         enum: MedivetGenderEnum,
     })
     @IsNotEmpty()
-    @IsEnum(MedivetGenderEnum, {
-        message: ValidationMessagesConstants.GENDER_ENUM_VALIDATION
-    })
+    @IsEnum(MedivetGenderEnum, { message: ValidationMessagesConstants.GENDER_ENUM_VALIDATION })
     gender: MedivetGenderEnum;
 
     @ApiProperty({

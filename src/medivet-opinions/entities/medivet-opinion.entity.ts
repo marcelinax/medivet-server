@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
+
+import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 
 @Entity()
 export class MedivetOpinion {
@@ -8,12 +9,12 @@ export class MedivetOpinion {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ApiProperty({type: () => MedivetUser})
+    @ApiProperty({ type: () => MedivetUser })
     @ManyToOne(() => MedivetUser, user => user.opinions)
     vet: MedivetUser;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({ nullable: false })
     message: string;
 
     @ApiProperty()
@@ -24,7 +25,7 @@ export class MedivetOpinion {
     @Column({ nullable: false })
     rate: number;
 
-    @ApiProperty({ type: () => MedivetUser})
+    @ApiProperty({ type: () => MedivetUser })
     @ManyToOne(() => MedivetUser, user => user.opinions)
     issuer: MedivetUser;
 }

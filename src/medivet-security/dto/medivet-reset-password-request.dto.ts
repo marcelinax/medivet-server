@@ -4,7 +4,7 @@ import { IsEmail, IsNotEmpty } from "class-validator";
 export class MedivetResetPasswordRequestDto {
     @ApiProperty({
         required: true,
-        example: 'email@email.com'
+        example: "email@email.com"
     })
     @IsEmail()
     @IsNotEmpty()

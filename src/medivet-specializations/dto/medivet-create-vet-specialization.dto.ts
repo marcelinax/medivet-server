@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString } from "class-validator";
 export class MedivetCreateVetSpecializationDto {
     @ApiProperty({
         required: true,
-        example: 'Choroby psów i kotów'
+        example: "Choroby psów i kotów"
     })
     @IsNotEmpty()
     @IsString()

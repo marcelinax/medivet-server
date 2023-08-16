@@ -8,6 +8,9 @@ export class MedivetVetSpecialization {
     id: number;
 
     @ApiProperty()
-    @Column({ nullable: false, unique: true })
+    @Column({
+        nullable: false,
+        unique: true
+    })
     name: string;
 }

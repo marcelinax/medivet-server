@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { MedivetUser } from '@/medivet-users/entities/medivet-user.entity';
+
+import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 
 @Entity()
 export class MedivetResetPasswordToken {
@@ -13,7 +14,7 @@ export class MedivetResetPasswordToken {
     user: MedivetUser;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({ nullable: false })
     token: string;
 
     @ApiProperty()

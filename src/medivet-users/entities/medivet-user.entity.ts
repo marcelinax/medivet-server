@@ -1,16 +1,16 @@
-import { MedivetClinicAssignmentRequest } from "@/medivet-clinics/entities/medivet-clinic-assignment-request.entity";
-import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity";
-import { envConfig } from "@/medivet-commons/configurations/env-config";
-import { AddressDto } from "@/medivet-commons/dto/address.dto";
-import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
-import { MedivetOpinion } from '@/medivet-opinions/entities/medivet-opinion.entity';
-import { MedivetVetSpecialization } from '@/medivet-specializations/entities/medivet-vet-specialization.entity';
-import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
-import { MedivetVetAvailabilityReceptionHour } from "@/medivet-vet-availabilities/entities/medivet-vet-availability-reception-hour.entity";
-import { MedivetVetAvailability } from "@/medivet-vet-availabilities/entities/medivet-vet-availability.entity";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Transform } from "class-transformer";
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+
+import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity";
+import { MedivetClinicAssignmentRequest } from "@/medivet-clinics/entities/medivet-clinic-assignment-request.entity";
+import { envConfig } from "@/medivet-commons/configurations/env-config";
+import { AddressDto } from "@/medivet-commons/dto/address.dto";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
+import { MedivetOpinion } from "@/medivet-opinions/entities/medivet-opinion.entity";
+import { MedivetVetSpecialization } from "@/medivet-specializations/entities/medivet-vet-specialization.entity";
+import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
+import { MedivetVetAvailability } from "@/medivet-vet-availabilities/entities/medivet-vet-availability.entity";
 
 const env = envConfig();
 
@@ -39,7 +39,7 @@ export class MedivetUser {
 
     @ApiProperty()
     @Column({
-        type: 'enum',
+        type: "enum",
         enum: MedivetUserRole,
         nullable: false
     })
@@ -47,7 +47,7 @@ export class MedivetUser {
 
     @ApiProperty()
     @Column({
-        type: 'enum',
+        type: "enum",
         enum: MedivetGenderEnum,
         default: MedivetGenderEnum.MALE,
         nullable: false
@@ -55,26 +55,29 @@ export class MedivetUser {
     gender: MedivetGenderEnum;
 
     @ApiProperty()
-    @Column({ default: '' })
+    @Column({ default: "" })
     phoneNumber: string;
 
     @ApiProperty()
     @Transform(({ value }) => value ? env.ROOT_URL + value : value)
-    @Column({ default: '' })
+    @Column({ default: "" })
     profilePhotoUrl: string;
 
     @ApiProperty()
-    @Column({ type: 'json', nullable: true })
+    @Column({
+        type: "json",
+        nullable: true
+    })
     address: AddressDto;
 
     @ApiProperty()
     @ManyToMany(() => MedivetVetSpecialization)
-    @JoinTable({ name: 'medivet-bind-vet-specializations' })
+    @JoinTable({ name: "medivet-bind-vet-specializations" })
     specializations: MedivetVetSpecialization[];
 
     @ApiProperty()
     @ManyToMany(() => MedivetClinic)
-    @JoinTable({ name: 'medivet-bind-vet-clinics' })
+    @JoinTable({ name: "medivet-bind-vet-clinics" })
     clinics: MedivetClinic[];
 
     @ApiProperty()

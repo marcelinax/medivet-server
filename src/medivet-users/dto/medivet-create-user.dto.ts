@@ -1,14 +1,15 @@
-import { ValidationMessagesConstants } from "@/medivet-commons/constants/validation-messages.constants";
-import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
-import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 import { IsBoolean, IsDate, IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from "class-validator";
 
+import { ValidationMessagesConstants } from "@/medivet-commons/constants/validation-messages.constants";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
+import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
+
 export class MedivetCreateUserDto {
     @ApiProperty({
         required: true,
-        example: 'email@email.com'
+        example: "email@email.com"
     })
     @IsEmail()
     @IsNotEmpty()
@@ -17,7 +18,7 @@ export class MedivetCreateUserDto {
     @ApiProperty({
         required: true,
         minLength: 6,
-        example: 'password'
+        example: "password"
     })
     @IsNotEmpty()
     @MinLength(6)
@@ -25,7 +26,7 @@ export class MedivetCreateUserDto {
 
     @ApiProperty({
         required: true,
-        example: 'Jan Kowalski'
+        example: "Jan Kowalski"
     })
     @IsNotEmpty()
     @IsString()
@@ -36,9 +37,7 @@ export class MedivetCreateUserDto {
         enum: MedivetGenderEnum,
     })
     @IsNotEmpty()
-    @IsEnum(MedivetGenderEnum, {
-        message: ValidationMessagesConstants.GENDER_ENUM_VALIDATION
-    })
+    @IsEnum(MedivetGenderEnum, { message: ValidationMessagesConstants.GENDER_ENUM_VALIDATION })
     gender: MedivetGenderEnum;
 
     @ApiProperty({
@@ -46,7 +45,7 @@ export class MedivetCreateUserDto {
         example: new Date(new Date().setFullYear(new Date().getFullYear() - 18))
     })
     @IsNotEmpty()
-    @Transform(({value}) => new Date(value))
+    @Transform(({ value }) => new Date(value))
     @IsDate()
     birthDate: Date;
 
