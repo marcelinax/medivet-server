@@ -22,3 +22,4 @@ import { MedivetVetProvidedMedicalServiceService } from "@/medivet-vet-provided-
 
 export class MedivetVetProvidedMedicalServiceModule {
 }
+

@@ -3,10 +3,12 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { ILike, Not, Repository } from "typeorm";
 
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { MedivetCreateVetSpecializationMedicalServiceDto } from "@/medivet-specializations/dto/medivet-create-vet-specialization-medical-service.dto";
 import { MedivetSearchVetSpecializationMedicalServiceDto } from "@/medivet-specializations/dto/medivet-search-vet-specialization-medical-service.dto";
-import { MedivetVetSpecialization } from "@/medivet-specializations/entities/medivet-vet-specialization.entity";
 import { MedivetVetSpecializationMedicalService } from "@/medivet-specializations/entities/medivet-vet-specialization-medical-service.entity";
+import { MedivetVetSpecializationService } from "@/medivet-specializations/services/medivet-vet-specialization.service";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 
@@ -14,13 +16,13 @@ import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 export class MedivetVetSpecializationMedicalServiceService {
     constructor(
     @InjectRepository(MedivetVetSpecializationMedicalService) private vetSpecializationMedicalServiceRepository: Repository<MedivetVetSpecializationMedicalService>,
-    @InjectRepository(MedivetVetSpecialization) private vetSpecializationRepository: Repository<MedivetVetSpecialization>,
+    private vetSpecializationsService: MedivetVetSpecializationService,
     @InjectRepository(MedivetUser) private userRepository: Repository<MedivetUser>,
     ) {
     }
 
     async createVetSpecializationMedicalService(createVetSpecializationMedicalServiceDto: MedivetCreateVetSpecializationMedicalServiceDto): Promise<MedivetVetSpecializationMedicalService> {
-        const { name, specializationIds } = createVetSpecializationMedicalServiceDto;
+        const { name, specializationId } = createVetSpecializationMedicalServiceDto;
 
         if (await this.checkIfVetSpecializationMedicalServiceAlreadyExists(createVetSpecializationMedicalServiceDto)) {
             throw new BadRequestException([
@@ -31,24 +33,13 @@ export class MedivetVetSpecializationMedicalServiceService {
             ]);
         }
 
-        const existingSpecializations = await this.vetSpecializationRepository.find();
-        const existingSpecializationIds = existingSpecializations.map(({ id }) => id);
-
-        if (!specializationIds.every(specializationId => existingSpecializationIds.includes(specializationId))) {
-            throw new BadRequestException([
-                {
-                    message: ErrorMessagesConstants.ONE_OF_THE_VET_SPECIALIZATION_DOES_NOT_EXIST,
-                    property: "all"
-                }
-            ]);
-        }
-
-        const specializations = await this.getVetSpecializationsToAssign(specializationIds);
+        const specialization = await this.vetSpecializationsService.findOneVetSpecializationById(specializationId);
 
         const newVetSpecializationMedicalService = this.vetSpecializationMedicalServiceRepository.create({
             name,
-            specializations
+            specialization
         });
+
         await this.vetSpecializationMedicalServiceRepository.save(newVetSpecializationMedicalService);
         return newVetSpecializationMedicalService;
     }
@@ -80,8 +71,8 @@ export class MedivetVetSpecializationMedicalServiceService {
         return vetSpecializationMedicalService;
     }
 
-    async removeVetSpecializationMedicalService(id: number): Promise<void> {
-        const vetSpecializationMedicalService = await this.findOneVetSpecializationMedicalServiceById(id, [ "specializations" ]);
+    async removeVetSpecializationMedicalService(id: number): Promise<OkMessageDto> {
+        const vetSpecializationMedicalService = await this.findOneVetSpecializationMedicalServiceById(id, [ "specialization" ]);
 
         const vetSpecializationMedicalServiceInUse = await this.checkIfVetSpecializationMedicalServiceIsInUse(vetSpecializationMedicalService);
 
@@ -93,7 +84,8 @@ export class MedivetVetSpecializationMedicalServiceService {
                 }
             ]);
         }
-        this.vetSpecializationMedicalServiceRepository.remove(vetSpecializationMedicalService);
+        await this.vetSpecializationMedicalServiceRepository.remove(vetSpecializationMedicalService);
+        return { message: SuccessMessageConstants.VET_SPECIALIZATION_MEDICAL_SERVICE_HAS_BEN_REMOVED_SUCCESSFULLY };
     }
 
     async updateVetSpecializationMedicalService(
@@ -102,11 +94,10 @@ export class MedivetVetSpecializationMedicalServiceService {
         include?: string[]
     ): Promise<MedivetVetSpecializationMedicalService> {
         const vetSpecializationMedicalService = await this.findOneVetSpecializationMedicalServiceById(vetSpecializationMedicalServiceId, include);
-        const { name, specializationIds } = updateVetSpecializationMedicalServiceDto;
+        const { name, specializationId } = updateVetSpecializationMedicalServiceDto;
 
         if (vetSpecializationMedicalService) {
             const vetSpecializationMedicalServiceInUse = await this.checkIfVetSpecializationMedicalServiceIsInUse(vetSpecializationMedicalService);
-            // sprawdzić czy ta usługa z przypisana specjalizacja jest juz przypisana do jakiegoś weterynarza -> jezeli tak to nie moze wywalić specjalizacji z usługi
             if (vetSpecializationMedicalServiceInUse) {
                 throw new BadRequestException([
                     {
@@ -116,43 +107,32 @@ export class MedivetVetSpecializationMedicalServiceService {
                 ]);
             }
 
-            const specializations = await this.getVetSpecializationsToAssign(specializationIds);
+            const specialization = await this.vetSpecializationsService.findOneVetSpecializationById(specializationId);
 
             vetSpecializationMedicalService.name = name;
-            vetSpecializationMedicalService.specializations = [ ...specializations ];
+            vetSpecializationMedicalService.specialization = { ...specialization };
 
             await this.vetSpecializationMedicalServiceRepository.save(vetSpecializationMedicalService);
             return vetSpecializationMedicalService;
-
         }
-    }
-
-    private async getVetSpecializationsToAssign(specializationIds: number[]): Promise<MedivetVetSpecialization[]> {
-        const existingSpecializations = await this.vetSpecializationRepository.find();
-        const existingSpecializationIds = existingSpecializations.map(({ id }) => id);
-
-        if (!specializationIds.every(specializationId => existingSpecializationIds.includes(specializationId))) {
-            throw new BadRequestException([
-                {
-                    message: ErrorMessagesConstants.ONE_OF_THE_VET_SPECIALIZATION_DOES_NOT_EXIST,
-                    property: "all"
-                }
-            ]);
-        }
-
-        return existingSpecializations.filter(({ id }) => specializationIds.includes(id));
     }
 
     private async checkIfVetSpecializationMedicalServiceAlreadyExists(createVetSpecializationMedicalServiceDto: MedivetCreateVetSpecializationMedicalServiceDto): Promise<boolean> {
-        const { name } = createVetSpecializationMedicalServiceDto;
-        const vetSpecializationMedicalService = await this.vetSpecializationMedicalServiceRepository.findOne({ where: { name } });
+        const { name, specializationId } = createVetSpecializationMedicalServiceDto;
+        const vetSpecializationMedicalService = await this.vetSpecializationMedicalServiceRepository.findOne({
+            where:
+        {
+            name,
+            specialization: { id: specializationId }
+        },
+        });
         return !!vetSpecializationMedicalService;
     }
 
     private async checkIfVetSpecializationMedicalServiceIsInUse(vetSpecializationMedicalService: MedivetVetSpecializationMedicalService): Promise<boolean> {
         const vetSpecializationIds = (await this.userRepository.find({ relations: [ "specializations" ] })).filter(user => user.role === MedivetUserRole.VET).flatMap(v => v.specializations).map(s => s.id);
-        const serviceSpecializationsIds = vetSpecializationMedicalService.specializations.flatMap(s => s.id);
+        const serviceSpecializationsId = vetSpecializationMedicalService.specialization.id;
 
-        return serviceSpecializationsIds.some(specializationId => vetSpecializationIds.includes(specializationId));
+        return vetSpecializationIds.includes(serviceSpecializationsId);
     };
 }

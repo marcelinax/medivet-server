@@ -12,7 +12,6 @@ import {
 
 import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
-import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
@@ -171,8 +170,7 @@ export class MedivetVetSpecializationMedicalServiceController {
     @Param("id") vetSpecializationMedicalServiceId: number
   )
     : Promise<OkMessageDto> {
-      await this.vetSpecializationMedicalServiceService.removeVetSpecializationMedicalService(vetSpecializationMedicalServiceId);
-      return { message: SuccessMessageConstants.VET_SPECIALIZATION_MEDICAL_SERVICE_HAS_BEN_REMOVED_SUCCESSFULLY };
+      return this.vetSpecializationMedicalServiceService.removeVetSpecializationMedicalService(vetSpecializationMedicalServiceId);
   }
 
   @ApiQuery({

@@ -85,11 +85,7 @@ export class MedivetVetProvidedMedicalServiceService {
         });
 
         if (specializationIds && specializationIds.length > 0) {
-            console.log(vetProvidedMedicalServices);
-            vetProvidedMedicalServices = vetProvidedMedicalServices.filter(vetProvidedMedicalService => {
-                const vetProvidedMedicalServiceSpecializationIds = (vetProvidedMedicalService?.medicalService?.specializations || []).map(specialization => specialization.id);
-                if (vetProvidedMedicalServiceSpecializationIds.find(id => specializationIds.includes(id))) return vetProvidedMedicalService;
-            });
+            vetProvidedMedicalServices = vetProvidedMedicalServices.filter(vetProvidedMedicalService => specializationIds.includes(vetProvidedMedicalService.medicalService.specialization.id));
         }
 
         return paginateData(vetProvidedMedicalServices, {

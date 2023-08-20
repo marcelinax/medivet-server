@@ -30,7 +30,6 @@ export class ErrorMessagesConstants {
   public static VET_SPECIALIZATION_WITH_THIS_ID_DOES_NOT_EXIST = "Vet specialization with this id does not exist.";
   public static CANNOT_REMOVE_VET_SPECIALIZATION_WHICH_IS_IN_USE = "Cannot remove vet specialization which is in use";
   public static VET_SPECIALIZATION_MEDICAL_SERVICE_ALREADY_EXISTS = "Vet specialization medical service already exists.";
-  public static ONE_OF_THE_VET_SPECIALIZATION_DOES_NOT_EXIST = "One of the vet specialization does not exist.";
   public static VET_SPECIALIZATION_MEDICAL_SERVICE_WITH_THIS_ID_DOES_NOT_EXIST = "Vet specialization medical service with this id does not exist.";
   public static CANNOT_REMOVE_VET_SPECIALIZATION_MEDICAL_SERVICE_WHICH_IS_IN_USE = "Cannot remove vet specialization medical service which is in use.";
   public static CANNOT_REMOVE_VET_SPECIALIZATION_FROM_MEDICAL_SERVICE_WHICH_IS_IN_USE = "Cannot remove vet specialization from medical service which is in use.";
