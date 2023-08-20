@@ -11,6 +11,7 @@ export class PathConstants {
   public static CLINIC_ASSIGNMENT_REQUESTS = "clinic-assignment-requests";
   public static VET_AVAILABILITIES = "vet-availabilities";
   public static ADMIN_CLINICS = "admin-clinics";
+  public static VET_PROVIDED_MEDICAL_SERVICES = "vet-provided-medical-services";
 
   public static LOGIN = "login";
   public static ME = "me";
@@ -38,4 +39,5 @@ export class PathConstants {
   public static ASSIGNMENT_CONFIRMATION = "assignmnet-confirmation";
   public static ASSIGNMENT_REJECTION = "assignmnet-rejection";
   public static UNASSGINMENT_CANCELLATION = "unassignment-cancellation";
+  public static CLINIC = "clinic";
 }

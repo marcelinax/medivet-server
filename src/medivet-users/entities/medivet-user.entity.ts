@@ -16,79 +16,79 @@ const env = envConfig();
 
 @Entity()
 export class MedivetUser {
-    @ApiProperty()
-    @PrimaryGeneratedColumn()
-    id: number;
+  @ApiProperty()
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @ApiProperty()
-    @Column({ nullable: false })
-    email: string;
+  @ApiProperty()
+  @Column({ nullable: false })
+  email: string;
 
-    @ApiProperty()
-    @Exclude()
-    @Column({ nullable: false })
-    password: string;
+  @ApiProperty()
+  @Exclude()
+  @Column({ nullable: false })
+  password: string;
 
-    @ApiProperty()
-    @Column({ nullable: false })
-    name: string;
+  @ApiProperty()
+  @Column({ nullable: false })
+  name: string;
 
-    @ApiProperty()
-    @CreateDateColumn({ nullable: false })
-    birthDate: Date;
+  @ApiProperty()
+  @CreateDateColumn({ nullable: false })
+  birthDate: Date;
 
-    @ApiProperty()
-    @Column({
-        type: "enum",
-        enum: MedivetUserRole,
-        nullable: false
-    })
-    role: MedivetUserRole;
+  @ApiProperty()
+  @Column({
+      type: "enum",
+      enum: MedivetUserRole,
+      nullable: false
+  })
+  role: MedivetUserRole;
 
-    @ApiProperty()
-    @Column({
-        type: "enum",
-        enum: MedivetGenderEnum,
-        default: MedivetGenderEnum.MALE,
-        nullable: false
-    })
-    gender: MedivetGenderEnum;
+  @ApiProperty()
+  @Column({
+      type: "enum",
+      enum: MedivetGenderEnum,
+      default: MedivetGenderEnum.MALE,
+      nullable: false
+  })
+  gender: MedivetGenderEnum;
 
-    @ApiProperty()
-    @Column({ default: "" })
-    phoneNumber: string;
+  @ApiProperty()
+  @Column({ default: "" })
+  phoneNumber: string;
 
-    @ApiProperty()
-    @Transform(({ value }) => value ? env.ROOT_URL + value : value)
-    @Column({ default: "" })
-    profilePhotoUrl: string;
+  @ApiProperty()
+  @Transform(({ value }) => value ? env.ROOT_URL + value : value)
+  @Column({ default: "" })
+  profilePhotoUrl: string;
 
-    @ApiProperty()
-    @Column({
-        type: "json",
-        nullable: true
-    })
-    address: AddressDto;
+  @ApiProperty()
+  @Column({
+      type: "json",
+      nullable: true
+  })
+  address: AddressDto;
 
-    @ApiProperty()
-    @ManyToMany(() => MedivetVetSpecialization)
-    @JoinTable({ name: "medivet-bind-vet-specializations" })
-    specializations: MedivetVetSpecialization[];
+  @ApiProperty()
+  @ManyToMany(() => MedivetVetSpecialization)
+  @JoinTable({ name: "medivet-bind-vet-specializations" })
+  specializations: MedivetVetSpecialization[];
 
-    @ApiProperty()
-    @ManyToMany(() => MedivetClinic)
-    @JoinTable({ name: "medivet-bind-vet-clinics" })
-    clinics: MedivetClinic[];
+  @ApiProperty()
+  @ManyToMany(() => MedivetClinic)
+  @JoinTable({ name: "medivet-bind-vet-clinics" })
+  clinics: MedivetClinic[];
 
-    @ApiProperty()
-    @OneToMany(() => MedivetClinicAssignmentRequest, request => request.user)
-    clinicAssignmentRequest: MedivetClinicAssignmentRequest[];
+  @ApiProperty()
+  @OneToMany(() => MedivetClinicAssignmentRequest, request => request.user)
+  clinicAssignmentRequest: MedivetClinicAssignmentRequest[];
 
-    @ApiProperty({ type: () => MedivetOpinion })
-    @OneToMany(() => MedivetOpinion, opinion => opinion.vet)
-    opinions: MedivetOpinion[];
+  @ApiProperty({ type: () => MedivetOpinion })
+  @OneToMany(() => MedivetOpinion, opinion => opinion.vet)
+  opinions: MedivetOpinion[];
 
-    @ApiProperty({ type: () => MedivetVetAvailability })
-    @OneToMany(() => MedivetVetAvailability, availability => availability.user)
-    vetAvailabilities: MedivetVetAvailability[];
+  @ApiProperty({ type: () => MedivetVetAvailability })
+  @OneToMany(() => MedivetVetAvailability, availability => availability.user)
+  vetAvailabilities: MedivetVetAvailability[];
 }

@@ -1,4 +1,4 @@
-import { forwardRef,Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { MedivetVetSpecializationMedicalServiceController } from "@/medivet-specializations/controllers/medivet-vet-specialization-medical-service.controller";
@@ -21,7 +21,8 @@ import { MedivetUsersModule } from "@/medivet-users/medivet-users.module";
     ],
     controllers: [ MedivetVetSpecializationMedicalServiceController, MedivetVetSpecializationController ],
     providers: [ MedivetVetSpecializationMedicalServiceService, MedivetVetSpecializationService ],
-    exports: [ MedivetVetSpecializationService ]
+    exports: [ MedivetVetSpecializationService, MedivetVetSpecializationMedicalServiceService ]
 })
 
-export class MedivetVetSpecializationsModule { }
+export class MedivetVetSpecializationsModule {
+}

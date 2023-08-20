@@ -48,4 +48,6 @@ export class ErrorMessagesConstants {
   public static HOUR_TO_CANNOT_BE_EARLIER_THAN_HOUR_FROM = "Hour to cannot be earlier than hour from";
   public static CANNOT_CHANGE_SPECIALIZATION_FOR_EXISTING_VET_AVAILABILITY = "Cannot change specialization for existing vet availability.";
   public static CANNOT_CANCEL_CLINIC_ASSIGNMENT_REQUEST = "Cannot cancel clinic assignment request.";
+  public static CANNOT_CREATE_MORE_THAN_ONE_VET_PROVIDED_MEDICAL_SERVICE_FOR_SAME_SPECIALIZATION_IN_ONE_CLINIC = "Cannot create more than one vet provided medical service for same specialization in one clinic.";
+  public static VET_PROVIDED_MEDICAL_SERVICE_WITH_THIS_ID_DOES_NOT_EXIST = "Vet provided medical service with this id does not exist.";
 }

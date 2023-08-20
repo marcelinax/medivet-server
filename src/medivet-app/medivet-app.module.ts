@@ -14,6 +14,7 @@ import { MedivetVetSpecializationsModule } from "@/medivet-specializations/mediv
 import { MedivetStaticModule } from "@/medivet-static/medivet-static.module";
 import { MedivetUsersModule } from "@/medivet-users/medivet-users.module";
 import { MedivetVetAvailabilitiesModule } from "@/medivet-vet-availabilities/medivet-vet-availabilities.module";
+import { MedivetVetProvidedMedicalServiceModule } from "@/medivet-vet-provided-medical-services/medivet-vet-provided-medical-service.module";
 
 @Module({
     imports: [
@@ -43,7 +44,8 @@ import { MedivetVetAvailabilitiesModule } from "@/medivet-vet-availabilities/med
         MedivetClinicsModule,
         MedivetOpinionsModule,
         MedivetVetSpecializationsModule,
-        MedivetVetAvailabilitiesModule
+        MedivetVetAvailabilitiesModule,
+        MedivetVetProvidedMedicalServiceModule
     ],
 })
 export class MedivetAppModule {
