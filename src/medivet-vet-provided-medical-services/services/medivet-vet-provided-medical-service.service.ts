@@ -88,6 +88,8 @@ export class MedivetVetProvidedMedicalServiceService {
             vetProvidedMedicalServices = vetProvidedMedicalServices.filter(vetProvidedMedicalService => specializationIds.includes(vetProvidedMedicalService.medicalService.specialization.id));
         }
 
+        vetProvidedMedicalServices.sort((a, b) => a.medicalService.name.localeCompare(b.medicalService.name));
+
         return paginateData(vetProvidedMedicalServices, {
             offset: searchVetProvidedMedicalServiceDto.offset,
             pageSize: searchVetProvidedMedicalServiceDto.pageSize
