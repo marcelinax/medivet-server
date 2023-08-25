@@ -124,6 +124,11 @@ export class MedivetVetSpecializationMedicalServiceController {
       required: false,
       type: Number
   })
+  @ApiQuery({
+      name: "specializationIds",
+      required: false,
+      type: Array<number>
+  })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
@@ -135,13 +140,19 @@ export class MedivetVetSpecializationMedicalServiceController {
         items: String,
         separator: ",",
         optional: true
-    })) include?: string[]
+    })) include?: string[],
+    @Query("specializationIds", new ParseArrayPipe({
+        items: Number,
+        separator: ",",
+        optional: true
+    })) specializationIds?: number[],
   ): Promise<MedivetVetSpecializationMedicalService[]> {
       return this.vetSpecializationMedicalServiceService.searchVetSpecializationMedicalServices({
           pageSize,
           offset,
           search,
-          include
+          include,
+          specializationIds
       });
   }
 

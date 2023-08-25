@@ -9,7 +9,8 @@ export class MedivetSearchVetProvidedMedicalServiceDto extends OffsetPaginationD
       example: [ 1, 2 ]
   })
   @IsArray()
-  specializationIds: number[];
+  @IsOptional()
+  specializationIds?: number[];
 
   @ApiProperty({
       example: "clinic",

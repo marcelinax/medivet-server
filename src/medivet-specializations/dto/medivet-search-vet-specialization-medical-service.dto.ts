@@ -19,4 +19,12 @@ export class MedivetSearchVetSpecializationMedicalServiceDto extends OffsetPagin
   @IsOptional()
   @IsArray()
   include?: string[];
+
+  @ApiProperty({
+      required: false,
+      example: [ 1, 2 ]
+  })
+  @IsArray()
+  @IsOptional()
+  specializationIds: number[];
 }

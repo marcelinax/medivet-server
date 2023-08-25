@@ -48,13 +48,23 @@ export class MedivetVetSpecializationMedicalServiceService {
         const pageSize = searchVetSpecializationMedicalServiceDto.pageSize || 10;
         const offset = searchVetSpecializationMedicalServiceDto.offset || 0;
         const search = searchVetSpecializationMedicalServiceDto?.search || "";
+        const specializationIds = [ ...(searchVetSpecializationMedicalServiceDto?.specializationIds) || [] ];
+        let vetSpecializationMedicalServices: MedivetVetSpecializationMedicalService[] = [];
 
-        return this.vetSpecializationMedicalServiceRepository.find({
-            take: pageSize,
-            skip: offset,
-            where: { name: search ? ILike(`%${search}%`) : Not("") },
-            relations: searchVetSpecializationMedicalServiceDto.include ?? []
-        });
+        vetSpecializationMedicalServices = [
+            ...await this.vetSpecializationMedicalServiceRepository.find({
+                take: pageSize,
+                skip: offset,
+                where: { name: search ? ILike(`%${search}%`) : Not("") },
+                relations: searchVetSpecializationMedicalServiceDto.include ?? []
+            })
+        ];
+
+        if (specializationIds.length > 0) {
+            vetSpecializationMedicalServices = vetSpecializationMedicalServices.filter(vetSpecializationMedicalService => specializationIds.includes(vetSpecializationMedicalService?.specialization?.id));
+        }
+
+        return vetSpecializationMedicalServices;
     }
 
     async findOneVetSpecializationMedicalServiceById(id: number, include?: string[]): Promise<MedivetVetSpecializationMedicalService> {

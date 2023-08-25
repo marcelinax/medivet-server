@@ -6,8 +6,8 @@ export class MedivetCreateVetProvidedMedicalServiceDto {
       required: true,
       example: 50.00
   })
-  @IsNotEmpty()
   @IsDecimal()
+  @IsNotEmpty()
   price: number;
 
   @ApiProperty({
@@ -15,23 +15,23 @@ export class MedivetCreateVetProvidedMedicalServiceDto {
       example: 30,
       description: "Presented as minutes"
   })
-  @IsNotEmpty()
   @IsNumber()
+  @IsNotEmpty()
   duration: number;
 
   @ApiProperty({
       required: true,
       example: 1
   })
-  @IsNotEmpty()
   @IsNumber()
+  @IsNotEmpty()
   specializationMedicalServiceId: number;
 
   @ApiProperty({
       required: true,
       example: 1
   })
-  @IsNotEmpty()
   @IsNumber()
+  @IsNotEmpty()
   clinicId: number;
 }

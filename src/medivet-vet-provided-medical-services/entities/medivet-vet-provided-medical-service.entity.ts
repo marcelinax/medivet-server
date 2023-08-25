@@ -26,8 +26,9 @@ export class MedivetVetProvidedMedicalService {
   @ApiProperty()
   @Column({
       nullable: false,
-      type: "decimal",
-      scale: 2
+      type: "numeric",
+      scale: 2,
+      precision: 6
   })
   price: number;
 

@@ -7,6 +7,7 @@ import {
     Param,
     ParseArrayPipe,
     Post,
+    Put,
     Query,
     UseGuards,
     UseInterceptors
@@ -32,6 +33,7 @@ import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { MedivetCreateVetProvidedMedicalServiceDto } from "@/medivet-vet-provided-medical-services/dto/medivet-create-vet-provided-medical-service.dto";
+import { MedivetUpdateVetProvidedMedicalServiceDto } from "@/medivet-vet-provided-medical-services/dto/medivet-update-vet-provided-medical-service.dto";
 import { MedivetVetProvidedMedicalService } from "@/medivet-vet-provided-medical-services/entities/medivet-vet-provided-medical-service.entity";
 import { MedivetVetProvidedMedicalServiceService } from "@/medivet-vet-provided-medical-services/services/medivet-vet-provided-medical-service.service";
 
@@ -173,5 +175,33 @@ export class MedivetVetProvidedMedicalServiceController {
           },
           vet
       );
+  }
+
+  @ApiOperation({
+      summary: "Updates vet provided medical service",
+      description: "Updates vet provided medical service and returns it"
+  })
+  @ApiOkResponse({
+      description: "Vet provided medical service has been successfully updated",
+      type: MedivetVetProvidedMedicalService
+  })
+  @ApiNotFoundResponse({
+      description: "Form validation error array",
+      type: BadRequestExceptionDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role(MedivetUserRole.VET)
+  @UseGuards(JwtAuthGuard)
+  @Put(PathConstants.ID_PARAM)
+  updateVetProvidedMedicalService(
+    @Param("id") vetProvidedMedicalServiceId: number,
+    @Body() updateVetProvidedMedicalServiceDto: MedivetUpdateVetProvidedMedicalServiceDto
+  ): Promise<MedivetVetProvidedMedicalService> {
+      return this.vetProvidedMedicalServiceService.updateVetProvidedMedicalService(vetProvidedMedicalServiceId, updateVetProvidedMedicalServiceDto);
   }
 }
