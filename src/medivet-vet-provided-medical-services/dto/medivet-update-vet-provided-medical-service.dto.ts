@@ -1,12 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDecimal, IsNotEmpty, IsNumber, IsPositive } from "class-validator";
+import { IsDecimal, IsNotEmpty, IsNumber } from "class-validator";
 
 export class MedivetUpdateVetProvidedMedicalServiceDto {
   @ApiProperty({
       required: true,
       example: 50.00
   })
-  @IsPositive()
   @IsDecimal()
   @IsNotEmpty()
   price: number;
