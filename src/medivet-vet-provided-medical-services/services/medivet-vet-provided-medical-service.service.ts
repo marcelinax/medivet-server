@@ -4,6 +4,8 @@ import { Repository } from "typeorm";
 
 import { MedivetClinicsService } from "@/medivet-clinics/services/medivet-clinics.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetVetSpecializationMedicalServiceService } from "@/medivet-specializations/services/medivet-vet-specialization-medical-service.service";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
@@ -111,6 +113,13 @@ export class MedivetVetProvidedMedicalServiceService {
           offset: searchVetProvidedMedicalServiceDto.offset,
           pageSize: searchVetProvidedMedicalServiceDto.pageSize
       });
+  }
+
+  async removeVetProvidedMedicalService(vetProvidedMedicalServiceId: number): Promise<OkMessageDto> {
+      const vetProvidedMedicalService = await this.findVetProvidedMedicalServiceById(vetProvidedMedicalServiceId);
+      await this.vetProvidedMedicalServicesRepository.remove(vetProvidedMedicalService);
+
+      return { message: SuccessMessageConstants.VET_CLINIC_PROVIDED_MEDICAL_SERVICE_HAS_BEEN_REMOVED_SUCCESSFULLY };
   }
 
   private async checkIfVetProvidedMedicalServiceAlreadyExists(

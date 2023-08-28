@@ -103,6 +103,16 @@ export class MedivetVetAvailabilitiesController {
       required: false,
       type: Number
   })
+  @ApiQuery({
+      name: "pageSize",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "offset",
+      required: false,
+      type: Number
+  })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
   @Role(MedivetUserRole.VET)
@@ -116,8 +126,16 @@ export class MedivetVetAvailabilitiesController {
     })) include?: string[],
     @Query("clinicId") clinicId?: number,
     @Query("vetId") vetId?: number,
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
   ): Promise<MedivetVetAvailability[]> {
-      return this.vetAvailabilitiesService.findAllVetAvailabilities(vetId, clinicId, include);
+      return this.vetAvailabilitiesService.findAllVetAvailabilities({
+          vetId,
+          clinicId,
+          include,
+          pageSize,
+          offset
+      });
   }
 
   @ApiOperation({

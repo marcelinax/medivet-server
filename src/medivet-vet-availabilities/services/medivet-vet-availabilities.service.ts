@@ -8,11 +8,13 @@ import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messag
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { MedivetVetAvailabilityDaySorter } from "@/medivet-commons/enums/medivet-vet-availability.enums";
+import { paginateData } from "@/medivet-commons/utils";
 import { parseTimeStringToDate } from "@/medivet-commons/utils/date";
 import { MedivetVetSpecializationService } from "@/medivet-specializations/services/medivet-vet-specialization.service";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
 import { MedivetCreateVetAvailabilityDto } from "@/medivet-vet-availabilities/dto/medivet-create-vet-availability.dto";
+import { MedivetSearchVetAvailabilityDto } from "@/medivet-vet-availabilities/dto/medivet-search-vet-availability.dto";
 import { MedivetVetAvailability } from "@/medivet-vet-availabilities/entities/medivet-vet-availability.entity";
 import { MedivetVetAvailabilityReceptionHour } from "@/medivet-vet-availabilities/entities/medivet-vet-availability-reception-hour.entity";
 
@@ -123,17 +125,21 @@ export class MedivetVetAvailabilitiesService {
     }
 
     async findAllVetAvailabilities(
-        vetId?: number,
-        clinicId?: number,
-        include?: string[]
+        searchAvailabilityDto: MedivetSearchVetAvailabilityDto,
     ): Promise<MedivetVetAvailability[]> {
+        const { vetId, clinicId, include, pageSize, offset } = searchAvailabilityDto;
 
-        return this.vetAvailabilitiesRepository.find({
+        const vetAvailabilities = await this.vetAvailabilitiesRepository.find({
             where: {
                 user: { id: vetId ?? Not(undefined) },
                 clinic: { id: clinicId ?? Not(undefined) },
             },
             relations: include || []
+        });
+
+        return paginateData(vetAvailabilities, {
+            offset,
+            pageSize
         });
     }
 
