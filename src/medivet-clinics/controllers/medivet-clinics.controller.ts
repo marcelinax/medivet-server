@@ -106,6 +106,11 @@ export class MedivetClinicsController {
       type: UnauthorizedExceptionDto,
   })
   @ApiQuery({
+      name: "search",
+      required: false,
+      type: String
+  })
+  @ApiQuery({
       name: "include",
       required: false,
       type: Array<string>
@@ -117,7 +122,9 @@ export class MedivetClinicsController {
   @Get(PathConstants.ASSIGNED)
   async getAllClinicsAssignedToVet(
     @CurrentUser() user: MedivetUser,
-    @Query("pageSize") pageSize: number, @Query("offset") offset: number,
+    @Query("pageSize") pageSize: number,
+    @Query("offset") offset: number,
+    @Query("search") search?: string,
     @Query("include", new ParseArrayPipe({
         items: String,
         separator: ",",
@@ -125,6 +132,7 @@ export class MedivetClinicsController {
     })) include?: string[]
   ): Promise<MedivetClinic[]> {
       return this.clinicsService.getAssignedVetClinics(user.id, {
+          search,
           pageSize,
           offset,
       }, include);

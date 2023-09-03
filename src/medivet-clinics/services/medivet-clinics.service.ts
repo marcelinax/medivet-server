@@ -7,7 +7,6 @@ import { MedivetSearchAdminClinicDto } from "@/medivet-clinics/dto/medivet-searc
 import { MedivetSearchClinicDto } from "@/medivet-clinics/dto/medivet-search-clinic.dto";
 import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
@@ -144,13 +143,20 @@ export class MedivetClinicsService {
         }
     }
 
-    async getAssignedVetClinics(vetId: number, paginationDto: OffsetPaginationDto, include?: string[]): Promise<MedivetClinic[]> {
-        const clinics = await this.clinicsRepository.find({
+    async getAssignedVetClinics(vetId: number, searchClinicDto: MedivetSearchClinicDto, include?: string[]): Promise<MedivetClinic[]> {
+        let clinics = await this.clinicsRepository.find({
             where: { vets: { id: vetId } },
             relations: include ?? [],
         });
 
-        return paginateData(clinics, paginationDto);
+        if (searchClinicDto.search) {
+            clinics = clinics.filter(clinic => clinic.name.toLowerCase().includes(searchClinicDto.search.toLowerCase()));
+        }
+
+        return paginateData(clinics, {
+            offset: searchClinicDto.offset,
+            pageSize: searchClinicDto.pageSize
+        });
     }
 
     checkIfClinicIsAlreadyAssignedToVet(clinic: MedivetClinic, vet: MedivetUser): boolean {
