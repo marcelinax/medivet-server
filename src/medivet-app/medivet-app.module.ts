@@ -5,6 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { join } from "path";
 
 import { MedivetAnimalsModule } from "@/medivet-animals/medivet-animals.module";
+import { MedivetAppointmentsModule } from "@/medivet-appointments/medivet-appointments.module";
 import { MedivetClinicsModule } from "@/medivet-clinics/medivet-clinics.module";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { MedivetMailerModule } from "@/medivet-mailer/medivet-mailer.module";
@@ -29,7 +30,7 @@ import { MedivetVetProvidedMedicalServiceModule } from "@/medivet-vet-provided-m
             username: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_DATABASE_NAME,
-            entities: [ "dist/**/*.entity{.ts,.js}" ],
+            entities: [ __dirname + "/../**/*.entity.{js,ts}" ],
             synchronize: true
         }),
         ServeStaticModule.forRoot({
@@ -45,7 +46,8 @@ import { MedivetVetProvidedMedicalServiceModule } from "@/medivet-vet-provided-m
         MedivetOpinionsModule,
         MedivetVetSpecializationsModule,
         MedivetVetAvailabilitiesModule,
-        MedivetVetProvidedMedicalServiceModule
+        MedivetVetProvidedMedicalServiceModule,
+        MedivetAppointmentsModule
     ],
 })
 export class MedivetAppModule {
