@@ -12,6 +12,8 @@ export class PathConstants {
   public static VET_AVAILABILITIES = "vet-availabilities";
   public static ADMIN_CLINICS = "admin-clinics";
   public static VET_PROVIDED_MEDICAL_SERVICES = "vet-provided-medical-services";
+  public static AVAILABLE_DATES = "available-dates";
+  public static APPOINTMENTS = "appointments";
 
   public static LOGIN = "login";
   public static ME = "me";
@@ -30,6 +32,7 @@ export class PathConstants {
   public static SEARCH = "search";
   public static MY = "my";
   public static VET = "vet";
+  public static VETS = "vets";
   public static ASSIGNMENT_REQUEST = "assignment-request";
   public static UNASSIGNMENT_REQUEST = "unassignment-request";
   public static ASSIGNED = "assigned";
