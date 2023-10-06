@@ -24,7 +24,7 @@ import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { MedivetCreateOpinionDto } from "@/medivet-opinions/dto/medivet-create-opinion.dto";
 import { MedivetOpinion } from "@/medivet-opinions/entities/medivet-opinion.entity";
 import { MedivetOpinionsService } from "@/medivet-opinions/services/medivet-opinions.service";

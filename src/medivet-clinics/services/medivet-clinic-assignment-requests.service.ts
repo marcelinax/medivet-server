@@ -9,7 +9,7 @@ import { MedivetClinicsService } from "@/medivet-clinics/services/medivet-clinic
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
-import { MedivetClinicAssignmentRequestStatus } from "@/medivet-commons/enums/medivet-clinic.enums";
+import { MedivetClinicAssignmentRequestStatus } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";

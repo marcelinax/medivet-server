@@ -7,7 +7,7 @@ import { MedivetClinicsService } from "@/medivet-clinics/services/medivet-clinic
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
-import { MedivetVetAvailabilityDaySorter } from "@/medivet-commons/enums/medivet-vet-availability.enums";
+import { MedivetVetAvailabilityDaySorter } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { parseTimeStringToDate } from "@/medivet-commons/utils/date";
 import { MedivetVetSpecializationService } from "@/medivet-specializations/services/medivet-vet-specialization.service";

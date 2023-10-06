@@ -8,8 +8,7 @@ import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity"
 import { MedivetAnimalBreedsService } from "@/medivet-animals/services/medivet-animal-breeds.service";
 import { MedivetAnimalCoatColorsService } from "@/medivet-animals/services/medivet-animal-coat-colors.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
-import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
+import { MedivetSortingModeEnum, MedivetStatusEnum } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 

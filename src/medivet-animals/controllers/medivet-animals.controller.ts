@@ -9,7 +9,7 @@ import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";

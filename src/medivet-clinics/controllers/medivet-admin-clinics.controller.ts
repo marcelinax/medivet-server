@@ -32,7 +32,7 @@ import { SuccessMessageConstants } from "@/medivet-commons/constants/success-mes
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
 import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
@@ -269,6 +269,6 @@ export class MedivetAdminClinicsController {
     @Param("id") clinicId: number,
     @Body() updateClinicDto: MedivetCreateClinicDto
   ): Promise<MedivetClinic> {
-      return await this.clinicsService.updateClinic(clinicId, updateClinicDto);
+      return this.clinicsService.updateClinic(clinicId, updateClinicDto);
   }
 }

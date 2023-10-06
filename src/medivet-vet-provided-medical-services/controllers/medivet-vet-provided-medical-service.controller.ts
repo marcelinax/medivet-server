@@ -127,6 +127,11 @@ export class MedivetVetProvidedMedicalServiceController {
       type: UnauthorizedExceptionDto
   })
   @ApiQuery({
+      name: "vetId",
+      required: true,
+      type: Number
+  })
+  @ApiQuery({
       name: "include",
       required: false,
       type: Array<string>
@@ -147,13 +152,11 @@ export class MedivetVetProvidedMedicalServiceController {
       type: Number
   })
   @ApiBearerAuth()
-  @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
   @UseGuards(JwtAuthGuard)
   @Get(`/${PathConstants.CLINIC}${PathConstants.ID_PARAM}`)
   async searchVetProvidedMedicalServices(
-    @CurrentUser() vet: MedivetUser,
     @Param("id") clinicId: number,
+    @Query("vetId") vetId: number,
     @Query("specializationIds", new ParseArrayPipe({
         items: Number,
         separator: ",",
@@ -174,8 +177,8 @@ export class MedivetVetProvidedMedicalServiceController {
               include,
               pageSize,
               offset,
+              vetId
           },
-          vet
       );
   }
 

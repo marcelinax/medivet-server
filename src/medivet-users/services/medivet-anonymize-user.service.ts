@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/enums";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUserDeleteLog } from "@/medivet-users/entities/medivet-user-delete-log.entity";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
@@ -10,9 +10,10 @@ import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 @Injectable()
 export class MedivetAnonymizeUserService {
     constructor(
-        @InjectRepository(MedivetUser) private usersRepository: Repository<MedivetUser>,
-        @InjectRepository(MedivetUserDeleteLog) private usersDeletedLogRepository: Repository<MedivetUserDeleteLog>,
-    ) { }
+    @InjectRepository(MedivetUser) private usersRepository: Repository<MedivetUser>,
+    @InjectRepository(MedivetUserDeleteLog) private usersDeletedLogRepository: Repository<MedivetUserDeleteLog>,
+    ) {
+    }
 
     async anonymizeUser(user: MedivetUser): Promise<void> {
         user.birthDate = new Date(null);

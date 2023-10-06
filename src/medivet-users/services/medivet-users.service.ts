@@ -3,10 +3,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetSecurityHashingService } from "@/medivet-security/services/medivet-security-hashing.service";
 import { MedivetVetSpecializationService } from "@/medivet-specializations/services/medivet-vet-specialization.service";
+import { MedivetVetSpecializationMedicalServiceService } from "@/medivet-specializations/services/medivet-vet-specialization-medical-service.service";
 import { MedivetCreateUserDto } from "@/medivet-users/dto/medivet-create-user.dto";
 import { MedivetSearchVetDto } from "@/medivet-users/dto/medivet-search-vet.dto";
 import { MedivetUpdateMyVetSpecializationsDto } from "@/medivet-users/dto/medivet-update-my-vet-specializations.dto";
@@ -19,7 +20,8 @@ export class MedivetUsersService {
     constructor(
     @InjectRepository(MedivetUser) private usersRepository: Repository<MedivetUser>,
     private hashingService: MedivetSecurityHashingService,
-    private vetSpecializationsService: MedivetVetSpecializationService
+    private vetSpecializationsService: MedivetVetSpecializationService,
+    private vetSpecializationMedicalServicesService: MedivetVetSpecializationMedicalServiceService
     ) {
     }
 
@@ -194,7 +196,7 @@ export class MedivetUsersService {
 
     async searchVets(searchVetDto: MedivetSearchVetDto): Promise<MedivetUser[]> {
     // osobne szukanie dla admina
-        const { city, gender, name, sortingMode, specializationIds } = searchVetDto;
+        const { city, name, sortingMode, specializationIds, medicalServiceIds } = searchVetDto;
         let vets = await this.usersRepository.find({
             where: { role: MedivetUserRole.VET },
             relations: searchVetDto?.include ?? []
@@ -204,10 +206,6 @@ export class MedivetUsersService {
             vets = vets.filter(vet => vet?.address?.city?.toLowerCase() === city.toLowerCase());
         }
 
-        if (gender) {
-            vets = vets.filter(vet => vet.gender === gender);
-        }
-
         if (name) {
             vets = vets.filter(vet => vet.name.toLowerCase().includes(name.toLowerCase()));
         }
@@ -215,6 +213,12 @@ export class MedivetUsersService {
         if (specializationIds) {
             const specializationIdsArray = specializationIds.split(",").map(id => +id);
             vets = vets.filter(vet => vet.specializations.some(spec => specializationIdsArray.includes(spec.id)));
+        }
+
+        if (medicalServiceIds) {
+            // const medicalServiceIdsArray = medicalServiceIds.split(",").map(id => +id);
+            // const medicalServices = await this.vetSpecializationMedicalServicesService.searchVetSpecializationMedicalServices()
+            // vets = vets.filter(vet => vet.);
         }
 
         if (sortingMode) {

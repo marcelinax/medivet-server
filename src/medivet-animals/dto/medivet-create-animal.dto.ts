@@ -4,7 +4,7 @@ import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString 
 
 import { MedivetAnimalType } from "@/medivet-animals/enums/medivet-animal-type.enum";
 import { ValidationMessagesConstants } from "@/medivet-commons/constants/validation-messages.constants";
-import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/enums";
 
 export class MedivetCreateAnimalDto {
   @ApiProperty({

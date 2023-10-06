@@ -7,7 +7,7 @@ import { MedivetSearchAdminClinicDto } from "@/medivet-clinics/dto/medivet-searc
 import { MedivetSearchClinicDto } from "@/medivet-clinics/dto/medivet-search-clinic.dto";
 import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/medivet-sorting-mode.enum";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 

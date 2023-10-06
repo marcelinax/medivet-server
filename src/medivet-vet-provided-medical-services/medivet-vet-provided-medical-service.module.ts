@@ -10,14 +10,14 @@ import { MedivetVetProvidedMedicalServiceService } from "@/medivet-vet-provided-
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([ MedivetVetProvidedMedicalService, ]),
-        forwardRef(() => MedivetUsersModule),
+        TypeOrmModule.forFeature([ MedivetVetProvidedMedicalService ]),
         forwardRef(() => MedivetVetSpecializationsModule),
         forwardRef(() => MedivetClinicsModule),
+        forwardRef(() => MedivetUsersModule),
     ],
     controllers: [ MedivetVetProvidedMedicalServiceController ],
     providers: [ MedivetVetProvidedMedicalServiceService ],
-    exports: []
+    exports: [ MedivetVetProvidedMedicalServiceService ]
 })
 
 export class MedivetVetProvidedMedicalServiceModule {

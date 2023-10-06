@@ -6,65 +6,64 @@ import { MedivetAnimalBreed } from "@/medivet-animals/entities/medivet-animal-br
 import { MedivetAnimalCoatColor } from "@/medivet-animals/entities/medivet-animal-coat-color.entity";
 import { MedivetAnimalType } from "@/medivet-animals/enums/medivet-animal-type.enum";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
-import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
-import { MedivetStatusEnum } from "@/medivet-commons/enums/medivet-status.enum";
+import { MedivetGenderEnum, MedivetStatusEnum } from "@/medivet-commons/enums/enums";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 
 const env = envConfig();
 
 @Entity()
 export class MedivetAnimal {
-    @ApiProperty()
-    @PrimaryGeneratedColumn()
-    id: number;
+  @ApiProperty()
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @ApiProperty()
-    @Column({ nullable: false })
-    name: string;
+  @ApiProperty()
+  @Column({ nullable: false })
+  name: string;
 
-    @ApiProperty()
-    @ManyToOne(() => MedivetUser, user => user.id)
-    owner: MedivetUser;
+  @ApiProperty()
+  @ManyToOne(() => MedivetUser, user => user.id)
+  owner: MedivetUser;
 
-    @ApiProperty()
-    @Column({
-        type: "enum",
-        enum: MedivetAnimalType,
-        nullable: false
-    })
-    type: MedivetAnimalType;
+  @ApiProperty()
+  @Column({
+      type: "enum",
+      enum: MedivetAnimalType,
+      nullable: false
+  })
+  type: MedivetAnimalType;
 
-    @ApiProperty()
-    @CreateDateColumn({ nullable: false })
-    birthDate: Date;
+  @ApiProperty()
+  @CreateDateColumn({ nullable: false })
+  birthDate: Date;
 
-    @ApiProperty()
-    @ManyToOne(() => MedivetAnimalBreed, animalBreed => animalBreed.id)
-    breed: MedivetAnimalBreed;
+  @ApiProperty()
+  @ManyToOne(() => MedivetAnimalBreed, animalBreed => animalBreed.id)
+  breed: MedivetAnimalBreed;
 
-    @ApiProperty()
-    @ManyToOne(() => MedivetAnimalCoatColor, animalCoatColor => animalCoatColor.id)
-    coatColor: MedivetAnimalCoatColor;
+  @ApiProperty()
+  @ManyToOne(() => MedivetAnimalCoatColor, animalCoatColor => animalCoatColor.id)
+  coatColor: MedivetAnimalCoatColor;
 
-    @ApiProperty()
-    @Column({
-        type: "enum",
-        enum: MedivetGenderEnum,
-        nullable: false
-    })
-    gender: MedivetGenderEnum;
+  @ApiProperty()
+  @Column({
+      type: "enum",
+      enum: MedivetGenderEnum,
+      nullable: false
+  })
+  gender: MedivetGenderEnum;
 
-    @ApiProperty()
-    @Transform(({ value }) => value ? env.ROOT_URL + value : value)
-    @Column({ default: "" })
-    profilePhotoUrl: string;
+  @ApiProperty()
+  @Transform(({ value }) => value ? env.ROOT_URL + value : value)
+  @Column({ default: "" })
+  profilePhotoUrl: string;
 
-    @ApiProperty()
-    @Column({
-        type: "enum",
-        enum: MedivetStatusEnum,
-        default: MedivetStatusEnum.ACTIVE,
-        nullable: false
-    })
-    status: MedivetStatusEnum;
+  @ApiProperty()
+  @Column({
+      type: "enum",
+      enum: MedivetStatusEnum,
+      default: MedivetStatusEnum.ACTIVE,
+      nullable: false
+  })
+  status: MedivetStatusEnum;
 }

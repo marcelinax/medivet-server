@@ -6,7 +6,7 @@ import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity"
 import { MedivetClinicAssignmentRequest } from "@/medivet-clinics/entities/medivet-clinic-assignment-request.entity";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { AddressDto } from "@/medivet-commons/dto/address.dto";
-import { MedivetGenderEnum } from "@/medivet-commons/enums/medivet-gender.enum";
+import { MedivetGenderEnum } from "@/medivet-commons/enums/enums";
 import { MedivetOpinion } from "@/medivet-opinions/entities/medivet-opinion.entity";
 import { MedivetVetSpecialization } from "@/medivet-specializations/entities/medivet-vet-specialization.entity";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
