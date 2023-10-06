@@ -7,9 +7,9 @@ import { MoreThan, Repository } from "typeorm";
 import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
 import { MedivetSearchAvailableDatesDto } from "@/medivet-available-dates/dto/medivet-search-available-dates.dto";
 import { MedivetAvailableDate } from "@/medivet-available-dates/types/types";
-import { MedivetDayWeek } from "@/medivet-commons/enums/enums";
+import { MedivetDayWeek, MedivetVetAvailabilityDay } from "@/medivet-commons/enums/enums";
+import { parseTimeStringToDate } from "@/medivet-commons/utils/date";
 import { MedivetVetAvailability } from "@/medivet-vet-availabilities/entities/medivet-vet-availability.entity";
-import { MedivetVetAvailabilityReceptionHour } from "@/medivet-vet-availabilities/entities/medivet-vet-availability-reception-hour.entity";
 import { MedivetVetProvidedMedicalServiceService } from "@/medivet-vet-provided-medical-services/services/medivet-vet-provided-medical-service.service";
 
 @Injectable()
@@ -78,8 +78,27 @@ export class MedivetAvailableDatesService {
 
           vetAvailabilities.forEach(vetAvailability => {
               const receptionHours = vetAvailability.receptionHours.filter(receptionHour => MedivetDayWeek[receptionHour.day] === dayOfWeek);
-              if (receptionHours.length !== 0) {
-                  receptionHours.forEach(receptionHour => {
+              const groupedReceptionHoursByDay: { id: number; day: MedivetDayWeek; hours: { hourFrom: string; hourTo: string }[] }[] = receptionHours.reduce((acc, cur) => {
+                  const hours = [ ...(acc[cur.day]?.hours || []) ];
+                  acc[cur.day] = {
+                      id: cur.id,
+                      day: cur.day,
+                      hours: [
+                          ...hours,
+                          {
+                              hourFrom: cur.hourFrom,
+                              hourTo: cur.hourTo
+                          }
+                      ]
+                  };
+                  if (acc) return acc;
+              }, []);
+
+              if (groupedReceptionHoursByDay[MedivetDayWeek[dayOfWeek]] && Object.keys(groupedReceptionHoursByDay[MedivetDayWeek[dayOfWeek]]).length !== 0) {
+                  const receptionHourDay = groupedReceptionHoursByDay[MedivetDayWeek[dayOfWeek]];
+                  let totalPossibleReceptionHourDates = [];
+                  receptionHourDay.hours.sort((a, b) => Number(parseTimeStringToDate(a.hourFrom)) - Number(parseTimeStringToDate(b.hourFrom)));
+                  receptionHourDay.hours.forEach(receptionHour => {
                       const { hourFrom, hourTo } = receptionHour;
                       const startDayDate = moment().set({
                           date: remainingDay,
@@ -98,17 +117,17 @@ export class MedivetAvailableDatesService {
 
                       const receptionHourTotalDuration = endDayDate.diff(startDayDate, "minutes");
                       const amountOfPossibleReceptionHours = Math.floor(receptionHourTotalDuration / +medicalServiceDuration);
-                      const allPossibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate);
-
-                      this.getAllAvailableReceptionHourDates(allPossibleReceptionHourDates, parsedAppointments, receptionHour, availableDates);
+                      const possibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate);
+                      totalPossibleReceptionHourDates = [ ...totalPossibleReceptionHourDates, ...possibleReceptionHourDates ];
                   });
+                  this.getAllAvailableReceptionHourDates(totalPossibleReceptionHourDates, parsedAppointments, availableDates, receptionHourDay.day);
               }
           });
           // bierze również dziejszy dzien ale trzeba wziac pod uwage godziny późniejsze niż 10 min od teraz
           // wyświetlić takie dostępności, które nie zaczynają się wtedy kiedy wizyta i uwzględnić ich czas trwania, aby
-          // pogrupować?
 
       });
+
       return availableDates;
   }
 
@@ -170,18 +189,17 @@ export class MedivetAvailableDatesService {
   private getAllAvailableReceptionHourDates(
       allPossibleReceptionHourDates: Moment[],
       parsedAppointments: { startDate: Moment; endDate: Moment }[],
-      receptionHour: MedivetVetAvailabilityReceptionHour,
-      availableDates: MedivetAvailableDate[]
+      availableDates: MedivetAvailableDate[],
+      day: MedivetVetAvailabilityDay
   ): void {
       const availableReceptionHours = [];
       allPossibleReceptionHourDates.forEach(possibleReceptionHourDate => {
           const collideWithAppointment = parsedAppointments.some(appointment => possibleReceptionHourDate.isBetween(appointment.startDate, appointment.endDate));
           if (!collideWithAppointment) availableReceptionHours.push(possibleReceptionHourDate.toDate());
       });
-      // potrzebe sa dni?
       availableDates.push({
           dates: [ ...availableReceptionHours ],
-          day: receptionHour.day
+          day
       });
   }
 }

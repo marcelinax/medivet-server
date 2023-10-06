@@ -300,7 +300,6 @@ export class MedivetVetAvailabilitiesService {
     // validation only for new reception hours
     private validateVetAvailabilityNewReceptionHoursCollision(createVetAvailabilityDto: MedivetCreateVetAvailabilityDto): MedivetCreateVetAvailabilityReceptionHourDto | undefined {
         const { receptionHours } = createVetAvailabilityDto;
-
         const groupedReceptionHoursByDay: MedivetVetAvailabilityReceptionHour[][] = Object.values(
             receptionHours.reduce((acc, current) => {
                 acc[current.day] = acc[current.day] ?? [];
