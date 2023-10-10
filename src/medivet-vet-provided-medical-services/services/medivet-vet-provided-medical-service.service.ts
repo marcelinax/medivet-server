@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { MedivetClinicsService } from "@/medivet-clinics/services/medivet-clinics.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetVetSpecializationMedicalServiceService } from "@/medivet-specializations/services/medivet-vet-specialization-medical-service.service";
@@ -109,6 +110,14 @@ export class MedivetVetProvidedMedicalServiceService {
         return paginateData(vetProvidedMedicalServices, {
             offset: searchVetProvidedMedicalServiceDto.offset,
             pageSize: searchVetProvidedMedicalServiceDto.pageSize
+        });
+    }
+
+    async getAllVetProvidedMedicalServices(offsetPaginationDto: OffsetPaginationDto, include?: string[]): Promise<MedivetVetProvidedMedicalService[]> {
+        const vetProvidedMedicalServices = await this.vetProvidedMedicalServicesRepository.find({ relations: include ?? [] });
+        return paginateData(vetProvidedMedicalServices, {
+            offset: offsetPaginationDto.offset,
+            pageSize: offsetPaginationDto.pageSize
         });
     }
 

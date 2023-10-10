@@ -154,7 +154,7 @@ export class MedivetVetProvidedMedicalServiceController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get(`/${PathConstants.CLINIC}${PathConstants.ID_PARAM}`)
-  async searchVetProvidedMedicalServices(
+  async searchClinicVetProvidedMedicalServices(
     @Param("id") clinicId: number,
     @Query("vetId") vetId: number,
     @Query("specializationIds", new ParseArrayPipe({
@@ -179,6 +179,55 @@ export class MedivetVetProvidedMedicalServiceController {
               offset,
               vetId
           },
+      );
+  }
+
+  @ApiOperation({
+      summary: "Gets all vet provided medical services",
+      description: "Returns array of all vet provided medical services"
+  })
+  @ApiOkResponse({
+      description: "Returns array of all vet provided medical services",
+      type: MedivetVetProvidedMedicalService,
+      isArray: true
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "include",
+      required: false,
+      type: Array<string>
+  })
+  @ApiQuery({
+      name: "offset",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "pageSize",
+      required: false,
+      type: Number
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getAllVetProvidedMedicalServices(
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
+    @Query("include", new ParseArrayPipe({
+        items: String,
+        separator: ",",
+        optional: true
+    })) include?: string[]
+  ): Promise<MedivetVetProvidedMedicalService[]> {
+      return this.vetProvidedMedicalServiceService.getAllVetProvidedMedicalServices(
+          {
+              pageSize,
+              offset,
+          },
+          include
       );
   }
 
