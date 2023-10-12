@@ -54,3 +54,9 @@ export enum MedivetDayWeek {
   "FRIDAY" = 5,
   "SATURDAY" = 6
 }
+
+export enum MedivetAvailableDatesFilter {
+  "TODAY" = "TODAY",
+  "WITHIN_3_DAYS" = "WITHIN_3_DAYS",
+  "WHENEVER" = "WHENEVER",
+}

@@ -1,27 +1,29 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetSecurityHashingService } from "@/medivet-security/services/medivet-security-hashing.service";
+import { MedivetVetSpecializationMedicalService } from "@/medivet-specializations/entities/medivet-vet-specialization-medical-service.entity";
 import { MedivetVetSpecializationService } from "@/medivet-specializations/services/medivet-vet-specialization.service";
-import { MedivetVetSpecializationMedicalServiceService } from "@/medivet-specializations/services/medivet-vet-specialization-medical-service.service";
 import { MedivetCreateUserDto } from "@/medivet-users/dto/medivet-create-user.dto";
 import { MedivetSearchVetDto } from "@/medivet-users/dto/medivet-search-vet.dto";
 import { MedivetUpdateMyVetSpecializationsDto } from "@/medivet-users/dto/medivet-update-my-vet-specializations.dto";
 import { MedivetUpdateUserDto } from "@/medivet-users/dto/medivet-update-user.dto";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
+import { MedivetVetProvidedMedicalService } from "@/medivet-vet-provided-medical-services/entities/medivet-vet-provided-medical-service.entity";
 
 @Injectable()
 export class MedivetUsersService {
     constructor(
     @InjectRepository(MedivetUser) private usersRepository: Repository<MedivetUser>,
+    @InjectRepository(MedivetVetSpecializationMedicalService) private vetSpecializationMedicalServiceRepository: Repository<MedivetVetSpecializationMedicalService>,
+    @InjectRepository(MedivetVetProvidedMedicalService) private vetProvidedMedicalServiceRepository: Repository<MedivetVetProvidedMedicalService>,
     private hashingService: MedivetSecurityHashingService,
     private vetSpecializationsService: MedivetVetSpecializationService,
-    private vetSpecializationMedicalServicesService: MedivetVetSpecializationMedicalServiceService
     ) {
     }
 
@@ -196,14 +198,20 @@ export class MedivetUsersService {
 
     async searchVets(searchVetDto: MedivetSearchVetDto): Promise<MedivetUser[]> {
     // osobne szukanie dla admina
-        const { city, name, sortingMode, specializationIds, medicalServiceIds } = searchVetDto;
+
+        // TODO dorobić filtrowanie po dostępnych terminach -> availableDates
+        const { city, name, sortingMode, specializationIds, medicalServiceIds, availableDates } = searchVetDto;
         let vets = await this.usersRepository.find({
             where: { role: MedivetUserRole.VET },
             relations: searchVetDto?.include ?? []
         });
 
         if (city) {
-            vets = vets.filter(vet => vet?.address?.city?.toLowerCase() === city.toLowerCase());
+            vets = vets.filter(vet => vet.clinics.some(clinic => clinic.address.city.toLowerCase() === city.toLowerCase()));
+            vets.forEach(vet => {
+                const vetClinics = vet.clinics.filter(clinic => clinic.address.city.toLowerCase() === city.toLowerCase());
+                vet.clinics = [ ...vetClinics ];
+            });
         }
 
         if (name) {
@@ -213,12 +221,59 @@ export class MedivetUsersService {
         if (specializationIds) {
             const specializationIdsArray = specializationIds.split(",").map(id => +id);
             vets = vets.filter(vet => vet.specializations.some(spec => specializationIdsArray.includes(spec.id)));
+            const vetIds = vets.map(vet => vet.id);
+
+            for (const vet of vets) {
+                const vetProvidedMedicalServices = await this.vetProvidedMedicalServiceRepository.find({
+                    where: {
+                        user: { id: In(vetIds) },
+                        medicalService: { specialization: { id: In(specializationIdsArray) } }
+                    },
+                    relations: [ "medicalService", "user", "medicalService.specialization", "clinic" ]
+                });
+                const vetProvidedMedicalServiceClinicIds = vetProvidedMedicalServices.map(vetProvidedMedicalService =>
+                    vetProvidedMedicalService.clinic.id);
+                const vetClinics = vet.clinics.filter(clinic => {
+                    return vetProvidedMedicalServiceClinicIds.includes(clinic.id);
+                });
+                vet.clinics = [ ...vetClinics ];
+            }
         }
 
         if (medicalServiceIds) {
-            // const medicalServiceIdsArray = medicalServiceIds.split(",").map(id => +id);
-            // const medicalServices = await this.vetSpecializationMedicalServicesService.searchVetSpecializationMedicalServices()
-            // vets = vets.filter(vet => vet.);
+            const medicalServiceIdsArray = medicalServiceIds.split(",").map(id => +id);
+            const medicalServices = await this.vetSpecializationMedicalServiceRepository.find({ where: { id: In(medicalServiceIdsArray) } });
+            const ids = medicalServices.map(medicalService => medicalService.id);
+            const vetProvidedMedicalServices = await this.vetProvidedMedicalServiceRepository.find({
+                where: { medicalService: { id: In(ids) } },
+                relations: [ "medicalService", "user", "clinic" ]
+            });
+            vets = vets.filter(vet => vetProvidedMedicalServices.some(vetProvidedMedicalService => vetProvidedMedicalService.user.id === vet.id));
+
+            const vetProvidedMedicalServiceClinicIds = vetProvidedMedicalServices.map(vetProvidedMedicalService =>
+                vetProvidedMedicalService.clinic.id);
+
+            vets.forEach(vet => {
+                const vetClinics = vet.clinics.filter(clinic => vetProvidedMedicalServiceClinicIds.includes(clinic.id));
+                vet.clinics = [ ...vetClinics ];
+            });
+        }
+
+        vets = vets.filter(vet => vet.clinics.length > 0);
+
+        for (const vet of vets) {
+            const clinicIds = vet.clinics.map(clinic => clinic.id);
+            const vetProvidedMedicalServices = await this.vetProvidedMedicalServiceRepository.find({
+                where: {
+                    user: { id: vet.id },
+                    clinic: { id: In(clinicIds) }
+                },
+                relations: [ "clinic", "user", "medicalService" ]
+            });
+            const vetProvidedMedicalServiceClinicIds = vetProvidedMedicalServices.map(vetProvidedMedicalService =>
+                vetProvidedMedicalService.clinic.id);
+            const vetClinics = vet.clinics.filter(clinic => vetProvidedMedicalServiceClinicIds.includes(clinic.id));
+            vet.clinics = [ ...vetClinics ];
         }
 
         if (sortingMode) {

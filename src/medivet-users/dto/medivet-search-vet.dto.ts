@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsEnum, IsOptional, IsString } from "class-validator";
 
 import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
+import { MedivetAvailableDatesFilter, MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 
 export class MedivetSearchVetDto extends OffsetPaginationDto {
   @ApiProperty({
@@ -60,4 +60,12 @@ export class MedivetSearchVetDto extends OffsetPaginationDto {
   @IsOptional()
   @IsArray()
   include?: string[];
+
+  @ApiProperty({
+      example: MedivetAvailableDatesFilter.TODAY,
+      required: false
+  })
+  @IsOptional()
+  @IsEnum(MedivetAvailableDatesFilter)
+  availableDates?: MedivetAvailableDatesFilter;
 }

@@ -26,5 +26,5 @@ export class MedivetSearchVetSpecializationMedicalServiceDto extends OffsetPagin
   })
   @IsArray()
   @IsOptional()
-  specializationIds: number[];
+  specializationIds?: number[];
 }
