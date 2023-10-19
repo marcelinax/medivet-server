@@ -7,7 +7,7 @@ import { MoreThan, Repository } from "typeorm";
 import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
 import { MedivetSearchAvailableDatesDto } from "@/medivet-available-dates/dto/medivet-search-available-dates.dto";
 import { MedivetAvailableDate } from "@/medivet-available-dates/types/types";
-import { MedivetDayWeek, MedivetVetAvailabilityDay } from "@/medivet-commons/enums/enums";
+import { MedivetAvailableDatesFilter, MedivetDayWeek, MedivetVetAvailabilityDay } from "@/medivet-commons/enums/enums";
 import { parseTimeStringToDate } from "@/medivet-commons/utils/date";
 import { MedivetVetAvailability } from "@/medivet-vet-availabilities/entities/medivet-vet-availability.entity";
 import { MedivetVetAvailabilityReceptionHour } from "@/medivet-vet-availabilities/entities/medivet-vet-availability-reception-hour.entity";
@@ -218,6 +218,132 @@ export class MedivetAvailableDatesService {
                 }
             });
         }
+        return result;
+    }
+
+    async checkIfAvailableDateForMedicalServiceExists(
+        vetId: number,
+        medicalServiceId: number,
+        availableDatesFilter: MedivetAvailableDatesFilter
+    ): Promise<boolean> {
+        const medicalService = await this.providedMedicalServicesService.findVetProvidedMedicalServiceById(medicalServiceId, [ "medicalService", "medicalService.specialization" ]);
+        const vetAvailabilities = await this.vetAvailabilityRepository.find({
+            where: {
+                user: { id: vetId },
+                specialization: { id: medicalService.medicalService.specialization.id }
+            },
+            relations: [ "receptionHours" ]
+        });
+
+        const medicalServiceDuration = medicalService.duration;
+        let remainingDays: number[] = [];
+        const now = moment.utc();
+        let maxAvailableDate;
+
+        switch (availableDatesFilter) {
+            case MedivetAvailableDatesFilter.TODAY: {
+                maxAvailableDate = now.clone().startOf("day");
+                remainingDays.push(maxAvailableDate.date());
+                break;
+            }
+            case MedivetAvailableDatesFilter.WITHIN_3_DAYS: {
+                const startDate = now.clone().add(1, "day");
+                const endDate = startDate.clone().add(2, "day");
+                const startDay = startDate.date();
+                const endDay = endDate.date();
+                for (let i = startDay; i <= endDay; i++) {
+                    remainingDays.push(i);
+                }
+                maxAvailableDate = endDate;
+                break;
+            }
+            case MedivetAvailableDatesFilter.WHENEVER: {
+                maxAvailableDate = this.getMaxAvailableDate();
+                const nearestMonth = maxAvailableDate.getMonth();
+                remainingDays = this.getDaysForMonth(nearestMonth);
+            }
+        }
+
+        const appointments = await this.appointmentRepository.find({
+            where: {
+                medicalService: { id: medicalServiceId },
+                date: MoreThan(now.toDate())
+            },
+            relations: [ "medicalService" ]
+        });
+        let result = false;
+
+        for (let i = 0; i < remainingDays.length; i++) {
+            if (result) break;
+            const remainingDay = remainingDays[i];
+
+            let thisDay = moment.utc().set({
+                date: remainingDay,
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+                milliseconds: 0
+            });
+
+            const isToday = now.clone().set({
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+                milliseconds: 0
+            }).isSame(thisDay.clone());
+
+            if (isToday) {
+                thisDay = now.clone().add(10, "minute");
+            }
+
+            const dayOfWeek = thisDay.day();
+            const appointmentsForDay = appointments.filter(appointment => {
+                const appointmentDate = moment.utc(appointment.date).set({
+                    hours: 0,
+                    minutes: 0,
+                    seconds: 0,
+                    milliseconds: 0
+                });
+
+                if (appointmentDate.isSame(thisDay)) return appointment;
+            });
+            const parsedAppointments = this.getCalculatedTimeForAppointments(appointmentsForDay);
+
+            result = vetAvailabilities.some(vetAvailability => {
+                const receptionHours = vetAvailability.receptionHours.filter(receptionHour => MedivetDayWeek[receptionHour.day] === dayOfWeek);
+                const groupedReceptionHoursByDay = this.getGroupedReceptionHoursByDayWeek(receptionHours);
+
+                if (groupedReceptionHoursByDay[MedivetDayWeek[dayOfWeek]] && Object.keys(groupedReceptionHoursByDay[MedivetDayWeek[dayOfWeek]]).length !== 0) {
+                    const receptionHourDay = groupedReceptionHoursByDay[MedivetDayWeek[dayOfWeek]];
+                    receptionHourDay.hours.sort((a, b) => Number(parseTimeStringToDate(a.hourFrom)) - Number(parseTimeStringToDate(b.hourFrom)));
+
+                    return receptionHourDay.hours.some(receptionHour => {
+                        const { hourFrom, hourTo } = receptionHour;
+                        const startDayDate = thisDay.clone().set({
+                            hours: +hourFrom.split(":")[0],
+                            minutes: +hourFrom.split(":")[1],
+                        });
+                        const endDayDate = thisDay.clone().set({
+                            hours: +hourTo.split(":")[0],
+                            minutes: +hourTo.split(":")[1],
+                        });
+                        const receptionHourTotalDuration = endDayDate.diff(startDayDate, "minutes");
+                        const amountOfPossibleReceptionHours = Math.floor(receptionHourTotalDuration / +medicalServiceDuration);
+                        const possibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate);
+
+                        const availableReceptionHours = [];
+                        possibleReceptionHourDates.forEach(possibleReceptionHourDate => {
+                            const collideWithAppointment = parsedAppointments.some(appointment => possibleReceptionHourDate.isBetween(appointment.startDate, appointment.endDate));
+                            if (!collideWithAppointment) availableReceptionHours.push(possibleReceptionHourDate.toDate());
+                        });
+                        if (availableReceptionHours.length > 0) {
+                            return true;
+                        }
+                    });
+                }
+            });
+        }
+
         return result;
     }
 

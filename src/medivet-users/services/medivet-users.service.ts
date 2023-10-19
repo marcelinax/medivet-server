@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, Repository } from "typeorm";
 
+import { MedivetAvailableDatesService } from "@/medivet-available-dates/services/medivet-available-dates.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
@@ -24,6 +25,7 @@ export class MedivetUsersService {
     @InjectRepository(MedivetVetProvidedMedicalService) private vetProvidedMedicalServiceRepository: Repository<MedivetVetProvidedMedicalService>,
     private hashingService: MedivetSecurityHashingService,
     private vetSpecializationsService: MedivetVetSpecializationService,
+    private availableDatesService: MedivetAvailableDatesService
     ) {
     }
 
@@ -199,7 +201,6 @@ export class MedivetUsersService {
     async searchVets(searchVetDto: MedivetSearchVetDto): Promise<MedivetUser[]> {
     // osobne szukanie dla admina
 
-        // TODO dorobić filtrowanie po dostępnych terminach -> availableDates
         const { city, name, sortingMode, specializationIds, medicalServiceIds, availableDates } = searchVetDto;
         let vets = await this.usersRepository.find({
             where: { role: MedivetUserRole.VET },
@@ -253,6 +254,34 @@ export class MedivetUsersService {
             const vetProvidedMedicalServiceClinicIds = vetProvidedMedicalServices.map(vetProvidedMedicalService =>
                 vetProvidedMedicalService.clinic.id);
 
+            vets.forEach(vet => {
+                const vetClinics = vet.clinics.filter(clinic => vetProvidedMedicalServiceClinicIds.includes(clinic.id));
+                vet.clinics = [ ...vetClinics ];
+            });
+        }
+        if (availableDates) {
+            const vetIds = vets.map(vet => vet.id);
+            const vetProvidedMedicalServices = await this.vetProvidedMedicalServiceRepository.find({
+                where: { user: { id: In(vetIds) } },
+                relations: [ "medicalService", "user", "clinic" ]
+            });
+            const providedMedicalServicesWithAvailableDate: MedivetVetProvidedMedicalService[] = [];
+            const newVets: MedivetUser[] = [];
+
+            for (const vet of vets) {
+                let hasAnyAvailableDate = false;
+                for (const vetProvidedMedicalService of vetProvidedMedicalServices) {
+                    const hasAvailableDate = await this.availableDatesService.checkIfAvailableDateForMedicalServiceExists(vet.id, vetProvidedMedicalService.medicalService.id, availableDates);
+                    if (hasAvailableDate) {
+                        providedMedicalServicesWithAvailableDate.push(vetProvidedMedicalService);
+                        if (!hasAnyAvailableDate) hasAnyAvailableDate = true;
+                    }
+                }
+                if (hasAnyAvailableDate) newVets.push(vet);
+            }
+            const vetProvidedMedicalServiceClinicIds = providedMedicalServicesWithAvailableDate.map(providedMedicalService => providedMedicalService.clinic.id);
+
+            vets = [ ...newVets ];
             vets.forEach(vet => {
                 const vetClinics = vet.clinics.filter(clinic => vetProvidedMedicalServiceClinicIds.includes(clinic.id));
                 vet.clinics = [ ...vetClinics ];

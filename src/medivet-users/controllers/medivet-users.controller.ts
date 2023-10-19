@@ -28,7 +28,7 @@ import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { ErrorExceptionDto } from "@/medivet-commons/dto/error-exception.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
+import { MedivetAvailableDatesFilter, MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
 import { MedivetCreateUserDto } from "@/medivet-users/dto/medivet-create-user.dto";
@@ -84,20 +84,61 @@ export class MedivetUsersController {
       required: false,
       type: Array<string>
   })
+  @ApiQuery({
+      name: "city",
+      required: false,
+      type: String
+  })
+  @ApiQuery({
+      name: "specializationIds",
+      required: true,
+      type: String
+  })
+  @ApiQuery({
+      name: "clinicName",
+      required: false,
+      type: String
+  })
+  @ApiQuery({
+      name: "medicalServiceIds",
+      required: false,
+      type: String
+  })
+  @ApiQuery({
+      name: "sortingMode",
+      required: false,
+      enum: MedivetSortingModeEnum
+  })
+  @ApiQuery({
+      name: "availableDates",
+      required: false,
+      enum: MedivetAvailableDatesFilter
+  })
+  @ApiQuery({
+      name: "offset",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "pageSize",
+      required: false,
+      type: Number
+  })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
   @Role(MedivetUserRole.PATIENT)
   @UseGuards(JwtAuthGuard)
   @Get(`${PathConstants.VETS}`)
   async getVets(
-    @Query("name") name: string,
-    @Query("clinicName") clinicName: string,
     @Query("city") city: string,
     @Query("specializationIds") specializationIds: string,
-    @Query("medicalServiceIds") medicalServiceIds: string,
-    @Query("sortingMode") sortingMode: MedivetSortingModeEnum,
     @Query("pageSize") pageSize: number,
     @Query("offset") offset: number,
+    @Query("clinicName") clinicName?: string,
+    @Query("name") name?: string,
+    @Query("medicalServiceIds") medicalServiceIds?: string,
+    @Query("sortingMode") sortingMode?: MedivetSortingModeEnum,
+    @Query("availableDates") availableDates?: MedivetAvailableDatesFilter,
     @Query("include", new ParseArrayPipe({
         items: String,
         optional: true,
@@ -110,6 +151,7 @@ export class MedivetUsersController {
           city,
           specializationIds,
           medicalServiceIds,
+          availableDates,
           sortingMode,
           pageSize,
           offset,
