@@ -41,7 +41,7 @@ export class MedivetAvailableDatesService {
         const availableDates: MedivetAvailableDate[] = [];
         const maxAvailableDate = this.getMaxAvailableDate();
         const nearestMonth = searchAvailableDatesDto?.month || maxAvailableDate.getMonth();
-        const now = moment.utc();
+        const now = moment();
         const remainingDaysOfMonth = this.getDaysForMonth(nearestMonth);
 
         const appointments = await this.appointmentRepository.find({
@@ -53,7 +53,7 @@ export class MedivetAvailableDatesService {
         });
 
         remainingDaysOfMonth.forEach((remainingDay) => {
-            let thisDay = moment.utc().set({
+            let thisDay = moment().set({
                 date: remainingDay,
                 hours: 0,
                 minutes: 0,
@@ -74,7 +74,7 @@ export class MedivetAvailableDatesService {
             const dayOfWeek = thisDay.day();
 
             const appointmentsForDay = appointments.filter(appointment => {
-                const appointmentDate = moment.utc(appointment.date).set({
+                const appointmentDate = moment(appointment.date).set({
                     hours: 0,
                     minutes: 0,
                     seconds: 0,
@@ -132,7 +132,7 @@ export class MedivetAvailableDatesService {
         const medicalServiceDuration = medicalService.duration;
         const maxAvailableDate = this.getMaxAvailableDate();
         const nearestMonth = maxAvailableDate.getMonth();
-        const now = moment.utc();
+        const now = moment();
         const remainingDaysOfMonth = this.getDaysForMonth(nearestMonth);
 
         const appointments = await this.appointmentRepository.find({
@@ -147,7 +147,7 @@ export class MedivetAvailableDatesService {
         for (let i = 0; i < remainingDaysOfMonth.length; i++) {
             const remainingDay = remainingDaysOfMonth[i];
 
-            let thisDay = moment.utc().set({
+            let thisDay = moment().set({
                 date: remainingDay,
                 hours: 0,
                 minutes: 0,
@@ -168,7 +168,7 @@ export class MedivetAvailableDatesService {
 
             const dayOfWeek = thisDay.day();
             const appointmentsForDay = appointments.filter(appointment => {
-                const appointmentDate = moment.utc(appointment.date).set({
+                const appointmentDate = moment(appointment.date).set({
                     hours: 0,
                     minutes: 0,
                     seconds: 0,
@@ -237,7 +237,7 @@ export class MedivetAvailableDatesService {
 
         const medicalServiceDuration = medicalService.duration;
         let remainingDays: number[] = [];
-        const now = moment.utc();
+        const now = moment();
         let maxAvailableDate;
 
         switch (availableDatesFilter) {
@@ -276,8 +276,7 @@ export class MedivetAvailableDatesService {
         for (let i = 0; i < remainingDays.length; i++) {
             if (result) break;
             const remainingDay = remainingDays[i];
-
-            let thisDay = moment.utc().set({
+            let thisDay = moment().set({
                 date: remainingDay,
                 hours: 0,
                 minutes: 0,
@@ -298,7 +297,7 @@ export class MedivetAvailableDatesService {
 
             const dayOfWeek = thisDay.day();
             const appointmentsForDay = appointments.filter(appointment => {
-                const appointmentDate = moment.utc(appointment.date).set({
+                const appointmentDate = moment(appointment.date).set({
                     hours: 0,
                     minutes: 0,
                     seconds: 0,
@@ -366,7 +365,7 @@ export class MedivetAvailableDatesService {
     }
 
     private getDaysForMonth(month: number): number[] {
-        const today = moment.utc();
+        const today = moment();
         const day = today.date();
 
         const daysInMonth = today.add(month, "month").daysInMonth();
@@ -381,7 +380,7 @@ export class MedivetAvailableDatesService {
         const
             MAX_AVAILABLE_NEXT_MONTH = 1;
         const
-            now = moment.utc().set({
+            now = moment().set({
                 hour: 0,
                 minute: 0,
                 second: 0
@@ -395,8 +394,8 @@ export class MedivetAvailableDatesService {
     ): { startDate: Moment; endDate: Moment }[] {
         return appointments.map(appointment => {
             const duration = appointment.medicalService.duration * 60;
-            const startDate = moment.utc(appointment.date);
-            const endDate = moment.utc(appointment.date).add(duration, "seconds");
+            const startDate = moment(appointment.date);
+            const endDate = moment(appointment.date).add(duration, "seconds");
 
             return {
                 startDate,
@@ -410,16 +409,16 @@ export class MedivetAvailableDatesService {
         medicalServiceDuration: number, startDayDate: Moment
     ): Moment[] {
         const allPossibleReceptionHourDates: Moment[] = [];
-        const now = moment.utc();
+        const now = moment();
         if (startDayDate.clone().isAfter(now)) {
             allPossibleReceptionHourDates.push(startDayDate.clone());
         }
-
         let hour;
+
         while (amountOfPossibleReceptionHours !== 0) {
-            const prevHour = allPossibleReceptionHourDates[allPossibleReceptionHourDates.length - 1] ?? startDayDate;
+            const prevHour = hour?.clone() ?? startDayDate.clone();
+            hour = prevHour.clone().add(medicalServiceDuration, "minutes");
             if (prevHour.isSameOrAfter(now)) {
-                hour = prevHour.clone().add(medicalServiceDuration, "minutes");
                 allPossibleReceptionHourDates.push(hour);
             }
             amountOfPossibleReceptionHours--;
