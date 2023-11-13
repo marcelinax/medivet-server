@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import moment from "moment";
 import { Moment } from "moment/moment";
@@ -19,7 +19,7 @@ export class MedivetAvailableDatesService {
     constructor(
     @InjectRepository(MedivetVetAvailability) private vetAvailabilityRepository: Repository<MedivetVetAvailability>,
     @InjectRepository(MedivetAppointment) private appointmentRepository: Repository<MedivetAppointment>,
-    private providedMedicalServicesService: MedivetVetProvidedMedicalServiceService
+    @Inject(forwardRef(() => MedivetVetProvidedMedicalServiceService)) private providedMedicalServicesService: MedivetVetProvidedMedicalServiceService
     ) {
     }
 

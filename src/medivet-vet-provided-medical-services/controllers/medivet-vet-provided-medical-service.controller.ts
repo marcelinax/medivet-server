@@ -28,6 +28,7 @@ import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
@@ -142,6 +143,16 @@ export class MedivetVetProvidedMedicalServiceController {
       type: Array<number>
   })
   @ApiQuery({
+      name: "medicalServiceIds",
+      required: false,
+      type: Array<number>
+  })
+  @ApiQuery({
+      name: "sorting",
+      required: false,
+      enum: MedivetSortingModeEnum
+  })
+  @ApiQuery({
       name: "offset",
       required: false,
       type: Number
@@ -162,6 +173,12 @@ export class MedivetVetProvidedMedicalServiceController {
         separator: ",",
         optional: true
     })) specializationIds?: number[],
+    @Query("medicalServiceIds", new ParseArrayPipe({
+        items: Number,
+        separator: ",",
+        optional: true
+    })) medicalServiceIds?: number[],
+    @Query("sorting") sorting?: MedivetSortingModeEnum,
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
     @Query("include", new ParseArrayPipe({
@@ -174,6 +191,8 @@ export class MedivetVetProvidedMedicalServiceController {
           clinicId,
           {
               specializationIds,
+              medicalServiceIds,
+              sorting,
               include,
               pageSize,
               offset,

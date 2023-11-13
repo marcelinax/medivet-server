@@ -1,12 +1,15 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
+import { MedivetAvailableDatesService } from "@/medivet-available-dates/services/medivet-available-dates.service";
+import { MedivetAvailableDate } from "@/medivet-available-dates/types/types";
 import { MedivetClinicsService } from "@/medivet-clinics/services/medivet-clinics.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
 import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
+import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetVetSpecializationMedicalServiceService } from "@/medivet-specializations/services/medivet-vet-specialization-medical-service.service";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
@@ -20,7 +23,8 @@ export class MedivetVetProvidedMedicalServiceService {
     constructor(
     @InjectRepository(MedivetVetProvidedMedicalService) private vetProvidedMedicalServicesRepository: Repository<MedivetVetProvidedMedicalService>,
     private specializationMedicalServicesService: MedivetVetSpecializationMedicalServiceService,
-    private clinicsService: MedivetClinicsService
+    private clinicsService: MedivetClinicsService,
+    @Inject(forwardRef(() => MedivetAvailableDatesService)) private availableDatesService: MedivetAvailableDatesService
     ) {
     }
 
@@ -92,11 +96,12 @@ export class MedivetVetProvidedMedicalServiceService {
         clinicId: number,
         searchVetProvidedMedicalServiceDto: MedivetSearchVetProvidedMedicalServiceDto,
     ): Promise<MedivetVetProvidedMedicalService[]> {
-        const { include, specializationIds, vetId } = searchVetProvidedMedicalServiceDto;
+        const { include, specializationIds, vetId, medicalServiceIds, sorting } = searchVetProvidedMedicalServiceDto;
+
         let vetProvidedMedicalServices = await this.vetProvidedMedicalServicesRepository.find({
             where: {
                 user: { id: vetId },
-                clinic: { id: clinicId }
+                clinic: { id: clinicId },
             },
             relations: include ?? []
         });
@@ -105,6 +110,21 @@ export class MedivetVetProvidedMedicalServiceService {
             vetProvidedMedicalServices = vetProvidedMedicalServices.filter(vetProvidedMedicalService => specializationIds.includes(vetProvidedMedicalService.medicalService.specialization.id));
         }
 
+        if (medicalServiceIds && medicalServiceIds.length > 0) {
+            vetProvidedMedicalServices = vetProvidedMedicalServices.filter(vetProvidedMedicalService => medicalServiceIds.includes(vetProvidedMedicalService.medicalService.id));
+        }
+
+        if (sorting) {
+            switch (sorting) {
+                case MedivetSortingModeEnum.NEAREST_AVAILABILITY: {
+                    const copiedVetProvidedMedicalServices = [ ...vetProvidedMedicalServices ];
+                    vetProvidedMedicalServices = await this.getSortedVetProvidedMedicalServicesByNearestAvailability(copiedVetProvidedMedicalServices);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
         vetProvidedMedicalServices.sort((a, b) => a.medicalService.name.localeCompare(b.medicalService.name));
 
         return paginateData(vetProvidedMedicalServices, {
@@ -126,6 +146,26 @@ export class MedivetVetProvidedMedicalServiceService {
         await this.vetProvidedMedicalServicesRepository.remove(vetProvidedMedicalService);
 
         return { message: SuccessMessageConstants.VET_CLINIC_PROVIDED_MEDICAL_SERVICE_HAS_BEEN_REMOVED_SUCCESSFULLY };
+    }
+
+    private async getSortedVetProvidedMedicalServicesByNearestAvailability(
+        vetProvidedMedicalServices: MedivetVetProvidedMedicalService[]
+    ): Promise<MedivetVetProvidedMedicalService[]> {
+        const providedMedicalServicesWithNearestAvailability: {
+      vetProvidedMedicalService: MedivetVetProvidedMedicalService;
+      date: MedivetAvailableDate;
+    }[] = [];
+        for (const vetProvidedMedicalService of vetProvidedMedicalServices) {
+            const nearestAvailableDate = await this.availableDatesService.getFirstAvailableDateForMedicalService(vetProvidedMedicalService.user.id, vetProvidedMedicalService.id);
+            if (nearestAvailableDate) {
+                providedMedicalServicesWithNearestAvailability.push({
+                    vetProvidedMedicalService,
+                    date: nearestAvailableDate
+                });
+            }
+        }
+        providedMedicalServicesWithNearestAvailability.sort((a, b) => a.date.dates[0].getTime() - b.date.dates[0].getTime());
+        return providedMedicalServicesWithNearestAvailability.map(providedMedicalService => providedMedicalService.vetProvidedMedicalService);
     }
 
     private async checkIfVetProvidedMedicalServiceAlreadyExists(

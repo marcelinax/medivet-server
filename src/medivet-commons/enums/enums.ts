@@ -17,7 +17,8 @@ export enum MedivetSortingModeEnum {
   HIGHEST_RATE = "highest-rate",
   LOWEST_RATE = "lowest-rate",
   MOST_OPINIONS = "most-opinions",
-  LEAST_OPINIONS = "least-opinions"
+  LEAST_OPINIONS = "least-opinions",
+  NEAREST_AVAILABILITY = "nearest-availability"
 }
 
 export enum MedivetStatusEnum {
