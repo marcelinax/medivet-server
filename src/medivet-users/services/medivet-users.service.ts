@@ -4,7 +4,6 @@ import { In, Repository } from "typeorm";
 
 import { MedivetAvailableDatesService } from "@/medivet-available-dates/services/medivet-available-dates.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetSecurityHashingService } from "@/medivet-security/services/medivet-security-hashing.service";
 import { MedivetVetSpecializationMedicalService } from "@/medivet-specializations/entities/medivet-vet-specialization-medical-service.entity";
@@ -305,31 +304,41 @@ export class MedivetUsersService {
             vet.clinics = [ ...vetClinics ];
         }
 
-        if (sortingMode) {
-            vets = vets.sort((a, b) => {
-                const aName: string = a.name.toLowerCase();
-                const bName: string = b.name.toLowerCase();
-                const aOpinions = a.opinions;
-                const bOpinions = b.opinions;
-                const aOpinionsAverageRate = aOpinions.length === 0 ? 0 : aOpinions.reduce((acc, cur) => acc + cur.rate, 0) / aOpinions.length;
-                const bOpinionsAverageRate = bOpinions.length === 0 ? 0 : bOpinions.reduce((acc, cur) => acc + cur.rate, 0) / bOpinions.length;
+        // TODO to bedzie dla admina
+        // if (sortingMode) {
+        //     vets = vets.sort((a, b) => {
+        //         const aName: string = a.name.toLowerCase();
+        //         const bName: string = b.name.toLowerCase();
+        //         const aOpinions = a.opinions;
+        //         const bOpinions = b.opinions;
+        //         const aOpinionsAverageRate = aOpinions.length === 0 ? 0 : aOpinions.reduce((acc, cur) => acc + cur.rate, 0) / aOpinions.length;
+        //         const bOpinionsAverageRate = bOpinions.length === 0 ? 0 : bOpinions.reduce((acc, cur) => acc + cur.rate, 0) / bOpinions.length;
+        //
+        //         switch (sortingMode) {
+        //             case MedivetSortingModeEnum.ASC:
+        //                 return aName.localeCompare(bName);
+        //             case MedivetSortingModeEnum.DESC:
+        //                 return bName.localeCompare(aName);
+        //             case MedivetSortingModeEnum.HIGHEST_RATE:
+        //                 return aOpinionsAverageRate - bOpinionsAverageRate;
+        //             case MedivetSortingModeEnum.LOWEST_RATE:
+        //                 return bOpinionsAverageRate - aOpinionsAverageRate;
+        //             case MedivetSortingModeEnum.MOST_OPINIONS:
+        //                 return bOpinions.length - aOpinions.length;
+        //             case MedivetSortingModeEnum.LEAST_OPINIONS:
+        //                 return aOpinions.length - bOpinions.length;
+        //         }
+        //     });
+        // }
 
-                switch (sortingMode) {
-                    case MedivetSortingModeEnum.ASC:
-                        return aName.localeCompare(bName);
-                    case MedivetSortingModeEnum.DESC:
-                        return bName.localeCompare(aName);
-                    case MedivetSortingModeEnum.HIGHEST_RATE:
-                        return bOpinionsAverageRate - aOpinionsAverageRate;
-                    case MedivetSortingModeEnum.LOWEST_RATE:
-                        return aOpinionsAverageRate - bOpinionsAverageRate;
-                    case MedivetSortingModeEnum.MOST_OPINIONS:
-                        return bOpinions.length - aOpinions.length;
-                    case MedivetSortingModeEnum.LEAST_OPINIONS:
-                        return aOpinions.length - bOpinions.length;
-                }
-            });
-        }
+        vets.sort((vet1, vet2) => {
+            const vet1Opinions = vet1.opinions;
+            const vet2Opinions = vet2.opinions;
+            const vet1OpinionsAverageRate = vet1Opinions.length === 0 ? 0 : vet1Opinions.reduce((acc, cur) => acc + cur.rate, 0) / vet1Opinions.length;
+            const vet2OpinionsAverageRate = vet2Opinions.length === 0 ? 0 : vet2Opinions.reduce((acc, cur) => acc + cur.rate, 0) / vet2Opinions.length;
+
+            return vet1OpinionsAverageRate - vet2OpinionsAverageRate;
+        });
 
         return paginateData(vets, {
             pageSize: searchVetDto.pageSize,
