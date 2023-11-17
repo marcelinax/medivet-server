@@ -31,7 +31,6 @@ export class PathConstants {
   public static RESTORE = "restore";
   public static SEARCH = "search";
   public static MY = "my";
-  public static VET = "vet";
   public static VETS = "vets";
   public static ASSIGNMENT_REQUEST = "assignment-request";
   public static UNASSIGNMENT_REQUEST = "unassignment-request";
@@ -42,6 +41,5 @@ export class PathConstants {
   public static ASSIGNMENT_CONFIRMATION = "assignmnet-confirmation";
   public static ASSIGNMENT_REJECTION = "assignmnet-rejection";
   public static UNASSGINMENT_CANCELLATION = "unassignment-cancellation";
-  public static CLINIC = "clinic";
   public static FIRST_AVAILABLE = "first-available";
 }

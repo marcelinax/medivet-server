@@ -148,6 +148,16 @@ export class MedivetVetProvidedMedicalServiceService {
         return { message: SuccessMessageConstants.VET_CLINIC_PROVIDED_MEDICAL_SERVICE_HAS_BEEN_REMOVED_SUCCESSFULLY };
     }
 
+    async getProvidedMedicalServicesForVet(
+        vetId: number,
+        include?: string[]
+    ): Promise<MedivetVetProvidedMedicalService[]> {
+        return this.vetProvidedMedicalServicesRepository.find({
+            where: { user: { id: vetId }, },
+            relations: include ?? []
+        });
+    }
+
     private async getSortedVetProvidedMedicalServicesByNearestAvailability(
         vetProvidedMedicalServices: MedivetVetProvidedMedicalService[]
     ): Promise<MedivetVetProvidedMedicalService[]> {

@@ -115,6 +115,41 @@ export class MedivetVetProvidedMedicalServiceController {
   }
 
   @ApiOperation({
+      summary: "Gets all vet provided medical services for vet",
+      description: "Returns array of all vet provided medical services doing by vet"
+  })
+  @ApiOkResponse({
+      description: "Returns array of all vet provided medical services doing by vet",
+      type: MedivetVetProvidedMedicalService,
+      isArray: true
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "include",
+      required: false,
+      type: Array<string>
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get(`/${PathConstants.VETS}${PathConstants.ID_PARAM}`)
+  async getVetProvidedMedicalServicesForVet(
+    @Param("id") vetId: number,
+    @Query("include", new ParseArrayPipe({
+        items: String,
+        separator: ",",
+        optional: true
+    })) include?: string[]
+  ): Promise<MedivetVetProvidedMedicalService[]> {
+      return this.vetProvidedMedicalServiceService.getProvidedMedicalServicesForVet(
+          vetId,
+          include
+      );
+  }
+
+  @ApiOperation({
       summary: "Gets vet provided medical services filtered by params",
       description: "Returns array of matched vet provided medical services"
   })
@@ -164,7 +199,7 @@ export class MedivetVetProvidedMedicalServiceController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get(`/${PathConstants.CLINIC}${PathConstants.ID_PARAM}`)
+  @Get(`/${PathConstants.CLINICS}${PathConstants.ID_PARAM}`)
   async searchClinicVetProvidedMedicalServices(
     @Param("id") clinicId: number,
     @Query("vetId") vetId: number,
