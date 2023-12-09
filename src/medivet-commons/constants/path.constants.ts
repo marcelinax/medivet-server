@@ -14,6 +14,7 @@ export class PathConstants {
   public static VET_PROVIDED_MEDICAL_SERVICES = "vet-provided-medical-services";
   public static AVAILABLE_DATES = "available-dates";
   public static APPOINTMENTS = "appointments";
+  public static FAVOURITE_VETS = "favourite-vets";
 
   public static LOGIN = "login";
   public static ME = "me";
@@ -42,4 +43,5 @@ export class PathConstants {
   public static ASSIGNMENT_REJECTION = "assignmnet-rejection";
   public static UNASSGINMENT_CANCELLATION = "unassignment-cancellation";
   public static FIRST_AVAILABLE = "first-available";
+  public static AMOUNT = "amount";
 }

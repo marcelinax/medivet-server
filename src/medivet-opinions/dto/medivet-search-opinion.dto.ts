@@ -11,5 +11,5 @@ export class MedivetSearchOpinionDto extends OffsetPaginationDto {
   })
   @IsOptional()
   @IsEnum(MedivetSortingModeEnum)
-  sortingMode: MedivetSortingModeEnum;
+  sortingMode?: MedivetSortingModeEnum;
 }

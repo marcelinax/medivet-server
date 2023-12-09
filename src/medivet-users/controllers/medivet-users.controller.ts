@@ -31,12 +31,11 @@ import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exc
 import { MedivetAvailableDatesFilter, MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
+import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
 import { MedivetCreateUserDto } from "@/medivet-users/dto/medivet-create-user.dto";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
-
-import { Role } from "../decorators/medivet-role.decorator";
 
 @ApiTags(ApiTagsConstants.USERS)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -184,7 +183,7 @@ export class MedivetUsersController {
   @UseGuards(MedivetRoleGuard)
   @Role(MedivetUserRole.PATIENT)
   @UseGuards(JwtAuthGuard)
-  @Get(PathConstants.VET + PathConstants.ID_PARAM)
+  @Get(PathConstants.VETS + PathConstants.ID_PARAM)
   async getVet(
     @Param("id") userId: number,
     @Query("include", new ParseArrayPipe({

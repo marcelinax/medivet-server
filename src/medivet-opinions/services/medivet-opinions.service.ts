@@ -23,7 +23,7 @@ export class MedivetOpinionsService {
     async createOpinion(user: MedivetUser, createOpinionDto: MedivetCreateOpinionDto): Promise<MedivetOpinion> {
         const { message, rate, vetId } = createOpinionDto;
 
-        const possibleVet = await this.usersService.findOneById(vetId, [ "opinions,opinions.issuer" ]);
+        const possibleVet = await this.usersService.findOneById(vetId, [ "opinions", "opinions.issuer" ]);
 
         if (possibleVet) {
             if (user.id === possibleVet.id) {
@@ -58,7 +58,7 @@ export class MedivetOpinionsService {
     }
 
     async findAllOpinionsAssignedToVet(vetId: number): Promise<MedivetOpinion[]> {
-        const vet = await this.usersService.findOneById(vetId, [ "optinions,opinions.issuer" ]);
+        const vet = await this.usersService.findOneById(vetId, [ "opinions", "opinions.issuer" ]);
 
         if (vet) {
             return this.opinionsRepository.find({
@@ -74,8 +74,9 @@ export class MedivetOpinionsService {
         if (searchOpinionDto.sortingMode) {
             opinions = opinions.sort((a, b) => {
                 switch (searchOpinionDto.sortingMode) {
-                    case MedivetSortingModeEnum.NEWEST:
+                    case MedivetSortingModeEnum.NEWEST: {
                         return b.date.getTime() - a.date.getTime();
+                    }
                     case MedivetSortingModeEnum.OLDEST:
                         return a.date.getTime() - b.date.getTime();
                     case MedivetSortingModeEnum.HIGHEST_RATE:
@@ -98,5 +99,10 @@ export class MedivetOpinionsService {
             pageSize: searchOpinionDto.pageSize,
             offset: searchOpinionDto.offset
         });
+    }
+
+    async getVetOpinionsTotalAmount(vetId: number): Promise<number> {
+        const opinions = await this.findAllOpinionsAssignedToVet(vetId);
+        return opinions.length;
     }
 }

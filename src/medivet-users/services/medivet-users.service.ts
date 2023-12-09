@@ -200,7 +200,7 @@ export class MedivetUsersService {
     async searchVets(searchVetDto: MedivetSearchVetDto): Promise<MedivetUser[]> {
     // osobne szukanie dla admina
 
-        const { city, name, sortingMode, specializationIds, medicalServiceIds, availableDates } = searchVetDto;
+        const { city, name, specializationIds, medicalServiceIds, availableDates } = searchVetDto;
         let vets = await this.usersRepository.find({
             where: { role: MedivetUserRole.VET },
             relations: searchVetDto?.include ?? []
@@ -258,6 +258,7 @@ export class MedivetUsersService {
                 vet.clinics = [ ...vetClinics ];
             });
         }
+
         if (availableDates) {
             const vetIds = vets.map(vet => vet.id);
             const vetProvidedMedicalServices = await this.vetProvidedMedicalServiceRepository.find({

@@ -69,7 +69,7 @@ export class MedivetOpinionsController {
   @Role(MedivetUserRole.PATIENT)
   @UseGuards(JwtAuthGuard)
   @Post()
-    async createOpinion(@CurrentUser() user: MedivetUser, @Body() body: MedivetCreateOpinionDto) {
+    async createOpinion(@CurrentUser() user: MedivetUser, @Body() body: MedivetCreateOpinionDto): Promise<MedivetOpinion> {
         return this.opinionsService.createOpinion(user, body);
     }
 
@@ -93,7 +93,7 @@ export class MedivetOpinionsController {
   @UseGuards(MedivetRoleGuard)
   @Role(MedivetUserRole.VET)
   @UseGuards(JwtAuthGuard)
-  @Get(PathConstants.SEARCH)
+  @Get()
   async searchMyOpinions(
     @CurrentUser() user: MedivetUser,
     @Query("sortingMode") sortingMode: MedivetSortingModeEnum,
@@ -128,7 +128,7 @@ export class MedivetOpinionsController {
   @UseGuards(MedivetRoleGuard)
   @Role(MedivetUserRole.PATIENT)
   @UseGuards(JwtAuthGuard)
-  @Get(PathConstants.SEARCH + PathConstants.ID_PARAM)
+  @Get(PathConstants.ID_PARAM)
   async searchVetOpinions(
     @Param("id") vetId: number,
     @Query("sortingMode") sortingMode: MedivetSortingModeEnum,
@@ -140,5 +140,29 @@ export class MedivetOpinionsController {
           pageSize,
           offset
       });
+  }
+
+  @ApiOperation({ summary: "Get vet opinions total amount", })
+  @ApiOkResponse({
+      description: "Returns total amount of vet opinions",
+      type: Number,
+  })
+  @ApiNotFoundResponse({
+      description: "Vet does not exist",
+      type: BadRequestExceptionDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role(MedivetUserRole.PATIENT)
+  @UseGuards(JwtAuthGuard)
+  @Get(`${PathConstants.ID_PARAM}/${PathConstants.AMOUNT}`)
+  async getTotalAmountOfVetOpinions(
+    @Param("id") vetId: number,
+  ): Promise<number> {
+      return this.opinionsService.getVetOpinionsTotalAmount(vetId);
   }
 }
