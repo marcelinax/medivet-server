@@ -109,7 +109,13 @@ export class MedivetAvailableDatesService {
                         const possibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate);
                         totalPossibleReceptionHourDates = [ ...totalPossibleReceptionHourDates, ...possibleReceptionHourDates ];
                     });
-                    this.getAllAvailableReceptionHourDates(totalPossibleReceptionHourDates, parsedAppointments, availableDates, receptionHourDay.day);
+                    this.getAllAvailableReceptionHourDates(totalPossibleReceptionHourDates, parsedAppointments, availableDates, receptionHourDay.day, moment().set({
+                        date: remainingDay,
+                        hours: 0,
+                        minutes: 0,
+                        seconds: 0,
+                        milliseconds: 0
+                    }));
                 }
             });
         });
@@ -430,7 +436,8 @@ export class MedivetAvailableDatesService {
         allPossibleReceptionHourDates: Moment[],
         parsedAppointments: { startDate: Moment; endDate: Moment }[],
         availableDates: MedivetAvailableDate[],
-        day: MedivetVetAvailabilityDay
+        day: MedivetVetAvailabilityDay,
+        date: Moment
     ): void {
         const availableReceptionHours = [];
         allPossibleReceptionHourDates.forEach(possibleReceptionHourDate => {
@@ -439,7 +446,8 @@ export class MedivetAvailableDatesService {
         });
         availableDates.push({
             dates: [ ...availableReceptionHours ],
-            day
+            day,
+            date: date.toDate()
         });
     }
 }
