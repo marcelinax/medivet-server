@@ -66,7 +66,7 @@ export class MedivetOpinionsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.PATIENT)
+  @Role([ MedivetUserRole.PATIENT ])
   @UseGuards(JwtAuthGuard)
   @Post()
     async createOpinion(@CurrentUser() user: MedivetUser, @Body() body: MedivetCreateOpinionDto): Promise<MedivetOpinion> {
@@ -91,7 +91,7 @@ export class MedivetOpinionsController {
       type: UnauthorizedExceptionDto
   })
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Get()
   async searchMyOpinions(
@@ -126,7 +126,7 @@ export class MedivetOpinionsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.PATIENT)
+  @Role([ MedivetUserRole.PATIENT ])
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.ID_PARAM)
   async searchVetOpinions(
@@ -157,7 +157,7 @@ export class MedivetOpinionsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.PATIENT)
+  @Role([ MedivetUserRole.PATIENT ])
   @UseGuards(JwtAuthGuard)
   @Get(`${PathConstants.ID_PARAM}/${PathConstants.AMOUNT}`)
   async getTotalAmountOfVetOpinions(

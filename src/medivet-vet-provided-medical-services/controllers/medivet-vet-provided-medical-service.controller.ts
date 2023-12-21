@@ -67,7 +67,7 @@ export class MedivetVetProvidedMedicalServiceController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Post()
     createVetProvidedMedicalService(
@@ -100,7 +100,7 @@ export class MedivetVetProvidedMedicalServiceController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.ID_PARAM)
   async getVetSpecializationMedicalService(
@@ -303,7 +303,7 @@ export class MedivetVetProvidedMedicalServiceController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Put(PathConstants.ID_PARAM)
   updateVetProvidedMedicalService(
@@ -328,7 +328,7 @@ export class MedivetVetProvidedMedicalServiceController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Delete(PathConstants.ID_PARAM)
   async removeVetProvidedMedicalService(

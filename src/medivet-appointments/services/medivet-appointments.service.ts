@@ -21,6 +21,7 @@ export class MedivetAppointmentsService {
         const { medicalServiceId, animalId, date } = createAppointmentDto;
 
         const isDateAvailable = await this.checkIfAppointmentDateIsAvailable(createAppointmentDto);
+        console.log(isDateAvailable);
         if (!isDateAvailable) {
             throw new BadRequestException([
                 {

@@ -65,7 +65,7 @@ export class MedivetVetAvailabilitiesController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Post()
     async createVetAvailability(
@@ -115,7 +115,7 @@ export class MedivetVetAvailabilitiesController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAllVetAvailabilities(
@@ -161,7 +161,7 @@ export class MedivetVetAvailabilitiesController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.ID_PARAM)
   async getVetAvailability(
@@ -197,7 +197,7 @@ export class MedivetVetAvailabilitiesController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Put(PathConstants.ID_PARAM)
   async updateVetAvailability(
@@ -223,7 +223,7 @@ export class MedivetVetAvailabilitiesController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Delete(PathConstants.ID_PARAM)
   async removeVetClinicAvailability(

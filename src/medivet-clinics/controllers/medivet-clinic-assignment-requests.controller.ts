@@ -54,7 +54,7 @@ export class MedivetClinicAssignmentRequestsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Post(`${PathConstants.CLINIC_ID_PARAM}/${PathConstants.ASSIGNMENT_REQUEST}`)
     async requestToAssignClinic(
@@ -79,7 +79,7 @@ export class MedivetClinicAssignmentRequestsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Post(`${PathConstants.CLINIC_ID_PARAM}/${PathConstants.UNASSIGNMENT_REQUEST}`)
   async requestToUnassignClinic(
@@ -107,7 +107,7 @@ export class MedivetClinicAssignmentRequestsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Post(`${PathConstants.ID_PARAM}/${PathConstants.UNASSIGNMENT_CONFIRMATION}`)
   async confirmClinicAssignment(
@@ -131,7 +131,7 @@ export class MedivetClinicAssignmentRequestsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Post(`${PathConstants.ID_PARAM}/${PathConstants.ASSIGNMENT_REJECTION}`)
   async rejectClinicAssignment(
@@ -158,7 +158,7 @@ export class MedivetClinicAssignmentRequestsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Post(`${PathConstants.ID_PARAM}/${PathConstants.UNASSIGNMENT_CONFIRMATION}`)
   async confirmClinicUnassignment(
@@ -182,7 +182,7 @@ export class MedivetClinicAssignmentRequestsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Post(`${PathConstants.ID_PARAM}/${PathConstants.ASSIGNMENT_REJECTION}`)
   async rejectClinicUnssignment(
@@ -206,7 +206,7 @@ export class MedivetClinicAssignmentRequestsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Post(`${PathConstants.CLINIC_ID_PARAM}/${PathConstants.UNASSGINMENT_CANCELLATION}`)
   async cancelClinicUnssignment(
@@ -231,7 +231,7 @@ export class MedivetClinicAssignmentRequestsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAllClinicAssignmentRequests(

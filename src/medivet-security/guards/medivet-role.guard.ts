@@ -7,16 +7,17 @@ import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 
 @Injectable()
 export class MedivetRoleGuard implements CanActivate {
-    constructor(private reflector: Reflector) { }
+    constructor(private reflector: Reflector) {
+    }
 
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-        const requiredRole = this.reflector.getAllAndOverride<MedivetUserRole>(ROLE_KEY, [
+        const requiredRoles = this.reflector.getAllAndOverride<MedivetUserRole>(ROLE_KEY, [
             context.getHandler(),
             context.getClass()
         ]);
-        if (!requiredRole) return true;
+        if (!requiredRoles || requiredRoles.length === 0) return true;
 
         const request = context.switchToHttp().getRequest();
-        return requiredRole === request.user.role;
+        return requiredRoles.includes(request.user.role);
     }
 }

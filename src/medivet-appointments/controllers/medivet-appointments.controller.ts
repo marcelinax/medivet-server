@@ -45,8 +45,7 @@ export class MedivetAppointmentsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
-  @Role(MedivetUserRole.PATIENT)
+  @Role([ MedivetUserRole.VET, MedivetUserRole.PATIENT ])
   @UseGuards(JwtAuthGuard)
   @Post()
     async createAppointment(

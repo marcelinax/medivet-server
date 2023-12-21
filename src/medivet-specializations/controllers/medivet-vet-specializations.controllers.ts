@@ -48,7 +48,7 @@ export class MedivetVetSpecializationController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Post()
     createVetSpecialization(@Body() createVetSpecializationDto: MedivetCreateVetSpecializationDto): Promise<MedivetVetSpecialization> {
@@ -73,7 +73,7 @@ export class MedivetVetSpecializationController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.ID_PARAM)
   async getVetSpecialization(@Param("id") vetSpecializationId: number): Promise<MedivetVetSpecialization> {
@@ -98,7 +98,7 @@ export class MedivetVetSpecializationController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Delete(PathConstants.ID_PARAM)
   async removeVetSpecialization(
@@ -131,7 +131,7 @@ export class MedivetVetSpecializationController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Put(PathConstants.ID_PARAM)
   async updateVetSpecialization(

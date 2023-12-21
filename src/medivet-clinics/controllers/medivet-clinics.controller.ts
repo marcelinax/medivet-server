@@ -73,7 +73,7 @@ export class MedivetClinicsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.UNASSIGNED)
     async getAllClinics(@CurrentUser() user: MedivetUser,
@@ -117,7 +117,7 @@ export class MedivetClinicsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.ASSIGNED)
   async getAllClinicsAssignedToVet(
@@ -161,7 +161,7 @@ export class MedivetClinicsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.ID_PARAM)
   async getClinic(

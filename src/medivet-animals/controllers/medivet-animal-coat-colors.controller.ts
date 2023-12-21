@@ -63,7 +63,7 @@ export class MedivetAnimalCoatColorsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Post()
     createAnimalCoatColor(@Body() createAnimalCoatColorDto: MedivetCreateAnimalCoatColorDto): Promise<MedivetAnimalCoatColor> {
@@ -88,7 +88,7 @@ export class MedivetAnimalCoatColorsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.ID_PARAM)
   async getAnimalCoatColor(@Param("id") coatColorId: number): Promise<MedivetAnimalCoatColor> {
@@ -113,7 +113,7 @@ export class MedivetAnimalCoatColorsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Delete(PathConstants.ID_PARAM)
   async removeAnimalCoatColor(
@@ -146,7 +146,7 @@ export class MedivetAnimalCoatColorsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.ADMIN)
+  @Role([ MedivetUserRole.ADMIN ])
   @UseGuards(JwtAuthGuard)
   @Put(PathConstants.ID_PARAM)
   async updateAnimalCoatColor(

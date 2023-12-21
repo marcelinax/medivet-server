@@ -227,7 +227,7 @@ export class MedivetUsersMeController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.VET)
+  @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
   @Put(PathConstants.VET_SPECIALIZATIONS)
   async updateMyVetSpecializations(

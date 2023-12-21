@@ -125,7 +125,7 @@ export class MedivetUsersController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.PATIENT)
+  @Role([ MedivetUserRole.PATIENT ])
   @UseGuards(JwtAuthGuard)
   @Get(`${PathConstants.VETS}`)
   async getVets(
@@ -181,7 +181,7 @@ export class MedivetUsersController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role(MedivetUserRole.PATIENT)
+  @Role([ MedivetUserRole.PATIENT ])
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.VETS + PathConstants.ID_PARAM)
   async getVet(
