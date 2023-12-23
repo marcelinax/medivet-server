@@ -61,3 +61,9 @@ export enum MedivetAvailableDatesFilter {
   "WITHIN_3_DAYS" = "WITHIN_3_DAYS",
   "WHENEVER" = "WHENEVER",
 }
+
+export enum MedivetAppointmentStatus {
+  "IN_PROGRESS" = "IN_PROGRESS",
+  "CANCELLED" = "CANCELLED",
+  "FINISHED" = "FINISHED"
+}
