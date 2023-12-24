@@ -55,6 +55,8 @@ export class MedivetAppointmentsService {
         const appointmentsFilteredByStatus = !status ? [ ...userAppointments ] :
             userAppointments.filter(appointment => appointment.status === status);
 
+        appointmentsFilteredByStatus.sort((a, b) => b.date.getTime() - a.date.getTime());
+
         return paginateData(appointmentsFilteredByStatus, {
             offset,
             pageSize
