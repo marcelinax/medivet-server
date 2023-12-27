@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
@@ -61,6 +61,23 @@ export class MedivetAppointmentsService {
             offset,
             pageSize
         });
+    }
+
+    async findAppointmentById(id: number, include?: string[]): Promise<MedivetAppointment> {
+        const appointment = await this.appointmentRepository.findOne({
+            where: { id },
+            relations: include ?? [],
+        });
+
+        if (!appointment) {
+            throw new NotFoundException([
+                {
+                    message: ErrorMessagesConstants.APPOINTMENT_WITH_THIS_ID_DOES_NOT_EXIST,
+                    property: "all"
+                }
+            ]);
+        }
+        return appointment;
     }
 
     private getAppointmentsDependingOnUserRole(user: MedivetUser, appointments: MedivetAppointment[]): MedivetAppointment[] {

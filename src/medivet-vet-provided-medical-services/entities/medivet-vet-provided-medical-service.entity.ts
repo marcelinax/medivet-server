@@ -11,7 +11,7 @@ export class MedivetVetProvidedMedicalService {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => MedivetUser })
   @ManyToOne(() => MedivetUser, user => user.id)
   user: MedivetUser;
 

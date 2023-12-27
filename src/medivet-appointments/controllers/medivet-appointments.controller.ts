@@ -3,6 +3,7 @@ import {
     ClassSerializerInterceptor,
     Controller,
     Get,
+    Param,
     ParseArrayPipe,
     Post,
     Query,
@@ -67,6 +68,38 @@ export class MedivetAppointmentsController {
     ): Promise<MedivetAppointment> {
         return this.appointmentsService.createAppointment(createAppointmentDto);
     }
+
+  @ApiOperation({ summary: "Gets appointment by its id", })
+  @ApiOkResponse({
+      description: "Returns appointment with matched id and its data",
+      type: MedivetAppointment
+  })
+  @ApiBadRequestResponse({
+      description: "Appointment with this id does not exist",
+      type: BadRequestExceptionDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "include",
+      required: false,
+      type: Array<string>
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get(PathConstants.ID_PARAM)
+  async getAppointment(
+    @Param("id") id: number,
+    @Query("include", new ParseArrayPipe({
+        items: String,
+        optional: true,
+        separator: ","
+    })) include?: string[]
+  ): Promise<MedivetAppointment> {
+      return this.appointmentsService.findAppointmentById(id, include);
+  }
 
   @ApiOperation({ summary: "Gets all user appointments filtered by status", })
   @ApiOkResponse({

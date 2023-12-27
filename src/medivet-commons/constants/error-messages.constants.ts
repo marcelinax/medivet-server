@@ -51,4 +51,7 @@ export class ErrorMessagesConstants {
   public static VET_PROVIDED_MEDICAL_SERVICE_WITH_THIS_ID_DOES_NOT_EXIST = "Vet provided medical service with this id does not exist.";
   public static CANNOT_CREATE_APPOINTMENT_BECAUSE_OF_NOT_AVAILABLE_DATE = "Cannot create appointment because of not available date.";
   public static CANNOT_REMOVE_VET_FROM_FAVOURITES_WHO_WAS_NOT_FAVOURED = "Cannot remove vet from favourites who was not favoured.";
+  public static APPOINTMENT_WITH_THIS_ID_DOES_NOT_EXIST = "Appointment with this id does not exist.";
+  public static YOU_HAVE_ALREADY_ADDED_OPINION_TO_APPOINTMENT = "You have already added an opinion to appointment.";
+  public static CANNOT_ADD_OPINION_TO_NOT_FINISHED_APPOINTMENT = "Cannot add an opinion to not finished appointment.";
 }

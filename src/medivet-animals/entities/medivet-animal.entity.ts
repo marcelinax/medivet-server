@@ -21,7 +21,7 @@ export class MedivetAnimal {
   @Column({ nullable: false })
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => MedivetUser })
   @ManyToOne(() => MedivetUser, user => user.id)
   owner: MedivetUser;
 

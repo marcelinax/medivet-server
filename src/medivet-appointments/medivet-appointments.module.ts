@@ -14,7 +14,7 @@ import { MedivetVetProvidedMedicalServiceModule } from "@/medivet-vet-provided-m
         forwardRef(() => MedivetVetProvidedMedicalServiceModule),
     ],
     providers: [ MedivetAppointmentsService ],
-    exports: [],
+    exports: [ MedivetAppointmentsService ],
     controllers: [ MedivetAppointmentsController ]
 })
 export class MedivetAppointmentsModule {

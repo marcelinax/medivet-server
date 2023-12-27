@@ -4,6 +4,7 @@ import {
     Controller,
     Get,
     Param,
+    ParseArrayPipe,
     Post,
     Query,
     UseGuards,
@@ -15,6 +16,7 @@ import {
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
+    ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse
 } from "@nestjs/swagger";
@@ -124,6 +126,26 @@ export class MedivetOpinionsController {
       description: "Bad authorization",
       type: UnauthorizedExceptionDto
   })
+  @ApiQuery({
+      name: "include",
+      required: false,
+      type: Array<string>
+  })
+  @ApiQuery({
+      name: "sortingMode",
+      required: false,
+      enum: MedivetSortingModeEnum
+  })
+  @ApiQuery({
+      name: "offset",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "pageSize",
+      required: false,
+      type: Number
+  })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
   @Role([ MedivetUserRole.PATIENT ])
@@ -131,14 +153,20 @@ export class MedivetOpinionsController {
   @Get(PathConstants.ID_PARAM)
   async searchVetOpinions(
     @Param("id") vetId: number,
-    @Query("sortingMode") sortingMode: MedivetSortingModeEnum,
-    @Query("pageSize") pageSize: number,
-    @Query("offset") offset: number
+    @Query("sortingMode") sortingMode?: MedivetSortingModeEnum,
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
+    @Query("include", new ParseArrayPipe({
+        items: String,
+        optional: true,
+        separator: ","
+    })) include?: string[]
   ): Promise<MedivetOpinion[]> {
       return this.opinionsService.searchVetOpinions(vetId, {
           sortingMode,
           pageSize,
-          offset
+          offset,
+          include
       });
   }
 
