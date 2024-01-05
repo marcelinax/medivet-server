@@ -66,7 +66,7 @@ export class MedivetAppointmentsService {
     async findAppointmentById(id: number, include?: string): Promise<MedivetAppointment> {
         const appointment = await this.appointmentRepository.findOne({
             where: { id },
-            relations: include.split(",") ?? [],
+            relations: include?.split(",") ?? [],
         });
 
         if (!appointment) {
