@@ -54,4 +54,5 @@ export class ErrorMessagesConstants {
   public static APPOINTMENT_WITH_THIS_ID_DOES_NOT_EXIST = "Appointment with this id does not exist.";
   public static YOU_HAVE_ALREADY_ADDED_OPINION_TO_APPOINTMENT = "You have already added an opinion to appointment.";
   public static CANNOT_ADD_OPINION_TO_NOT_FINISHED_APPOINTMENT = "Cannot add an opinion to not finished appointment.";
+  public static CANNOT_FIND_CLINIC_COORDINATES = "Cannot find clinic coordinates.";
 }
