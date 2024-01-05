@@ -44,4 +44,6 @@ export class PathConstants {
   public static UNASSGINMENT_CANCELLATION = "unassignment-cancellation";
   public static FIRST_AVAILABLE = "first-available";
   public static AMOUNT = "amount";
+  public static FINISH = "finish";
+  public static CANCEL = "cancel";
 }

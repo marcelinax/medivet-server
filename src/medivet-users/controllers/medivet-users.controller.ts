@@ -4,7 +4,6 @@ import {
     Controller,
     Get,
     Param,
-    ParseArrayPipe,
     Post,
     Query,
     UseGuards,
@@ -81,7 +80,7 @@ export class MedivetUsersController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiQuery({
       name: "city",
@@ -138,11 +137,7 @@ export class MedivetUsersController {
     @Query("medicalServiceIds") medicalServiceIds?: string,
     @Query("sortingMode") sortingMode?: MedivetSortingModeEnum,
     @Query("availableDates") availableDates?: MedivetAvailableDatesFilter,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        optional: true,
-        separator: ","
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetUser[]> {
       return this.usersService.searchVets({
           name,
@@ -177,7 +172,7 @@ export class MedivetUsersController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
@@ -186,11 +181,7 @@ export class MedivetUsersController {
   @Get(PathConstants.VETS + PathConstants.ID_PARAM)
   async getVet(
     @Param("id") userId: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetUser> {
       return this.usersService.findVetById(userId, include);
   }

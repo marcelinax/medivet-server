@@ -4,7 +4,6 @@ import {
     Controller,
     Get,
     Param,
-    ParseArrayPipe,
     Post,
     Query,
     UseGuards,
@@ -129,7 +128,7 @@ export class MedivetOpinionsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiQuery({
       name: "sortingMode",
@@ -156,11 +155,7 @@ export class MedivetOpinionsController {
     @Query("sortingMode") sortingMode?: MedivetSortingModeEnum,
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        optional: true,
-        separator: ","
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetOpinion[]> {
       return this.opinionsService.searchVetOpinions(vetId, {
           sortingMode,

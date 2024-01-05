@@ -96,7 +96,7 @@ export class MedivetVetProvidedMedicalServiceController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
@@ -105,11 +105,7 @@ export class MedivetVetProvidedMedicalServiceController {
   @Get(PathConstants.ID_PARAM)
   async getVetSpecializationMedicalService(
     @Param("id") vetProvidedMedicalServiceId: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetVetProvidedMedicalService> {
       return this.vetProvidedMedicalServiceService.findVetProvidedMedicalServiceById(vetProvidedMedicalServiceId, include);
   }
@@ -130,18 +126,14 @@ export class MedivetVetProvidedMedicalServiceController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get(`/${PathConstants.VETS}${PathConstants.ID_PARAM}`)
   async getVetProvidedMedicalServicesForVet(
     @Param("id") vetId: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetVetProvidedMedicalService[]> {
       return this.vetProvidedMedicalServiceService.getProvidedMedicalServicesForVet(
           vetId,
@@ -170,7 +162,7 @@ export class MedivetVetProvidedMedicalServiceController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiQuery({
       name: "specializationIds",
@@ -216,11 +208,7 @@ export class MedivetVetProvidedMedicalServiceController {
     @Query("sorting") sorting?: MedivetSortingModeEnum,
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetVetProvidedMedicalService[]> {
       return this.vetProvidedMedicalServiceService.searchVetProvidedMedicalServicesForClinic(
           clinicId,
@@ -252,7 +240,7 @@ export class MedivetVetProvidedMedicalServiceController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiQuery({
       name: "offset",
@@ -270,11 +258,7 @@ export class MedivetVetProvidedMedicalServiceController {
   async getAllVetProvidedMedicalServices(
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetVetProvidedMedicalService[]> {
       return this.vetProvidedMedicalServiceService.getAllVetProvidedMedicalServices(
           {

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsEnum, IsOptional } from "class-validator";
+import { IsEnum, IsOptional, IsString } from "class-validator";
 
 import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
@@ -18,6 +18,6 @@ export class MedivetSearchOpinionDto extends OffsetPaginationDto {
       required: false
   })
   @IsOptional()
-  @IsArray()
-  include?: string[];
+  @IsString()
+  include?: string;
 }

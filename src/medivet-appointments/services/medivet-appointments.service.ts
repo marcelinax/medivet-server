@@ -50,7 +50,7 @@ export class MedivetAppointmentsService {
 
     async getAppointments(user: MedivetUser, searchAppointmentDto: MedivetSearchAppointmentDto): Promise<MedivetAppointment[]> {
         const { status, offset, pageSize, include } = searchAppointmentDto;
-        const allAppointments = await this.appointmentRepository.find({ relations: include ?? [], });
+        const allAppointments = await this.appointmentRepository.find({ relations: include.split(",") ?? [], });
         const userAppointments = this.getAppointmentsDependingOnUserRole(user, allAppointments);
         const appointmentsFilteredByStatus = !status ? [ ...userAppointments ] :
             userAppointments.filter(appointment => appointment.status === status);
@@ -63,10 +63,10 @@ export class MedivetAppointmentsService {
         });
     }
 
-    async findAppointmentById(id: number, include?: string[]): Promise<MedivetAppointment> {
+    async findAppointmentById(id: number, include?: string): Promise<MedivetAppointment> {
         const appointment = await this.appointmentRepository.findOne({
             where: { id },
-            relations: include ?? [],
+            relations: include.split(",") ?? [],
         });
 
         if (!appointment) {
@@ -78,6 +78,42 @@ export class MedivetAppointmentsService {
             ]);
         }
         return appointment;
+    }
+
+    async finishAppointment(appointmentId: number, include?: string): Promise<MedivetAppointment> {
+        const appointment = await this.findAppointmentById(appointmentId, include);
+
+        if (appointment.status === "IN_PROGRESS") {
+            appointment.status = MedivetAppointmentStatus.FINISHED;
+            await this.appointmentRepository.save(appointment);
+
+            return appointment;
+        } else {
+            throw new NotFoundException([
+                {
+                    message: ErrorMessagesConstants.CANNOT_FINISH_APPOINTMENT_IN_DIFFERENT_STATUS_THAN_IN_PROGRESS,
+                    property: "all"
+                }
+            ]);
+        }
+    }
+
+    async cancelAppointment(appointmentId: number, include?: string): Promise<MedivetAppointment> {
+        const appointment = await this.findAppointmentById(appointmentId, include);
+
+        if (appointment.status === "IN_PROGRESS") {
+            appointment.status = MedivetAppointmentStatus.CANCELLED;
+            await this.appointmentRepository.save(appointment);
+
+            return appointment;
+        } else {
+            throw new NotFoundException([
+                {
+                    message: ErrorMessagesConstants.CANNOT_CANCEL_APPOINTMENT_IN_DIFFERENT_STATUS_THAN_IN_PROGRESS,
+                    property: "all"
+                }
+            ]);
+        }
     }
 
     private getAppointmentsDependingOnUserRole(user: MedivetUser, appointments: MedivetAppointment[]): MedivetAppointment[] {

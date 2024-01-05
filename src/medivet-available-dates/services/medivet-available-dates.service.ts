@@ -28,7 +28,7 @@ export class MedivetAvailableDatesService {
         medicalServiceId: number,
         searchAvailableDatesDto?: MedivetSearchAvailableDatesDto
     ): Promise<MedivetAvailableDate[]> {
-        const medicalService = await this.providedMedicalServicesService.findVetProvidedMedicalServiceById(medicalServiceId, [ "medicalService", "medicalService.specialization" ]);
+        const medicalService = await this.providedMedicalServicesService.findVetProvidedMedicalServiceById(medicalServiceId, "medicalService,medicalService.specialization");
         const vetAvailabilities = await this.vetAvailabilityRepository.find({
             where: {
                 user: { id: vetId },
@@ -126,7 +126,7 @@ export class MedivetAvailableDatesService {
         vetId: number,
         medicalServiceId: number,
     ): Promise<MedivetAvailableDate | undefined> {
-        const medicalService = await this.providedMedicalServicesService.findVetProvidedMedicalServiceById(medicalServiceId, [ "medicalService", "medicalService.specialization" ]);
+        const medicalService = await this.providedMedicalServicesService.findVetProvidedMedicalServiceById(medicalServiceId, "medicalService,medicalService.specialization");
         const vetAvailabilities = await this.vetAvailabilityRepository.find({
             where: {
                 user: { id: vetId },
@@ -232,7 +232,7 @@ export class MedivetAvailableDatesService {
         medicalServiceId: number,
         availableDatesFilter: MedivetAvailableDatesFilter
     ): Promise<boolean> {
-        const medicalService = await this.providedMedicalServicesService.findVetProvidedMedicalServiceById(medicalServiceId, [ "medicalService", "medicalService.specialization" ]);
+        const medicalService = await this.providedMedicalServicesService.findVetProvidedMedicalServiceById(medicalServiceId, "medicalService,medicalService.specialization");
         const vetAvailabilities = await this.vetAvailabilityRepository.find({
             where: {
                 user: { id: vetId },
@@ -352,7 +352,11 @@ export class MedivetAvailableDatesService {
         return result;
     }
 
-    private getGroupedReceptionHoursByDayWeek(receptionHours: MedivetVetAvailabilityReceptionHour[]): { id: number; day: MedivetDayWeek; hours: { hourFrom: string; hourTo: string }[] }[] {
+    private getGroupedReceptionHoursByDayWeek(receptionHours: MedivetVetAvailabilityReceptionHour[]): {
+    id: number;
+    day: MedivetDayWeek;
+    hours: { hourFrom: string; hourTo: string }[];
+  }[] {
         return receptionHours.reduce((acc, cur) => {
             const hours = [ ...(acc[cur.day]?.hours || []) ];
             acc[cur.day] = {

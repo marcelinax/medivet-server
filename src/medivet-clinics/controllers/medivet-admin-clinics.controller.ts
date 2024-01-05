@@ -5,7 +5,6 @@ import {
     Delete,
     Get,
     Param,
-    ParseArrayPipe,
     Post,
     Put,
     Query,
@@ -90,7 +89,7 @@ export class MedivetAdminClinicsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiQuery({
       name: "name",
@@ -152,11 +151,7 @@ export class MedivetAdminClinicsController {
     @Query("flatNumber") flatNumber?: number,
     @Query("street") street?: string,
     @Query("sortingMode") sortingMode?: MedivetSortingModeEnum,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[],
+    @Query("include") include?: string,
     @Query("search") search?: string
   ): Promise<MedivetClinic[]> {
       return this.clinicsService.searchClinics({
@@ -192,7 +187,7 @@ export class MedivetAdminClinicsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
@@ -201,11 +196,7 @@ export class MedivetAdminClinicsController {
   @Get(PathConstants.ID_PARAM)
   async getClinic(
     @Param("id") clinicId: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetClinic> {
       return this.clinicsService.findClinicById(clinicId, include);
   }

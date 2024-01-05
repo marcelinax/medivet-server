@@ -6,7 +6,6 @@ import {
     Get,
     NotFoundException,
     Param,
-    ParseArrayPipe,
     Post,
     Put,
     Query,
@@ -95,7 +94,7 @@ export class MedivetAnimalsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiQuery({
       name: "sortingMode",
@@ -114,15 +113,11 @@ export class MedivetAnimalsController {
   @Get(PathConstants.MY)
   getMyAnimals(
     @CurrentUser() owner: MedivetUser,
-    @Query("search") search: string,
-    @Query("sortingMode") sortingMode: MedivetSortingModeEnum,
-    @Query("pageSize") pageSize: number,
-    @Query("offset") offset: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        optional: true,
-        separator: ","
-    })) include?: string[]
+    @Query("search") search?: string,
+    @Query("sortingMode") sortingMode?: MedivetSortingModeEnum,
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
+    @Query("include") include?: string,
   ): Promise<MedivetAnimal[]> {
       return this.animalsService.serachAllAnimalsAssignedToOwner(owner, {
           search,
@@ -152,7 +147,7 @@ export class MedivetAnimalsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
@@ -162,11 +157,7 @@ export class MedivetAnimalsController {
   async getOwnerAnimal(
     @CurrentUser() owner: MedivetUser,
     @Param("id") animalId: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        optional: true,
-        separator: ","
-    })) include?: string[]
+    @Param("include") include: string,
   ): Promise<MedivetAnimal> {
       return this.animalsService.findOneAnimalAssignedToOwner(animalId, owner, include);
   }
@@ -204,7 +195,7 @@ export class MedivetAnimalsController {
   async uploadNewAnimalProfilePhoto(
     @UploadedFile() file: Express.Multer.File, @Param("id") animalId: number
   ): Promise<MedivetAnimal> {
-      const animal = await this.animalsService.findOneAnimalById(animalId, [ "breed", "coatColor" ]);
+      const animal = await this.animalsService.findOneAnimalById(animalId, "breed,coatColor");
       return this.animalsProfilePhotosService.updateAnimalProfilePhoto(animal, file.path.replaceAll("\\", "/"));
   }
 
@@ -226,7 +217,7 @@ export class MedivetAnimalsController {
   @UseGuards(JwtAuthGuard)
   @Delete(PathConstants.REMOVE_PROFILE_PHOTO + PathConstants.ID_PARAM)
   async removeAnimalProfilePhoto(@Param("id") animalId: number): Promise<MedivetAnimal> {
-      const animal = await this.animalsService.findOneAnimalById(animalId, [ "breed", "coatColor" ]);
+      const animal = await this.animalsService.findOneAnimalById(animalId, "breed,coatColor");
       return this.animalsProfilePhotosService.removeAnimalProfilePhoto(animal);
   }
 
@@ -278,7 +269,7 @@ export class MedivetAnimalsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
@@ -288,11 +279,7 @@ export class MedivetAnimalsController {
   async archivieAnimal(
     @Param("id") animalId: number,
     @CurrentUser() user: MedivetUser,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        optional: true,
-        separator: ","
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetAnimal> {
       const animal = await this.animalsService.findOneAnimalById(animalId, include);
       return this.animalsService.archiveAnimal(animal, user);
@@ -317,7 +304,7 @@ export class MedivetAnimalsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
@@ -327,11 +314,7 @@ export class MedivetAnimalsController {
   async restoreAnimal(
     @Param("id") animalId: number,
     @CurrentUser() user: MedivetUser,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        optional: true,
-        separator: ","
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetAnimal> {
       const animal = await this.animalsService.findOneAnimalById(animalId, include);
       return this.animalsService.restoreAnimal(animal, user);

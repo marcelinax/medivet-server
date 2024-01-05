@@ -25,10 +25,10 @@ export class MedivetOpinionsService {
 
     async createOpinion(user: MedivetUser, createOpinionDto: MedivetCreateOpinionDto): Promise<MedivetOpinion> {
         const { message, rate, vetId, appointmentId } = createOpinionDto;
-        const appointment = await this.appointmentService.findAppointmentById(appointmentId, [ "opinion" ]);
+        const appointment = await this.appointmentService.findAppointmentById(appointmentId, "opinion");
 
         await this.checkIfCanAddOpinionToAppointment(appointment);
-        const possibleVet = await this.usersService.findOneById(vetId, [ "opinions", "opinions.issuer" ]);
+        const possibleVet = await this.usersService.findOneById(vetId, "opinions,opinions.issuer");
 
         if (possibleVet) {
             if (user.id === possibleVet.id) {
@@ -64,7 +64,7 @@ export class MedivetOpinionsService {
     }
 
     async findAllOpinionsAssignedToVet(vetId: number, include?: string[]): Promise<MedivetOpinion[]> {
-        const vet = await this.usersService.findOneById(vetId, [ "opinions", "opinions.issuer" ]);
+        const vet = await this.usersService.findOneById(vetId, "opinions,opinions.issuer");
 
         if (vet) {
             return this.opinionsRepository.find({
@@ -75,7 +75,7 @@ export class MedivetOpinionsService {
     }
 
     async searchVetOpinions(vetId: number, searchOpinionDto: MedivetSearchOpinionDto): Promise<MedivetOpinion[]> {
-        let opinions = await this.findAllOpinionsAssignedToVet(vetId, searchOpinionDto?.include || []);
+        let opinions = await this.findAllOpinionsAssignedToVet(vetId, searchOpinionDto?.include?.split(",") || []);
 
         if (searchOpinionDto.sortingMode) {
             opinions = opinions.sort((a, b) => {

@@ -4,8 +4,8 @@ import {
     Controller,
     Get,
     Param,
-    ParseArrayPipe,
     Post,
+    Put,
     Query,
     UseGuards,
     UseInterceptors
@@ -82,21 +82,22 @@ export class MedivetAppointmentsController {
       description: "Bad authorization",
       type: UnauthorizedExceptionDto
   })
+  // @ApiQuery({
+  //     name: "include",
+  //     required: false,
+  //     type: Array<string>
+  // })
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.ID_PARAM)
   async getAppointment(
     @Param("id") id: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        optional: true,
-        separator: ","
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetAppointment> {
       return this.appointmentsService.findAppointmentById(id, include);
   }
@@ -114,7 +115,7 @@ export class MedivetAppointmentsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiQuery({
       name: "offset",
@@ -136,14 +137,10 @@ export class MedivetAppointmentsController {
   @Get()
   async getAppointments(
     @CurrentUser() user: MedivetUser,
-    @Query("status") status: MedivetAppointmentStatus,
-    @Query("pageSize") pageSize: number,
-    @Query("offset") offset: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        optional: true,
-        separator: ","
-    })) include?: string[]
+    @Query("status") status?: MedivetAppointmentStatus,
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
+    @Query("include") include?: string,
   ): Promise<MedivetAppointment[]> {
       return this.appointmentsService.getAppointments(user, {
           offset,
@@ -151,5 +148,65 @@ export class MedivetAppointmentsController {
           status,
           include
       });
+  }
+
+  @ApiOperation({ summary: "Finishes appointment by vet", })
+  @ApiOkResponse({
+      description: "Returns appointment with changed status to FINISHED",
+      type: MedivetAppointment
+  })
+  @ApiBadRequestResponse({
+      description: "Appointment with this id does not exist",
+      type: BadRequestExceptionDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "include",
+      required: false,
+      type: String
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.VET ])
+  @UseGuards(JwtAuthGuard)
+  @Put(`${PathConstants.ID_PARAM}/${PathConstants.FINISH}`)
+  async finishAppointment(
+    @Param("id") id: number,
+    @Param("include") include: string,
+  ): Promise<MedivetAppointment> {
+      return this.appointmentsService.finishAppointment(id, include);
+  }
+
+  @ApiOperation({ summary: "Cancels appointment by vet or patient", })
+  @ApiOkResponse({
+      description: "Returns appointment with changed status to CANCELLED",
+      type: MedivetAppointment
+  })
+  @ApiBadRequestResponse({
+      description: "Appointment with this id does not exist",
+      type: BadRequestExceptionDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "include",
+      required: false,
+      type: String
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.VET, MedivetUserRole.PATIENT ])
+  @UseGuards(JwtAuthGuard)
+  @Put(`${PathConstants.ID_PARAM}/${PathConstants.CANCEL}`)
+  async cancelAppointment(
+    @Param("id") id: number,
+    @Param("include") include: string,
+  ): Promise<MedivetAppointment> {
+      return this.appointmentsService.cancelAppointment(id, include);
   }
 }

@@ -44,10 +44,10 @@ export class MedivetClinicsService {
 
     }
 
-    async findClinicById(id: number, include?: string[]): Promise<MedivetClinic> {
+    async findClinicById(id: number, include?: string): Promise<MedivetClinic> {
         const clinic = await this.clinicsRepository.findOne({
             where: { id },
-            relations: include ?? [],
+            relations: include?.split(",") ?? [],
         });
 
         if (!clinic) {
@@ -150,10 +150,10 @@ export class MedivetClinicsService {
         }
     }
 
-    async getAssignedVetClinics(vetId: number, searchClinicDto: MedivetSearchClinicDto, include?: string[]): Promise<MedivetClinic[]> {
+    async getAssignedVetClinics(vetId: number, searchClinicDto: MedivetSearchClinicDto, include?: string): Promise<MedivetClinic[]> {
         let clinics = await this.clinicsRepository.find({
             where: { vets: { id: vetId } },
-            relations: include ?? [],
+            relations: include?.split(",") ?? [],
         });
 
         if (searchClinicDto.search) {

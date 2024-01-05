@@ -5,7 +5,6 @@ import {
     Delete,
     Get,
     Param,
-    ParseArrayPipe,
     Post,
     Put,
     Query,
@@ -91,7 +90,7 @@ export class MedivetVetAvailabilitiesController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiQuery({
       name: "clinicId",
@@ -119,11 +118,7 @@ export class MedivetVetAvailabilitiesController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAllVetAvailabilities(
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[],
+    @Query("include") include?: string,
     @Query("clinicId") clinicId?: number,
     @Query("vetId") vetId?: number,
     @Query("pageSize") pageSize?: number,
@@ -157,7 +152,7 @@ export class MedivetVetAvailabilitiesController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
@@ -166,11 +161,7 @@ export class MedivetVetAvailabilitiesController {
   @Get(PathConstants.ID_PARAM)
   async getVetAvailability(
     @Param("id") vetAvailabilityId: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetVetAvailability> {
       return this.vetAvailabilitiesService.findVetAvailabilityById(vetAvailabilityId, include);
   }

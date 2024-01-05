@@ -71,10 +71,10 @@ export class MedivetUsersService {
         return user;
     }
 
-    async findOneById(id: number, include?: string[]): Promise<MedivetUser> {
+    async findOneById(id: number, include?: string): Promise<MedivetUser> {
         const user = await this.usersRepository.findOne({
             where: { id },
-            relations: include ?? []
+            relations: include?.split(",") ?? []
         });
         if (!user) {
             throw new NotFoundException({
@@ -148,7 +148,7 @@ export class MedivetUsersService {
         await this.usersRepository.save(user);
     }
 
-    async findVetById(id: number, include?: string[]): Promise<MedivetUser> {
+    async findVetById(id: number, include?: string): Promise<MedivetUser> {
         const possibleVet = await this.findOneById(id, include);
 
         if (possibleVet) {
@@ -203,7 +203,7 @@ export class MedivetUsersService {
         const { city, name, specializationIds, medicalServiceIds, availableDates } = searchVetDto;
         let vets = await this.usersRepository.find({
             where: { role: MedivetUserRole.VET },
-            relations: searchVetDto?.include ?? []
+            relations: searchVetDto?.include?.split(",") ?? []
         });
 
         if (city) {

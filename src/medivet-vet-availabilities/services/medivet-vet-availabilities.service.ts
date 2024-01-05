@@ -99,10 +99,10 @@ export class MedivetVetAvailabilitiesService {
         };
     }
 
-    async findVetAvailabilityById(id: number, include?: string[]): Promise<MedivetVetAvailability> {
+    async findVetAvailabilityById(id: number, include?: string): Promise<MedivetVetAvailability> {
         const vetAvailability = await this.vetAvailabilitiesRepository.findOne({
             where: { id },
-            relations: include ?? []
+            relations: include?.split(",") ?? []
         });
 
         if (!vetAvailability) {
@@ -134,7 +134,7 @@ export class MedivetVetAvailabilitiesService {
                 user: { id: vetId ?? Not(undefined) },
                 clinic: { id: clinicId ?? Not(undefined) },
             },
-            relations: include || []
+            relations: include?.split(",") || []
         });
 
         return paginateData(vetAvailabilities, {
@@ -149,7 +149,7 @@ export class MedivetVetAvailabilitiesService {
         user: MedivetUser
     ): Promise<MedivetVetAvailability> {
         const { specializationId, receptionHours } = updateVetAvailabilityDto;
-        const availability = await this.findVetAvailabilityById(vetAvailabilityId, [ "specialization" ]);
+        const availability = await this.findVetAvailabilityById(vetAvailabilityId, "specialization");
 
         const isSpecializationDifferent = availability.specialization.id !== specializationId;
         if (isSpecializationDifferent) {
@@ -219,7 +219,7 @@ export class MedivetVetAvailabilitiesService {
     }
 
     async removeVetAvailability(vetAvailabilityId: number): Promise<OkMessageDto> {
-        const vetAvailability = await this.findVetAvailabilityById(vetAvailabilityId, [ "specialization", "receptionHours" ]);
+        const vetAvailability = await this.findVetAvailabilityById(vetAvailabilityId, "specialization,receptionHours");
         const receptionHoursRelatedToVetAvailability = await this.vetReceptionHourRepository.find({ where: { vetAvailability: { id: vetAvailabilityId } } });
 
         await receptionHoursRelatedToVetAvailability.forEach(receptionHour => this.removeReceptionHourRelatedToVetAvailability(receptionHour));

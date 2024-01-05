@@ -74,10 +74,10 @@ export class MedivetVetProvidedMedicalServiceService {
         return vetProvidedMedicalService;
     }
 
-    async findVetProvidedMedicalServiceById(providedMedicalServiceId: number, include?: string[]): Promise<MedivetVetProvidedMedicalService> {
+    async findVetProvidedMedicalServiceById(providedMedicalServiceId: number, include?: string): Promise<MedivetVetProvidedMedicalService> {
         const providedMedicalService = await this.vetProvidedMedicalServicesRepository.findOne({
             where: { id: providedMedicalServiceId },
-            relations: include ?? []
+            relations: include?.split(",") ?? []
         });
 
         if (!providedMedicalService) {
@@ -103,7 +103,7 @@ export class MedivetVetProvidedMedicalServiceService {
                 user: { id: vetId },
                 clinic: { id: clinicId },
             },
-            relations: include ?? []
+            relations: include?.split(",") ?? []
         });
 
         if (specializationIds && specializationIds.length > 0) {
@@ -133,8 +133,8 @@ export class MedivetVetProvidedMedicalServiceService {
         });
     }
 
-    async getAllVetProvidedMedicalServices(offsetPaginationDto: OffsetPaginationDto, include?: string[]): Promise<MedivetVetProvidedMedicalService[]> {
-        const vetProvidedMedicalServices = await this.vetProvidedMedicalServicesRepository.find({ relations: include ?? [] });
+    async getAllVetProvidedMedicalServices(offsetPaginationDto: OffsetPaginationDto, include?: string): Promise<MedivetVetProvidedMedicalService[]> {
+        const vetProvidedMedicalServices = await this.vetProvidedMedicalServicesRepository.find({ relations: include?.split(",") ?? [] });
         return paginateData(vetProvidedMedicalServices, {
             offset: offsetPaginationDto.offset,
             pageSize: offsetPaginationDto.pageSize
@@ -150,11 +150,11 @@ export class MedivetVetProvidedMedicalServiceService {
 
     async getProvidedMedicalServicesForVet(
         vetId: number,
-        include?: string[]
+        include?: string
     ): Promise<MedivetVetProvidedMedicalService[]> {
         return this.vetProvidedMedicalServicesRepository.find({
             where: { user: { id: vetId }, },
-            relations: include ?? []
+            relations: include?.split(",") ?? []
         });
     }
 

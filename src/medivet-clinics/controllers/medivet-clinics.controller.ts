@@ -1,13 +1,4 @@
-import {
-    ClassSerializerInterceptor,
-    Controller,
-    Get,
-    Param,
-    ParseArrayPipe,
-    Query,
-    UseGuards,
-    UseInterceptors,
-} from "@nestjs/common";
+import { ClassSerializerInterceptor, Controller, Get, Param, Query, UseGuards, UseInterceptors, } from "@nestjs/common";
 import {
     ApiBearerAuth,
     ApiNotFoundResponse,
@@ -64,7 +55,7 @@ export class MedivetClinicsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiQuery({
       name: "search",
@@ -77,18 +68,15 @@ export class MedivetClinicsController {
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.UNASSIGNED)
     async getAllClinics(@CurrentUser() user: MedivetUser,
-                      @Query("pageSize") pageSize: number,
-                      @Query("offset") offset: number,
-                      @Query("include", new ParseArrayPipe({
-                          items: String,
-                          separator: ",",
-                          optional: true,
-                      })) include?: string[],
+                      @Query("pageSize") pageSize?: number,
+                      @Query("offset") offset?: number,
+                      @Query("include") include?: string,
                       @Query("search") search?: string,): Promise<MedivetClinic[]> {
         return this.clinicsService.getNotAssignedVetClinics(user, {
             pageSize,
             offset,
             search,
+            include
         });
     }
 
@@ -113,7 +101,7 @@ export class MedivetClinicsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
@@ -122,14 +110,10 @@ export class MedivetClinicsController {
   @Get(PathConstants.ASSIGNED)
   async getAllClinicsAssignedToVet(
     @CurrentUser() user: MedivetUser,
-    @Query("pageSize") pageSize: number,
-    @Query("offset") offset: number,
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
     @Query("search") search?: string,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true,
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetClinic[]> {
       return this.clinicsService.getAssignedVetClinics(user.id, {
           search,
@@ -157,7 +141,7 @@ export class MedivetClinicsController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
@@ -166,11 +150,7 @@ export class MedivetClinicsController {
   @Get(PathConstants.ID_PARAM)
   async getClinic(
     @Param("id") clinicId: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true,
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetClinic> {
       return this.clinicsService.findClinicById(clinicId, include);
   }

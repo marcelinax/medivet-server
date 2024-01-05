@@ -56,7 +56,7 @@ export class MedivetVetSpecializationMedicalServiceService {
                 take: pageSize,
                 skip: offset,
                 where: { name: search ? ILike(`%${search}%`) : Not("") },
-                relations: searchVetSpecializationMedicalServiceDto.include ?? []
+                relations: searchVetSpecializationMedicalServiceDto.include?.split(",") ?? []
             })
         ];
 
@@ -67,10 +67,10 @@ export class MedivetVetSpecializationMedicalServiceService {
         return vetSpecializationMedicalServices;
     }
 
-    async findOneVetSpecializationMedicalServiceById(id: number, include?: string[]): Promise<MedivetVetSpecializationMedicalService> {
+    async findOneVetSpecializationMedicalServiceById(id: number, include?: string): Promise<MedivetVetSpecializationMedicalService> {
         const vetSpecializationMedicalService = await this.vetSpecializationMedicalServiceRepository.findOne({
             where: { id },
-            relations: include ?? []
+            relations: include?.split(",") ?? []
         });
         if (!vetSpecializationMedicalService) {
             throw new NotFoundException({
@@ -82,7 +82,7 @@ export class MedivetVetSpecializationMedicalServiceService {
     }
 
     async removeVetSpecializationMedicalService(id: number): Promise<OkMessageDto> {
-        const vetSpecializationMedicalService = await this.findOneVetSpecializationMedicalServiceById(id, [ "specialization" ]);
+        const vetSpecializationMedicalService = await this.findOneVetSpecializationMedicalServiceById(id, "specialization");
 
         const vetSpecializationMedicalServiceInUse = await this.checkIfVetSpecializationMedicalServiceIsInUse(vetSpecializationMedicalService);
 
@@ -101,7 +101,7 @@ export class MedivetVetSpecializationMedicalServiceService {
     async updateVetSpecializationMedicalService(
         vetSpecializationMedicalServiceId: number,
         updateVetSpecializationMedicalServiceDto: MedivetCreateVetSpecializationMedicalServiceDto,
-        include?: string[]
+        include?: string
     ): Promise<MedivetVetSpecializationMedicalService> {
         const vetSpecializationMedicalService = await this.findOneVetSpecializationMedicalServiceById(vetSpecializationMedicalServiceId, include);
         const { name, specializationId } = updateVetSpecializationMedicalServiceDto;

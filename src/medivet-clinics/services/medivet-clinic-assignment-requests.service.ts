@@ -42,7 +42,7 @@ export class MedivetClinicAssignmentRequestService {
     }
 
     async requestToAssignClinic(vet: MedivetUser, clinicId: number): Promise<OkMessageDto> {
-        const clinic = await this.clinicsService.findClinicById(clinicId, [ "vets" ]);
+        const clinic = await this.clinicsService.findClinicById(clinicId, "vets");
         const isAlreadyAssigned = this.clinicsService.checkIfClinicIsAlreadyAssignedToVet(clinic, vet);
 
         if (isAlreadyAssigned) {
@@ -73,7 +73,7 @@ export class MedivetClinicAssignmentRequestService {
     }
 
     async requestToUnassignToClinic(vet: MedivetUser, clinicId: number): Promise<OkMessageDto> {
-        const clinic = await this.clinicsService.findClinicById(clinicId, [ "vets" ]);
+        const clinic = await this.clinicsService.findClinicById(clinicId, "vets");
         const isAlreadyAssigned = this.clinicsService.checkIfClinicIsAlreadyAssignedToVet(clinic, vet);
 
         if (!isAlreadyAssigned) {

@@ -43,24 +43,24 @@ export class MedivetAnimalsService {
         return animalToReturn;
     }
 
-    async findOneAnimalById(id: number, include?: string[]): Promise<MedivetAnimal> {
+    async findOneAnimalById(id: number, include?: string): Promise<MedivetAnimal> {
         const animal = await this.animalsRepository.findOne(
             {
                 where: { id },
-                relations: include ?? []
+                relations: include?.split(",") ?? []
             }
         );
         if (!animal) throw new NotFoundException(ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST);
         return animal;
     }
 
-    async findOneAnimalAssignedToOwner(animalId: number, user: MedivetUser, include?: string[]): Promise<MedivetAnimal> {
+    async findOneAnimalAssignedToOwner(animalId: number, user: MedivetUser, include?: string): Promise<MedivetAnimal> {
         const animal = await this.animalsRepository.findOne({
             where: {
                 id: animalId,
                 owner: { id: user.id }
             },
-            relations: include ?? []
+            relations: include?.split(",") ?? []
         });
         if (!animal) throw new NotFoundException([ ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST ]);
         delete animal.owner;
@@ -96,7 +96,7 @@ export class MedivetAnimalsService {
     }
 
     async updateAnimal(animalId: number, user: MedivetUser, updateAnimalDto: MedivetCreateAnimalDto): Promise<MedivetAnimal> {
-        const animal = await this.findOneAnimalById(animalId, [ "owner", "breed", "coatColor" ]);
+        const animal = await this.findOneAnimalById(animalId, "owner,breed,coatColor");
         const { birthDate, breedId, coatColorId, gender, name, type } = updateAnimalDto;
 
         if (!this.checkIfUserIsAnimalOwner(user, animal)) throw new UnauthorizedException();
@@ -140,11 +140,11 @@ export class MedivetAnimalsService {
         if (birthDate >= new Date()) throw new BadRequestException(ErrorMessagesConstants.BIRTH_DATE_CANNOT_BE_LATER_THAN_TODAY);
     }
 
-    private async findAllAnimalsAssignedToOwner(user: MedivetUser, include?: string[]): Promise<MedivetAnimal[]> {
+    private async findAllAnimalsAssignedToOwner(user: MedivetUser, include?: string): Promise<MedivetAnimal[]> {
         return this.animalsRepository.find(
             {
                 where: { owner: { id: user.id } },
-                relations: include ?? []
+                relations: include?.split(",") ?? []
             }
         );
     }

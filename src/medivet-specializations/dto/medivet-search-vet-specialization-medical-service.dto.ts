@@ -17,8 +17,8 @@ export class MedivetSearchVetSpecializationMedicalServiceDto extends OffsetPagin
       required: false
   })
   @IsOptional()
-  @IsArray()
-  include?: string[];
+  @IsString()
+  include?: string;
 
   @ApiProperty({
       required: false,

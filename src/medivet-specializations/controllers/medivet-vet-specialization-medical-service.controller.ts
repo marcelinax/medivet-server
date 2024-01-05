@@ -73,7 +73,7 @@ export class MedivetVetSpecializationMedicalServiceController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
@@ -82,11 +82,7 @@ export class MedivetVetSpecializationMedicalServiceController {
   @Get(PathConstants.ID_PARAM)
   async getVetSpecializationMedicalService(
     @Param("id") vetSpecializationMedicalServiceId: number,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetVetSpecializationMedicalService> {
       return this.vetSpecializationMedicalServiceService.findOneVetSpecializationMedicalServiceById(vetSpecializationMedicalServiceId, include);
   }
@@ -107,7 +103,7 @@ export class MedivetVetSpecializationMedicalServiceController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiQuery({
       name: "search",
@@ -134,13 +130,9 @@ export class MedivetVetSpecializationMedicalServiceController {
   @Get()
   async searchVetSpecializationMedicalServices(
     @Query("pageSize") pageSize: number,
-    @Query("offset") offset: number,
+    @Query("offset") offset?: number,
     @Query("search") search?: string,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[],
+    @Query("include") include?: string,
     @Query("specializationIds", new ParseArrayPipe({
         items: Number,
         separator: ",",
@@ -187,7 +179,7 @@ export class MedivetVetSpecializationMedicalServiceController {
   @ApiQuery({
       name: "include",
       required: false,
-      type: Array<string>
+      type: String
   })
   @ApiOperation({
       summary: "Updates existing vet specialization medical service",
@@ -217,11 +209,7 @@ export class MedivetVetSpecializationMedicalServiceController {
   async updateVetSpecialization(
     @Param("id") vetSpecializationMedicalServiceId: number,
     @Body() updateVetSpecializationMedicalServiceDto: MedivetCreateVetSpecializationMedicalServiceDto,
-    @Query("include", new ParseArrayPipe({
-        items: String,
-        separator: ",",
-        optional: true
-    })) include?: string[]
+    @Query("include") include?: string
   ): Promise<MedivetVetSpecializationMedicalService> {
       return this.vetSpecializationMedicalServiceService.updateVetSpecializationMedicalService(
           vetSpecializationMedicalServiceId,
