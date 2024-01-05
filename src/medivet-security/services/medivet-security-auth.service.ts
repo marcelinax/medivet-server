@@ -39,10 +39,12 @@ export class MedivetSecurityAuthService {
         }
 
         if (!(await this.securityHashingService.validateHashingValue(password, user.password))) {
-            throw new UnauthorizedException({
-                message: ErrorMessagesConstants.WRONG_PASSWORD,
-                property: "password"
-            });
+            throw new UnauthorizedException([
+                {
+                    message: ErrorMessagesConstants.WRONG_PASSWORD,
+                    property: "password"
+                }
+            ]);
         }
 
         return user;

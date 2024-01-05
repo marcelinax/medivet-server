@@ -175,7 +175,7 @@ export class MedivetAppointmentsController {
   @Put(`${PathConstants.ID_PARAM}/${PathConstants.FINISH}`)
   async finishAppointment(
     @Param("id") id: number,
-    @Query("include") include: string,
+    @Query("include") include?: string,
   ): Promise<MedivetAppointment> {
       return this.appointmentsService.finishAppointment(id, include);
   }
@@ -205,7 +205,7 @@ export class MedivetAppointmentsController {
   @Put(`${PathConstants.ID_PARAM}/${PathConstants.CANCEL}`)
   async cancelAppointment(
     @Param("id") id: number,
-    @Query("include") include: string,
+    @Query("include") include?: string,
   ): Promise<MedivetAppointment> {
       return this.appointmentsService.cancelAppointment(id, include);
   }
