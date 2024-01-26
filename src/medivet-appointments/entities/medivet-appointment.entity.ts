@@ -35,4 +35,8 @@ export class MedivetAppointment {
   @ApiProperty({ type: () => MedivetOpinion })
   @OneToOne(() => MedivetOpinion, opinion => opinion.appointment, { eager: true })
   opinion: MedivetOpinion;
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  finishedDate: Date;
 }

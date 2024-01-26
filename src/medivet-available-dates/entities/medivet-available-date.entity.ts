@@ -22,13 +22,6 @@ export class MedivetAvailableDate {
   })
   day: MedivetVetAvailabilityDay;
 
-  // @ApiProperty()
-  // @Column({
-  //     nullable: false,
-  //     type: "time"
-  // })
-  // hour: string;
-
   @ApiProperty()
   @CreateDateColumn({ nullable: false })
   date: Date;

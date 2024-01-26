@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import moment from "moment";
 import { Repository } from "typeorm";
 
 import { MedivetAnimalsService } from "@/medivet-animals/services/medivet-animals.service";
@@ -85,6 +86,7 @@ export class MedivetAppointmentsService {
 
         if (appointment.status === "IN_PROGRESS") {
             appointment.status = MedivetAppointmentStatus.FINISHED;
+            appointment.finishedDate = moment().toDate();
             await this.appointmentRepository.save(appointment);
 
             return appointment;
