@@ -54,20 +54,6 @@ export class MedivetAnimalsService {
         return animal;
     }
 
-    async findOneAnimalAssignedToOwner(animalId: number, user: MedivetUser, include?: string): Promise<MedivetAnimal> {
-        const animal = await this.animalsRepository.findOne({
-            where: {
-                id: animalId,
-                owner: { id: user.id }
-            },
-            relations: include?.split(",") ?? []
-        });
-        if (!animal) throw new NotFoundException([ ErrorMessagesConstants.ANIMAL_WITH_THIS_ID_DOES_NOT_EXIST ]);
-        delete animal.owner;
-
-        return animal;
-    }
-
     async serachAllAnimalsAssignedToOwner(user: MedivetUser, searchAnimalDto: MedivetSearchAnimalDto): Promise<MedivetAnimal[]> {
         let animals = await this.findAllAnimalsAssignedToOwner(user, searchAnimalDto?.include);
 

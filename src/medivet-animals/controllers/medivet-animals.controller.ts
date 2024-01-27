@@ -128,12 +128,9 @@ export class MedivetAnimalsController {
       });
   }
 
-  @ApiOperation({
-      summary: "Get authorized user animal by id",
-      description: "Returns authorized user's animal if it is its owner"
-  })
+  @ApiOperation({ summary: "Get animal by id", })
   @ApiOkResponse({
-      description: "Returns owner's animal",
+      description: "Returns animal with data",
       type: MedivetAnimal
   })
   @ApiNotFoundResponse({
@@ -141,7 +138,7 @@ export class MedivetAnimalsController {
       type: BadRequestExceptionDto
   })
   @ApiUnauthorizedResponse({
-      description: "Bad authorization / user is not owner for animal",
+      description: "Bad authorization",
       type: UnauthorizedExceptionDto
   })
   @ApiQuery({
@@ -151,15 +148,14 @@ export class MedivetAnimalsController {
   })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
-  @Role([ MedivetUserRole.PATIENT ])
+  @Role([ MedivetUserRole.PATIENT, MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
-  @Get(PathConstants.MY + PathConstants.ID_PARAM)
-  async getOwnerAnimal(
-    @CurrentUser() owner: MedivetUser,
+  @Get(PathConstants.ID_PARAM)
+  async getAnimal(
     @Param("id") animalId: number,
-    @Param("include") include: string,
+    @Query("include") include: string,
   ): Promise<MedivetAnimal> {
-      return this.animalsService.findOneAnimalAssignedToOwner(animalId, owner, include);
+      return this.animalsService.findOneAnimalById(animalId, include);
   }
 
   @ApiOperation({
