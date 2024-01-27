@@ -15,6 +15,7 @@ export class PathConstants {
   public static AVAILABLE_DATES = "available-dates";
   public static APPOINTMENTS = "appointments";
   public static FAVOURITE_VETS = "favourite-vets";
+  public static APPOINTMENT_DIARIES = "appointment-diaries";
 
   public static LOGIN = "login";
   public static ME = "me";
@@ -46,4 +47,5 @@ export class PathConstants {
   public static AMOUNT = "amount";
   public static FINISH = "finish";
   public static CANCEL = "cancel";
+  public static ANIMAL = "animal";
 }

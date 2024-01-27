@@ -82,11 +82,6 @@ export class MedivetAppointmentsController {
       description: "Bad authorization",
       type: UnauthorizedExceptionDto
   })
-  // @ApiQuery({
-  //     name: "include",
-  //     required: false,
-  //     type: Array<string>
-  // })
   @ApiQuery({
       name: "include",
       required: false,

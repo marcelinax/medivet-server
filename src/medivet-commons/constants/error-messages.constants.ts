@@ -57,4 +57,8 @@ export class ErrorMessagesConstants {
   public static CANNOT_FIND_CLINIC_COORDINATES = "Cannot find clinic coordinates.";
   public static CANNOT_FINISH_APPOINTMENT_IN_DIFFERENT_STATUS_THAN_IN_PROGRESS = "Cannot finish appointment in different status than \"IN_PROGRESS\"";
   public static CANNOT_CANCEL_APPOINTMENT_IN_DIFFERENT_STATUS_THAN_IN_PROGRESS = "Cannot cancel appointment in different status than \"IN_PROGRESS\"";
+  public static APPOINTMENT_ALREADY_HAS_DIARY = "Appointment already has diary.";
+  public static CANNOT_ADD_DIARY_TO_NOT_FINISHED_APPOINTMENT = "Cannot add a diary to not finished appointment.";
+  public static IT_IS_TOO_LATE_TO_ADD_DIARY_TO_APPOINTMENT = "It is too late to add a diary to an appointment.";
+  public static APPOINTMENT_DIARY_WITH_THIS_ID_DOES_NOT_EXIST = "Appointment diary with this id does not exist.";
 }

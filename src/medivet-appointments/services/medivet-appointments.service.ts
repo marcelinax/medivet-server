@@ -39,7 +39,7 @@ export class MedivetAppointmentsService {
         const medicalService = await this.medicalProvidedServicesService.findVetProvidedMedicalServiceById(medicalServiceId);
         const animal = await this.animalsService.findOneAnimalById(animalId);
 
-        const newAppointment = await this.appointmentRepository.create({
+        const newAppointment = this.appointmentRepository.create({
             medicalService,
             animal,
             date,

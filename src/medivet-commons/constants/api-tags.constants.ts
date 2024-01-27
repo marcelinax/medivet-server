@@ -14,4 +14,5 @@ export class ApiTagsConstants {
   public static ADMIN_CLINICS = "admin-clinics";
   public static VET_PROVIDED_MEDICAL_SERVICES = "vet-provided-medical-services";
   public static AVAILABLE_DATES = "available-dates";
+  public static APPOINTMENT_DIARIES = "appointment-diaries";
 }
