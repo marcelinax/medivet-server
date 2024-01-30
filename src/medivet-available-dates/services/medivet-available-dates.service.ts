@@ -5,7 +5,6 @@ import { Moment } from "moment/moment";
 import { MoreThan, Repository } from "typeorm";
 
 import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
-import { MedivetSearchAvailableDatesDto } from "@/medivet-available-dates/dto/medivet-search-available-dates.dto";
 import { MedivetAvailableDate } from "@/medivet-available-dates/types/types";
 import { MedivetAvailableDatesFilter, MedivetDayWeek, MedivetVetAvailabilityDay } from "@/medivet-commons/enums/enums";
 import { parseTimeStringToDate } from "@/medivet-commons/utils/date";
@@ -26,7 +25,6 @@ export class MedivetAvailableDatesService {
     async getAvailableDatesForMedicalService(
         vetId: number,
         medicalServiceId: number,
-        searchAvailableDatesDto?: MedivetSearchAvailableDatesDto
     ): Promise<MedivetAvailableDate[]> {
         const medicalService = await this.providedMedicalServicesService.findVetProvidedMedicalServiceById(medicalServiceId, "medicalService,medicalService.specialization");
         const vetAvailabilities = await this.vetAvailabilityRepository.find({
@@ -39,10 +37,8 @@ export class MedivetAvailableDatesService {
 
         const medicalServiceDuration = medicalService.duration;
         const availableDates: MedivetAvailableDate[] = [];
-        const maxAvailableDate = this.getMaxAvailableDate();
-        const nearestMonth = searchAvailableDatesDto?.month || maxAvailableDate.getMonth();
         const now = moment();
-        const remainingDaysOfMonth = this.getDaysForMonth(nearestMonth);
+        const remainingDays = this.getNext30DatesFromNow();
 
         const appointments = await this.appointmentRepository.find({
             where: {
@@ -52,9 +48,8 @@ export class MedivetAvailableDatesService {
             relations: [ "medicalService" ]
         });
 
-        remainingDaysOfMonth.forEach((remainingDay) => {
-            let thisDay = moment().set({
-                date: remainingDay,
+        remainingDays.forEach((remainingDay) => {
+            let thisDay = remainingDay.clone().set({
                 hours: 0,
                 minutes: 0,
                 seconds: 0,
@@ -109,8 +104,7 @@ export class MedivetAvailableDatesService {
                         const possibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate);
                         totalPossibleReceptionHourDates = [ ...totalPossibleReceptionHourDates, ...possibleReceptionHourDates ];
                     });
-                    this.getAllAvailableReceptionHourDates(totalPossibleReceptionHourDates, parsedAppointments, availableDates, receptionHourDay.day, moment().set({
-                        date: remainingDay,
+                    this.getAllAvailableReceptionHourDates(totalPossibleReceptionHourDates, parsedAppointments, availableDates, receptionHourDay.day, remainingDay.set({
                         hours: 0,
                         minutes: 0,
                         seconds: 0,
@@ -136,10 +130,8 @@ export class MedivetAvailableDatesService {
         });
 
         const medicalServiceDuration = medicalService.duration;
-        const maxAvailableDate = this.getMaxAvailableDate();
-        const nearestMonth = maxAvailableDate.getMonth();
         const now = moment();
-        const remainingDaysOfMonth = this.getDaysForMonth(nearestMonth);
+        const remainingDays = this.getNext30DatesFromNow();
 
         const appointments = await this.appointmentRepository.find({
             where: {
@@ -150,11 +142,8 @@ export class MedivetAvailableDatesService {
         });
         let result = undefined;
 
-        for (let i = 0; i < remainingDaysOfMonth.length; i++) {
-            const remainingDay = remainingDaysOfMonth[i];
-
-            let thisDay = moment().set({
-                date: remainingDay,
+        for (let i = 0; i < remainingDays.length; i++) {
+            let thisDay = remainingDays[i].set({
                 hours: 0,
                 minutes: 0,
                 seconds: 0,
@@ -242,31 +231,28 @@ export class MedivetAvailableDatesService {
         });
 
         const medicalServiceDuration = medicalService.duration;
-        let remainingDays: number[] = [];
+        let remainingDays: moment.Moment[] = [];
         const now = moment();
         let maxAvailableDate;
 
         switch (availableDatesFilter) {
             case MedivetAvailableDatesFilter.TODAY: {
                 maxAvailableDate = now.clone().startOf("day");
-                remainingDays.push(maxAvailableDate.date());
+                remainingDays.push(maxAvailableDate);
                 break;
             }
             case MedivetAvailableDatesFilter.WITHIN_3_DAYS: {
                 const startDate = now.clone().add(1, "day");
-                const endDate = startDate.clone().add(2, "day");
-                const startDay = startDate.date();
-                const endDay = endDate.date();
-                for (let i = startDay; i <= endDay; i++) {
-                    remainingDays.push(i);
+                for (let i = 0; i < 3; i++) {
+                    remainingDays.push(startDate.clone());
+                    startDate.add(1, "days");
                 }
-                maxAvailableDate = endDate;
+                maxAvailableDate = remainingDays[remainingDays.length - 1];
                 break;
             }
             case MedivetAvailableDatesFilter.WHENEVER: {
                 maxAvailableDate = this.getMaxAvailableDate();
-                const nearestMonth = maxAvailableDate.getMonth();
-                remainingDays = this.getDaysForMonth(nearestMonth);
+                remainingDays = this.getNext30DatesFromNow();
             }
         }
 
@@ -281,9 +267,7 @@ export class MedivetAvailableDatesService {
 
         for (let i = 0; i < remainingDays.length; i++) {
             if (result) break;
-            const remainingDay = remainingDays[i];
-            let thisDay = moment().set({
-                date: remainingDay,
+            let thisDay = remainingDays[i].set({
                 hours: 0,
                 minutes: 0,
                 seconds: 0,
@@ -374,28 +358,26 @@ export class MedivetAvailableDatesService {
         }, []);
     }
 
-    private getDaysForMonth(month: number): number[] {
-        const today = moment();
-        const day = today.date();
-
-        const daysInMonth = today.add(month, "month").daysInMonth();
-        const days: number[] = [];
-        for (let i = day; i <= daysInMonth; i++) {
-            days.push(i);
+    private getNext30DatesFromNow(): moment.Moment[] {
+        const dates: moment.Moment[] = [];
+        const now = moment();
+        for (let i = 0; i < 30; i++) {
+            dates.push(now.clone());
+            now.add(1, "day");
         }
-        return days;
+        return dates;
     }
 
     private getMaxAvailableDate(): Date {
         const
-            MAX_AVAILABLE_NEXT_MONTH = 1;
+            MAX_AVAILABLE_DAYS = 30;
         const
             now = moment().set({
                 hour: 0,
                 minute: 0,
                 second: 0
             });
-        const maxAvailableDate = now.add(MAX_AVAILABLE_NEXT_MONTH, "month");
+        const maxAvailableDate = now.add(MAX_AVAILABLE_DAYS, "days");
         return maxAvailableDate.toDate();
     }
 

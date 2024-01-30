@@ -72,19 +72,13 @@ export class MedivetAvailableDatesController {
       required: true,
       type: Number
   })
-  @ApiQuery({
-      name: "month",
-      required: false,
-      type: Number
-  })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAvailableDatesForMedicalService(
     @Query("vetId") vetId: number,
     @Query("medicalServiceId") medicalServiceId: number,
-    @Query("month") month?: number,
   ): Promise<any[]> {
-      return this.availableDatesService.getAvailableDatesForMedicalService(vetId, medicalServiceId, { month });
+      return this.availableDatesService.getAvailableDatesForMedicalService(vetId, medicalServiceId);
   }
 }

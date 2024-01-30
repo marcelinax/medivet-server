@@ -338,7 +338,7 @@ export class MedivetUsersService {
             const vet1OpinionsAverageRate = vet1Opinions.length === 0 ? 0 : vet1Opinions.reduce((acc, cur) => acc + cur.rate, 0) / vet1Opinions.length;
             const vet2OpinionsAverageRate = vet2Opinions.length === 0 ? 0 : vet2Opinions.reduce((acc, cur) => acc + cur.rate, 0) / vet2Opinions.length;
 
-            return vet1OpinionsAverageRate - vet2OpinionsAverageRate;
+            return vet2OpinionsAverageRate - vet1OpinionsAverageRate;
         });
 
         return paginateData(vets, {
