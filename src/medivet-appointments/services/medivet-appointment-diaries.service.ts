@@ -69,11 +69,20 @@ export class MedivetAppointmentDiariesService {
         animalId: number,
         searchAppointmentDiaryDto: MedivetSearchAppointmentDiaryDto
     ): Promise<MedivetAppointmentDiary[]> {
-        const { offset, pageSize, include } = searchAppointmentDiaryDto;
-        const diaries = await this.appointmentDiaryRepository.find({
+        const { offset, pageSize, include, medicalServiceIds, appointmentDate } = searchAppointmentDiaryDto;
+        let diaries = await this.appointmentDiaryRepository.find({
             where: { appointment: { animal: { id: animalId } } },
             relations: include.split(","),
         });
+
+        if (medicalServiceIds && medicalServiceIds.length > 0) {
+            diaries = diaries.filter(diary => medicalServiceIds.includes(diary.appointment?.medicalService?.medicalService?.id));
+        }
+
+        if (appointmentDate) {
+            diaries = diaries.filter(diary => diary.appointment?.date &&
+        moment(diary.appointment.date).format("DD.MM.YYYY") === moment(appointmentDate).format("DD.MM.YYYY"));
+        }
 
         diaries.sort((a, b) => b.date.getTime() - a.date.getTime());
 

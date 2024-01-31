@@ -4,6 +4,7 @@ import {
     Controller,
     Get,
     Param,
+    ParseArrayPipe,
     Post,
     Query,
     UseGuards,
@@ -120,6 +121,16 @@ export class MedivetAppointmentDiariesController {
       required: false,
       type: Number
   })
+  @ApiQuery({
+      name: "medicalServiceIds",
+      required: false,
+      type: Array<number>
+  })
+  @ApiQuery({
+      name: "appointmentDatte",
+      required: false,
+      type: Date
+  })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.ANIMAL + PathConstants.ID_PARAM)
@@ -128,11 +139,19 @@ export class MedivetAppointmentDiariesController {
     @Query("include") include: string,
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
+    @Query("medicalServiceIds", new ParseArrayPipe({
+        items: Number,
+        separator: ",",
+        optional: true
+    })) medicalServiceIds?: number[],
+    @Query("appointmentDate") appointmentDate?: string
   ): Promise<MedivetAppointmentDiary[]> {
       return this.appointmentDiariesService.searchAppointmentDiariesForAnimal(id, {
           offset,
           pageSize,
-          include
+          include,
+          medicalServiceIds,
+          appointmentDate
       });
   }
 }
