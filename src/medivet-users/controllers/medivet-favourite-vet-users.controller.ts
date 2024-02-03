@@ -5,6 +5,7 @@ import {
     Get,
     Param,
     Post,
+    Query,
     UseGuards,
     UseInterceptors
 } from "@nestjs/common";
@@ -13,6 +14,7 @@ import {
     ApiBearerAuth,
     ApiOkResponse,
     ApiOperation,
+    ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse
 } from "@nestjs/swagger";
@@ -24,7 +26,11 @@ import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
+import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
+import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { MedivetUserFavouriteVet } from "@/medivet-users/entities/medivet-user-favourite-vet.entity";
+import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { MedivetFavouriteVetUsersService } from "@/medivet-users/services/medivet-favourite-vet-users.service";
 
 @ApiTags(ApiTagsConstants.USERS)
@@ -34,6 +40,52 @@ export class MedivetFavouriteVetUsersController {
     constructor(
     private favouriteVetUsersService: MedivetFavouriteVetUsersService
     ) {
+    }
+
+  @ApiOperation({ summary: "Gets all user favourite vets", })
+  @ApiOkResponse({
+      description: "Returns list of all matched vets data",
+      type: MedivetUser,
+      isArray: true
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "offset",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "pageSize",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "include",
+      required: false,
+      type: String
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT ])
+  @UseGuards(JwtAuthGuard)
+  @Get()
+    getAllFavouriteVets(
+    @CurrentUser() user: MedivetUser,
+    @Query("include") include?: string,
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
+    ): Promise<MedivetUserFavouriteVet[]> {
+        return this.favouriteVetUsersService.findAllFavouriteVets(
+            user,
+            {
+                pageSize,
+                offset
+            },
+            include
+        );
     }
 
   @ApiOperation({ summary: "Adds vet to user favourite vets list", })
@@ -50,17 +102,19 @@ export class MedivetFavouriteVetUsersController {
       type: BadRequestExceptionDto
   })
   @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT ])
   @UseGuards(JwtAuthGuard)
   @Post(PathConstants.ID_PARAM)
-    addVetToFavourites(
+  addVetToFavourites(
     @Param("id") vetId: number,
     @CurrentUser() user: MedivetUser
-    ): Promise<OkMessageDto> {
-        return this.favouriteVetUsersService.addVetToFavourites(
-            user,
-            vetId
-        );
-    }
+  ): Promise<OkMessageDto> {
+      return this.favouriteVetUsersService.addVetToFavourites(
+          user,
+          vetId
+      );
+  }
 
   @ApiOperation({ summary: "Removes vet from user favourite vets list", })
   @ApiOkResponse({
@@ -76,6 +130,8 @@ export class MedivetFavouriteVetUsersController {
       type: BadRequestExceptionDto
   })
   @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT ])
   @UseGuards(JwtAuthGuard)
   @Delete(PathConstants.ID_PARAM)
   removeVetFromFavourites(
@@ -88,13 +144,15 @@ export class MedivetFavouriteVetUsersController {
       );
   }
 
-  @ApiOperation({ summary: "Checks if vet is in user favourite vets list", })
+  @ApiOperation({ summary: "Checks if vet is in user favourite vet list", })
   @ApiOkResponse({ type: Boolean })
   @ApiUnauthorizedResponse({
       description: "Bad authorization",
       type: UnauthorizedExceptionDto
   })
   @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT ])
   @UseGuards(JwtAuthGuard)
   @Get(PathConstants.ID_PARAM)
   checkIfVetIsInFavourites(

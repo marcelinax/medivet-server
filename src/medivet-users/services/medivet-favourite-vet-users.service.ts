@@ -4,7 +4,9 @@ import { Repository } from "typeorm";
 
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
+import { paginateData } from "@/medivet-commons/utils";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUserFavouriteVet } from "@/medivet-users/entities/medivet-user-favourite-vet.entity";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
@@ -79,5 +81,20 @@ export class MedivetFavouriteVetUsersService {
         });
 
         return !!vetInFavourites;
+    }
+
+    async findAllFavouriteVets(
+        user: MedivetUser,
+        paginationDto: OffsetPaginationDto,
+        include?: string
+    ): Promise<MedivetUserFavouriteVet[]> {
+        const vets = await this.userFavouriteVetRepository.find(
+            {
+                relations: include?.split(",") ?? [],
+                where: { user: { id: user.id } }
+            },
+        );
+
+        return paginateData(vets, paginationDto);
     }
 }
