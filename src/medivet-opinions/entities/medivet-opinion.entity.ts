@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
+import { MedivetOpinionStatus } from "@/medivet-commons/enums/enums";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 
 @Entity()
@@ -34,4 +35,12 @@ export class MedivetOpinion {
   @OneToOne(() => MedivetAppointment, appointment => appointment.opinion)
   @JoinColumn({ name: "appointmentId" })
   appointment: MedivetAppointment;
+
+  @ApiProperty()
+  @Column({
+      type: "enum",
+      enum: MedivetOpinionStatus,
+      nullable: false
+  })
+  status: MedivetOpinionStatus;
 }

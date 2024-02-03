@@ -5,7 +5,11 @@ import { Repository } from "typeorm";
 import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
 import { MedivetAppointmentsService } from "@/medivet-appointments/services/medivet-appointments.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { MedivetAppointmentStatus, MedivetOpinionSortingModeEnum } from "@/medivet-commons/enums/enums";
+import {
+    MedivetAppointmentStatus,
+    MedivetOpinionSortingModeEnum,
+    MedivetOpinionStatus
+} from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetCreateOpinionDto } from "@/medivet-opinions/dto/medivet-create-opinion.dto";
 import { MedivetSearchOpinionDto } from "@/medivet-opinions/dto/medivet-search-opinion.dto";
@@ -54,7 +58,8 @@ export class MedivetOpinionsService {
                 rate,
                 vet: possibleVet,
                 issuer: user,
-                appointment
+                appointment,
+                status: MedivetOpinionStatus.ACTIVE
             });
             possibleVet.opinions = possibleVet.opinions ? [ ...possibleVet.opinions, newOpinion ] : [ newOpinion ];
             await this.opinionsRepository.save(newOpinion);
@@ -68,7 +73,10 @@ export class MedivetOpinionsService {
 
         if (vet) {
             return this.opinionsRepository.find({
-                where: { vet: { id: vetId } },
+                where: {
+                    vet: { id: vetId },
+                    status: MedivetOpinionStatus.ACTIVE
+                },
                 relations: [ "issuer", ...(include || []) ]
             });
         }
@@ -130,6 +138,24 @@ export class MedivetOpinionsService {
                 }
             ]);
         }
+
+        return opinion;
+    }
+
+    async reportOpinion(opinionId: number, include?: string): Promise<MedivetOpinion> {
+        const opinion = await this.findOpinionById(opinionId, include);
+
+        if (opinion.status !== MedivetOpinionStatus.ACTIVE) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.CANNOT_REPORT_ALREADY_REPORTED_OR_REMOVED_OPINION,
+                    property: "all"
+                }
+            ]);
+        }
+
+        opinion.status = MedivetOpinionStatus.REPORTED;
+        await this.opinionsRepository.save(opinion);
 
         return opinion;
     }

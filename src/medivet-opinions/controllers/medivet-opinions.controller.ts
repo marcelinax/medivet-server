@@ -6,6 +6,7 @@ import {
     NotFoundException,
     Param,
     Post,
+    Put,
     Query,
     UseGuards,
     UseInterceptors
@@ -235,5 +236,35 @@ export class MedivetOpinionsController {
           offset,
           include
       });
+  }
+
+  @ApiOperation({ summary: "Reports added abused opinion", })
+  @ApiOkResponse({
+      description: "Returns vet opinion with status \"REPORTED\"",
+      type: MedivetOpinion,
+  })
+  @ApiNotFoundResponse({
+      description: "Opinion with this id does not exist",
+      type: BadRequestExceptionDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "include",
+      required: false,
+      type: String
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.VET ])
+  @UseGuards(JwtAuthGuard)
+  @Put(PathConstants.MY + PathConstants.ID_PARAM + "/" + PathConstants.REPORT)
+  async reportOpinion(
+    @Param("id") opinionId: number,
+    @Query("include") include?: string
+  ): Promise<MedivetOpinion> {
+      return this.opinionsService.reportOpinion(opinionId, include);
   }
 }

@@ -62,4 +62,5 @@ export class ErrorMessagesConstants {
   public static IT_IS_TOO_LATE_TO_ADD_DIARY_TO_APPOINTMENT = "It is too late to add a diary to an appointment.";
   public static APPOINTMENT_DIARY_WITH_THIS_ID_DOES_NOT_EXIST = "Appointment diary with this id does not exist.";
   public static OPINION_WITH_THIS_ID_DOES_NOT_EXIST = "Opinion with this id does not exist.";
+  public static CANNOT_REPORT_ALREADY_REPORTED_OR_REMOVED_OPINION = "Cannot report already reported or removed opinion.";
 }
