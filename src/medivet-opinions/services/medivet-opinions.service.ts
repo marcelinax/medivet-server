@@ -1,11 +1,11 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
 import { MedivetAppointmentsService } from "@/medivet-appointments/services/medivet-appointments.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { MedivetAppointmentStatus, MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
+import { MedivetAppointmentStatus, MedivetOpinionSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetCreateOpinionDto } from "@/medivet-opinions/dto/medivet-create-opinion.dto";
 import { MedivetSearchOpinionDto } from "@/medivet-opinions/dto/medivet-search-opinion.dto";
@@ -80,17 +80,17 @@ export class MedivetOpinionsService {
         if (searchOpinionDto.sortingMode) {
             opinions = opinions.sort((a, b) => {
                 switch (searchOpinionDto.sortingMode) {
-                    case MedivetSortingModeEnum.NEWEST: {
+                    case MedivetOpinionSortingModeEnum.NEWEST: {
                         return b.date.getTime() - a.date.getTime();
                     }
-                    case MedivetSortingModeEnum.OLDEST:
+                    case MedivetOpinionSortingModeEnum.OLDEST:
                         return a.date.getTime() - b.date.getTime();
-                    case MedivetSortingModeEnum.HIGHEST_RATE:
+                    case MedivetOpinionSortingModeEnum.HIGHEST_RATE:
                         if (b.rate === a.rate) {
                             return b.date.getTime() - a.date.getTime();
                         }
                         return b.rate - a.rate;
-                    case MedivetSortingModeEnum.LOWEST_RATE:
+                    case MedivetOpinionSortingModeEnum.LOWEST_RATE:
                         if (b.rate === a.rate) {
                             return b.date.getTime() - a.date.getTime();
                         }
@@ -110,6 +110,24 @@ export class MedivetOpinionsService {
     async getVetOpinionsTotalAmount(vetId: number): Promise<number> {
         const opinions = await this.findAllOpinionsAssignedToVet(vetId);
         return opinions.length;
+    }
+
+    async findOpinionById(opinionId: number, include?: string): Promise<MedivetOpinion> {
+        const opinion = await this.opinionsRepository.findOne({
+            where: { id: opinionId },
+            relations: include?.split(",") ?? []
+        });
+
+        if (!opinion) {
+            throw new NotFoundException([
+                {
+                    message: ErrorMessagesConstants.OPINION_WITH_THIS_ID_DOES_NOT_EXIST,
+                    property: "all"
+                }
+            ]);
+        }
+
+        return opinion;
     }
 
     private async checkIfCanAddOpinionToAppointment(appointment: MedivetAppointment): Promise<void> {

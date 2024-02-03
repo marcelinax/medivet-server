@@ -61,4 +61,5 @@ export class ErrorMessagesConstants {
   public static CANNOT_ADD_DIARY_TO_NOT_FINISHED_APPOINTMENT = "Cannot add a diary to not finished appointment.";
   public static IT_IS_TOO_LATE_TO_ADD_DIARY_TO_APPOINTMENT = "It is too late to add a diary to an appointment.";
   public static APPOINTMENT_DIARY_WITH_THIS_ID_DOES_NOT_EXIST = "Appointment diary with this id does not exist.";
+  public static OPINION_WITH_THIS_ID_DOES_NOT_EXIST = "Opinion with this id does not exist.";
 }

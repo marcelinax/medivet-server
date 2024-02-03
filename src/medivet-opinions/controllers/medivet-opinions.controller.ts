@@ -3,6 +3,7 @@ import {
     ClassSerializerInterceptor,
     Controller,
     Get,
+    NotFoundException,
     Param,
     Post,
     Query,
@@ -25,7 +26,7 @@ import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
+import { MedivetOpinionSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { MedivetCreateOpinionDto } from "@/medivet-opinions/dto/medivet-create-opinion.dto";
 import { MedivetOpinion } from "@/medivet-opinions/entities/medivet-opinion.entity";
 import { MedivetOpinionsService } from "@/medivet-opinions/services/medivet-opinions.service";
@@ -91,21 +92,92 @@ export class MedivetOpinionsController {
       description: "Bad authorization",
       type: UnauthorizedExceptionDto
   })
+  @ApiQuery({
+      name: "include",
+      required: false,
+      type: String
+  })
+  @ApiQuery({
+      name: "sortingMode",
+      required: false,
+      enum: MedivetOpinionSortingModeEnum
+  })
+  @ApiQuery({
+      name: "offset",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "pageSize",
+      required: false,
+      type: Number
+  })
+  @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
   @Role([ MedivetUserRole.VET ])
   @UseGuards(JwtAuthGuard)
-  @Get()
+  @Get(PathConstants.MY)
   async searchMyOpinions(
     @CurrentUser() user: MedivetUser,
-    @Query("sortingMode") sortingMode: MedivetSortingModeEnum,
-    @Query("pageSize") pageSize: number,
-    @Query("offset") offset: number
+    @Query("sortingMode") sortingMode?: MedivetOpinionSortingModeEnum,
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
+    @Query("include") include?: string
   ): Promise<MedivetOpinion[]> {
       return this.opinionsService.searchVetOpinions(user.id, {
           sortingMode,
           pageSize,
-          offset
+          offset,
+          include
       });
+  }
+
+  @ApiOperation({ summary: "Gets authorized vet's opinion", })
+  @ApiOkResponse({
+      description: "Returns authorized vet's opinion with data",
+      type: MedivetOpinion,
+  })
+  @ApiNotFoundResponse({
+      description: "Vet opinion does not exist",
+      type: NotFoundException
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.VET ])
+  @UseGuards(JwtAuthGuard)
+  @Get(PathConstants.MY + PathConstants.ID_PARAM)
+  async getMyOpinion(
+    @Param("id") opinionId: number,
+    @Query("include") include?: string
+  ): Promise<MedivetOpinion> {
+      return this.opinionsService.findOpinionById(opinionId, include);
+  }
+
+  @ApiOperation({ summary: "Get vet opinions total amount", })
+  @ApiOkResponse({
+      description: "Returns total amount of vet opinions",
+      type: Number,
+  })
+  @ApiNotFoundResponse({
+      description: "Vet does not exist",
+      type: BadRequestExceptionDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT ])
+  @UseGuards(JwtAuthGuard)
+  @Get(`${PathConstants.ID_PARAM}/${PathConstants.AMOUNT}`)
+  async getTotalAmountOfVetOpinions(
+    @Param("id") vetId: number,
+  ): Promise<number> {
+      return this.opinionsService.getVetOpinionsTotalAmount(vetId);
   }
 
   @ApiOperation({
@@ -133,7 +205,7 @@ export class MedivetOpinionsController {
   @ApiQuery({
       name: "sortingMode",
       required: false,
-      enum: MedivetSortingModeEnum
+      enum: MedivetOpinionSortingModeEnum
   })
   @ApiQuery({
       name: "offset",
@@ -152,7 +224,7 @@ export class MedivetOpinionsController {
   @Get(PathConstants.ID_PARAM)
   async searchVetOpinions(
     @Param("id") vetId: number,
-    @Query("sortingMode") sortingMode?: MedivetSortingModeEnum,
+    @Query("sortingMode") sortingMode?: MedivetOpinionSortingModeEnum,
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
     @Query("include") include?: string
@@ -163,29 +235,5 @@ export class MedivetOpinionsController {
           offset,
           include
       });
-  }
-
-  @ApiOperation({ summary: "Get vet opinions total amount", })
-  @ApiOkResponse({
-      description: "Returns total amount of vet opinions",
-      type: Number,
-  })
-  @ApiNotFoundResponse({
-      description: "Vet does not exist",
-      type: BadRequestExceptionDto
-  })
-  @ApiUnauthorizedResponse({
-      description: "Bad authorization",
-      type: UnauthorizedExceptionDto
-  })
-  @ApiBearerAuth()
-  @UseGuards(MedivetRoleGuard)
-  @Role([ MedivetUserRole.PATIENT ])
-  @UseGuards(JwtAuthGuard)
-  @Get(`${PathConstants.ID_PARAM}/${PathConstants.AMOUNT}`)
-  async getTotalAmountOfVetOpinions(
-    @Param("id") vetId: number,
-  ): Promise<number> {
-      return this.opinionsService.getVetOpinionsTotalAmount(vetId);
   }
 }

@@ -272,7 +272,7 @@ export class MedivetAnimalsController {
   @Role([ MedivetUserRole.PATIENT ])
   @UseGuards(JwtAuthGuard)
   @Put(PathConstants.ARCHIVE + PathConstants.ID_PARAM)
-  async archivieAnimal(
+  async archiveAnimal(
     @Param("id") animalId: number,
     @CurrentUser() user: MedivetUser,
     @Query("include") include?: string
