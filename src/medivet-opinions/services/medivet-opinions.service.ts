@@ -99,6 +99,10 @@ export class MedivetOpinionsService {
                         return b.date.getTime() - a.date.getTime();
                 }
             });
+        } else {
+            opinions = opinions.sort((a, b) => {
+                return b.date.getTime() - a.date.getTime();
+            });
         }
 
         return paginateData(opinions, {
