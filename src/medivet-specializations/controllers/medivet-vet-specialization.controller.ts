@@ -138,7 +138,7 @@ export class MedivetVetSpecializationController {
     @Param("id") vetSpecializationId: number,
     @Body() updateVetSpecializationDto: MedivetCreateVetSpecializationDto
   ): Promise<MedivetVetSpecialization> {
-      return await this.vetSpecializationService.updateVetSpecialization(vetSpecializationId, updateVetSpecializationDto);
+      return this.vetSpecializationService.updateVetSpecialization(vetSpecializationId, updateVetSpecializationDto);
   }
 
   @ApiOperation({

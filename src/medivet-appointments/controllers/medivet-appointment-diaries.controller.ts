@@ -127,7 +127,7 @@ export class MedivetAppointmentDiariesController {
       type: Array<number>
   })
   @ApiQuery({
-      name: "appointmentDatte",
+      name: "appointmentDate",
       required: false,
       type: Date
   })

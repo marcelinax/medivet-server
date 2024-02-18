@@ -74,3 +74,9 @@ export enum MedivetOpinionStatus {
   "REPORTED" = "REPORTED",
   "REMOVED" = "REMOVED"
 }
+
+export enum MedivetVacationStatus {
+  "ACTIVE" = "ACTIVE",
+  "CANCELLED" = "CANCELLED",
+  "FINISHED" = "FINISHED"
+}

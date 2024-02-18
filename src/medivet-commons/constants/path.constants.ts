@@ -17,6 +17,7 @@ export class PathConstants {
   public static FAVOURITE_VETS = "favourite-vets";
   public static APPOINTMENT_DIARIES = "appointment-diaries";
   public static ADMIN = "admin";
+  public static VACATIONS = "vacations";
 
   public static LOGIN = "login";
   public static ME = "me";

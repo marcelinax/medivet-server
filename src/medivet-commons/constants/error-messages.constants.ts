@@ -63,4 +63,8 @@ export class ErrorMessagesConstants {
   public static APPOINTMENT_DIARY_WITH_THIS_ID_DOES_NOT_EXIST = "Appointment diary with this id does not exist.";
   public static OPINION_WITH_THIS_ID_DOES_NOT_EXIST = "Opinion with this id does not exist.";
   public static CANNOT_REPORT_ALREADY_REPORTED_OR_REMOVED_OPINION = "Cannot report already reported or removed opinion.";
+  public static CANNOT_TAKE_VACATION_BETWEEN_ANOTHER_ONE = "Cannot take vacation between another one.";
+  public static VACATION_WITH_THIS_ID_DOES_NOT_EXIST = "Vacation with this id does not exist.";
+  public static CANNOT_CANCEL_VACATION_IN_DIFFERENT_STATUS_THAN_ACTIVE = "Cannot cancel vacation in different status than \"ACTIVE\"";
+  public static DATE_FROM_CANNOT_BE_LATER_THAN_DATE_TO = "Date from cannot be later than date to.";
 }

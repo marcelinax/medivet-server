@@ -1,8 +1,8 @@
 import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
+import { MedivetVetSpecializationController } from "@/medivet-specializations/controllers/medivet-vet-specialization.controller";
 import { MedivetVetSpecializationMedicalServiceController } from "@/medivet-specializations/controllers/medivet-vet-specialization-medical-service.controller";
-import { MedivetVetSpecializationController } from "@/medivet-specializations/controllers/medivet-vet-specializations.controllers";
 import { MedivetVetSpecialization } from "@/medivet-specializations/entities/medivet-vet-specialization.entity";
 import { MedivetVetSpecializationMedicalService } from "@/medivet-specializations/entities/medivet-vet-specialization-medical-service.entity";
 import { MedivetVetSpecializationService } from "@/medivet-specializations/services/medivet-vet-specialization.service";
