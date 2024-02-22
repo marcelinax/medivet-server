@@ -67,6 +67,11 @@ export class MedivetVacationService {
         return paginateData(vacations, paginationDto);
     }
 
+    async getActiveVetVacations(vetId: number): Promise<MedivetVacation[]> {
+        const vacations = await this.findAllVacationsForUser(vetId);
+        return vacations.filter(vacation => vacation.status === MedivetVacationStatus.ACTIVE);
+    }
+
     async findVacationById(vacationId: number, user: MedivetUser): Promise<MedivetVacation> {
         const vacation = await this.vacationRepository.findOne({
             where: {

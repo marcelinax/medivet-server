@@ -136,6 +136,27 @@ export class MedivetVacationController {
       return appointments.length;
   }
 
+  @ApiOperation({ summary: "Gets all active vet's vacations", })
+  @ApiOkResponse({
+      description: "Returns all active vet's vacations with data",
+      type: MedivetVacation,
+      isArray: true
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT ])
+  @UseGuards(JwtAuthGuard)
+  @Get(`${PathConstants.VETS}${PathConstants.ID_PARAM}/${PathConstants.ACTIVE}`)
+  async getActiveVetVacations(
+    @Param("id") vetId: number,
+  ): Promise<MedivetVacation[]> {
+      return this.vacationService.getActiveVetVacations(vetId);
+  }
+
   @ApiOperation({ summary: "Gets user's vacation", })
   @ApiOkResponse({
       description: "Returns user's vacation and it's data",

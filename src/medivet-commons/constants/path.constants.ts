@@ -54,4 +54,5 @@ export class PathConstants {
   public static REJECT_REPORTING = "reject-reporting";
   public static REPORT = "report";
   public static APPOINTMENTS_TO_BE_CANCELLED = "appointments-to-be-cancelled";
+  public static ACTIVE = "active";
 }
