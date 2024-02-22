@@ -8,6 +8,7 @@ import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appo
 import { MedivetAppointmentDiary } from "@/medivet-appointments/entities/medivet-appointment-diary.entity";
 import { MedivetAppointmentDiariesService } from "@/medivet-appointments/services/medivet-appointment-diaries.service";
 import { MedivetAppointmentsService } from "@/medivet-appointments/services/medivet-appointments.service";
+import { MedivetVacationsModule } from "@/medivet-vacations/medivet-vacations.module";
 import { MedivetVetProvidedMedicalServiceModule } from "@/medivet-vet-provided-medical-services/medivet-vet-provided-medical-service.module";
 
 @Module({
@@ -15,6 +16,7 @@ import { MedivetVetProvidedMedicalServiceModule } from "@/medivet-vet-provided-m
         TypeOrmModule.forFeature([ MedivetAppointment, MedivetAppointmentDiary ]),
         forwardRef(() => MedivetAnimalsModule),
         forwardRef(() => MedivetVetProvidedMedicalServiceModule),
+        forwardRef(() => MedivetVacationsModule),
     ],
     providers: [ MedivetAppointmentsService, MedivetAppointmentDiariesService ],
     exports: [ MedivetAppointmentsService ],

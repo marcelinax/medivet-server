@@ -58,7 +58,7 @@ export class MedivetVacationService {
         paginationDto: OffsetPaginationDto,
         status?: MedivetVacationStatus
     ): Promise<MedivetVacation[]> {
-        let vacations = await this.findAllVacationsForUser(user);
+        let vacations = await this.findAllVacationsForUser(user.id);
 
         if (status) {
             vacations = vacations.filter(vacation => vacation.status === status);
@@ -138,7 +138,6 @@ export class MedivetVacationService {
         dateTo: Date,
         vet: MedivetUser
     ): Promise<MedivetAppointment[]> {
-        console.log(dateFrom);
         return this.appointmentRepository.find({
             where: {
                 medicalService: { user: { id: vet.id } },
@@ -149,10 +148,11 @@ export class MedivetVacationService {
 
     }
 
-    private async findAllVacationsForUser(user: MedivetUser): Promise<MedivetVacation[]> {
+    async findAllVacationsForUser(userId: number, include?: string): Promise<MedivetVacation[]> {
+        const relations = include ? [ ...include.split(","), "user" ] : [ "user" ];
         return this.vacationRepository.find({
-            where: { user: { id: user.id }, },
-            relations: [ "user" ]
+            where: { user: { id: userId }, },
+            relations
         });
     }
 
@@ -161,7 +161,7 @@ export class MedivetVacationService {
         dateFrom: Date,
         dateTo: Date
     ): Promise<void> {
-        const userVacations = await this.findAllVacationsForUser(user);
+        const userVacations = await this.findAllVacationsForUser(user.id);
 
         // 1. 13-14 2. 12-15
         // 2. 13-16 2. 14 -17

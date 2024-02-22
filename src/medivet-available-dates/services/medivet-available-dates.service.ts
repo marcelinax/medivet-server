@@ -8,6 +8,8 @@ import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appo
 import { MedivetAvailableDate } from "@/medivet-available-dates/types/types";
 import { MedivetAvailableDatesFilter, MedivetDayWeek, MedivetVetAvailabilityDay } from "@/medivet-commons/enums/enums";
 import { parseTimeStringToDate } from "@/medivet-commons/utils/date";
+import { MedivetVacation } from "@/medivet-vacations/entities/medivet-vacation.entity";
+import { MedivetVacationService } from "@/medivet-vacations/services/medivet-vacation.service";
 import { MedivetVetAvailability } from "@/medivet-vet-availabilities/entities/medivet-vet-availability.entity";
 import { MedivetVetAvailabilityReceptionHour } from "@/medivet-vet-availabilities/entities/medivet-vet-availability-reception-hour.entity";
 import { MedivetVetProvidedMedicalServiceService } from "@/medivet-vet-provided-medical-services/services/medivet-vet-provided-medical-service.service";
@@ -18,7 +20,8 @@ export class MedivetAvailableDatesService {
     constructor(
     @InjectRepository(MedivetVetAvailability) private vetAvailabilityRepository: Repository<MedivetVetAvailability>,
     @InjectRepository(MedivetAppointment) private appointmentRepository: Repository<MedivetAppointment>,
-    @Inject(forwardRef(() => MedivetVetProvidedMedicalServiceService)) private providedMedicalServicesService: MedivetVetProvidedMedicalServiceService
+    @Inject(forwardRef(() => MedivetVetProvidedMedicalServiceService)) private providedMedicalServicesService: MedivetVetProvidedMedicalServiceService,
+    private vacationService: MedivetVacationService
     ) {
     }
 
@@ -39,6 +42,7 @@ export class MedivetAvailableDatesService {
         const availableDates: MedivetAvailableDate[] = [];
         const now = moment();
         const remainingDays = this.getNext30DatesFromNow();
+        const vetVacations = await this.vacationService.findAllVacationsForUser(vetId);
 
         const appointments = await this.appointmentRepository.find({
             where: {
@@ -101,7 +105,7 @@ export class MedivetAvailableDatesService {
 
                         const receptionHourTotalDuration = endDayDate.diff(startDayDate, "minutes");
                         const amountOfPossibleReceptionHours = Math.floor(receptionHourTotalDuration / +medicalServiceDuration);
-                        const possibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate);
+                        const possibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate, vetVacations);
                         totalPossibleReceptionHourDates = [ ...totalPossibleReceptionHourDates, ...possibleReceptionHourDates ];
                     });
                     this.getAllAvailableReceptionHourDates(totalPossibleReceptionHourDates, parsedAppointments, availableDates, receptionHourDay.day, remainingDay.set({
@@ -132,6 +136,7 @@ export class MedivetAvailableDatesService {
         const medicalServiceDuration = medicalService.duration;
         const now = moment();
         const remainingDays = this.getNext30DatesFromNow();
+        const vetVacations = await this.vacationService.findAllVacationsForUser(vetId);
 
         const appointments = await this.appointmentRepository.find({
             where: {
@@ -195,7 +200,7 @@ export class MedivetAvailableDatesService {
                         });
                         const receptionHourTotalDuration = endDayDate.diff(startDayDate, "minutes");
                         const amountOfPossibleReceptionHours = Math.floor(receptionHourTotalDuration / +medicalServiceDuration);
-                        const possibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate);
+                        const possibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate, vetVacations);
 
                         const availableReceptionHours = [];
                         possibleReceptionHourDates.forEach(possibleReceptionHourDate => {
@@ -229,6 +234,7 @@ export class MedivetAvailableDatesService {
             },
             relations: [ "receptionHours" ]
         });
+        const vetVacations = await this.vacationService.findAllVacationsForUser(vetId);
 
         const medicalServiceDuration = medicalService.duration;
         let remainingDays: moment.Moment[] = [];
@@ -318,7 +324,7 @@ export class MedivetAvailableDatesService {
                         });
                         const receptionHourTotalDuration = endDayDate.diff(startDayDate, "minutes");
                         const amountOfPossibleReceptionHours = Math.floor(receptionHourTotalDuration / +medicalServiceDuration);
-                        const possibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate);
+                        const possibleReceptionHourDates: Moment[] = this.getAllPossibleReceptionHourDates(amountOfPossibleReceptionHours, medicalServiceDuration, startDayDate, vetVacations);
 
                         const availableReceptionHours = [];
                         possibleReceptionHourDates.forEach(possibleReceptionHourDate => {
@@ -396,13 +402,28 @@ export class MedivetAvailableDatesService {
         });
     }
 
+    private isDateAvailableBecauseOfVetVacation(vacations: MedivetVacation[], date: Moment): boolean {
+        const anyVacationAtAvailableDate = vacations.find(vacation => {
+            if (date.isBetween(moment(vacation.from), moment(vacation.to)) &&
+        vacation.status === "ACTIVE"
+            ) {
+                return vacation;
+            }
+        });
+
+        return !anyVacationAtAvailableDate;
+    }
+
     private getAllPossibleReceptionHourDates(
         amountOfPossibleReceptionHours: number,
-        medicalServiceDuration: number, startDayDate: Moment
+        medicalServiceDuration: number,
+        startDayDate: Moment,
+        vacations: MedivetVacation[]
     ): Moment[] {
         const allPossibleReceptionHourDates: Moment[] = [];
         const now = moment();
-        if (startDayDate.clone().isAfter(now)) {
+        if (
+            startDayDate.clone().isAfter(now) && this.isDateAvailableBecauseOfVetVacation(vacations, (startDayDate.clone()))) {
             allPossibleReceptionHourDates.push(startDayDate.clone());
         }
         let hour;
@@ -410,7 +431,7 @@ export class MedivetAvailableDatesService {
         while (amountOfPossibleReceptionHours !== 0) {
             const prevHour = hour?.clone() ?? startDayDate.clone();
             hour = prevHour.clone().add(medicalServiceDuration, "minutes");
-            if (prevHour.isSameOrAfter(now)) {
+            if (prevHour.isSameOrAfter(now) && this.isDateAvailableBecauseOfVetVacation(vacations, prevHour)) {
                 allPossibleReceptionHourDates.push(hour);
             }
             amountOfPossibleReceptionHours--;

@@ -8,10 +8,12 @@ import { MedivetCreateAppointmentDto } from "@/medivet-appointments/dto/medivet-
 import { MedivetSearchAppointmentDto } from "@/medivet-appointments/dto/medivet-search-appointment.dto";
 import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { MedivetAppointmentStatus } from "@/medivet-commons/enums/enums";
+import { MedivetAppointmentStatus, MedivetVacationStatus } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
+import { MedivetVacation } from "@/medivet-vacations/entities/medivet-vacation.entity";
+import { MedivetVacationService } from "@/medivet-vacations/services/medivet-vacation.service";
 import { MedivetVetProvidedMedicalServiceService } from "@/medivet-vet-provided-medical-services/services/medivet-vet-provided-medical-service.service";
 
 @Injectable()
@@ -20,13 +22,18 @@ export class MedivetAppointmentsService {
     @InjectRepository(MedivetAppointment) private appointmentRepository: Repository<MedivetAppointment>,
     private medicalProvidedServicesService: MedivetVetProvidedMedicalServiceService,
     private animalsService: MedivetAnimalsService,
+    private vacationService: MedivetVacationService,
     ) {
     }
 
     async createAppointment(createAppointmentDto: MedivetCreateAppointmentDto): Promise<MedivetAppointment> {
         const { medicalServiceId, animalId, date } = createAppointmentDto;
-
+        const medicalService = await this.medicalProvidedServicesService.findVetProvidedMedicalServiceById(
+            medicalServiceId,
+            "user"
+        );
         const isDateAvailable = await this.checkIfAppointmentDateIsAvailable(createAppointmentDto);
+
         if (!isDateAvailable) {
             throw new BadRequestException([
                 {
@@ -36,7 +43,8 @@ export class MedivetAppointmentsService {
             ]);
         }
 
-        const medicalService = await this.medicalProvidedServicesService.findVetProvidedMedicalServiceById(medicalServiceId);
+        await this.checkIfAppointmentDateIsDuringVetVacation(medicalService.user, date);
+
         const animal = await this.animalsService.findOneAnimalById(animalId);
 
         const newAppointment = this.appointmentRepository.create({
@@ -118,6 +126,27 @@ export class MedivetAppointmentsService {
         }
     }
 
+    async checkIfAppointmentDateIsDuringVetVacation(user: MedivetUser, appointmentDate: Date): Promise<void> {
+        const vacations = await this.vacationService.findAllVacationsForUser(user.id);
+
+        const isVetOnVacation = vacations.find(vacation => {
+            if (this.isVetOnVacation(vacation, appointmentDate)
+        && vacation.status === MedivetVacationStatus.ACTIVE) {
+                return vacation;
+            }
+        });
+
+        if (isVetOnVacation) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.VET_IS_ON_VACATION,
+                    property: "all"
+                }
+            ]);
+        }
+
+    }
+
     private getAppointmentsDependingOnUserRole(user: MedivetUser, appointments: MedivetAppointment[]): MedivetAppointment[] {
         switch (user.role) {
             case MedivetUserRole.ADMIN: {
@@ -145,5 +174,9 @@ export class MedivetAppointmentsService {
             relations: [ "medicalService" ]
         });
         return !appointment;
+    }
+
+    private isVetOnVacation(vacation: MedivetVacation, appointmentDate: Date): boolean {
+        return !moment(appointmentDate).isBetween(moment(vacation.from), moment(vacation.to));
     }
 }

@@ -15,7 +15,7 @@ import { MedivetVacationService } from "@/medivet-vacations/services/medivet-vac
     ],
     controllers: [ MedivetVacationController ],
     providers: [ MedivetVacationService ],
-    exports: []
+    exports: [ MedivetVacationService ]
 })
 
 export class MedivetVacationsModule {
