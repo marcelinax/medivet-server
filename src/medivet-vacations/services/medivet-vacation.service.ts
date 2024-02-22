@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import moment from "moment";
-import { Repository } from "typeorm";
+import { Between, Repository } from "typeorm";
 
+import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
-import { MedivetVacationStatus } from "@/medivet-commons/enums/enums";
+import { MedivetAppointmentStatus, MedivetVacationStatus } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetCreateVacationDto } from "@/medivet-vacations/dto/medivet-create-vacation.dto";
@@ -14,7 +15,8 @@ import { MedivetVacation } from "@/medivet-vacations/entities/medivet-vacation.e
 @Injectable()
 export class MedivetVacationService {
     constructor(
-    @InjectRepository(MedivetVacation) private vacationRepository: Repository<MedivetVacation>
+    @InjectRepository(MedivetVacation) private vacationRepository: Repository<MedivetVacation>,
+    @InjectRepository(MedivetAppointment) private appointmentRepository: Repository<MedivetAppointment>
     ) {
     }
 
@@ -37,6 +39,16 @@ export class MedivetVacationService {
         });
 
         await this.vacationRepository.save(newVacation);
+
+        const appointmentsToBeCancelled = await this.getAppointmentsToBeCancelled(
+            from,
+            to,
+            user
+        );
+        for (const appointment of appointmentsToBeCancelled) {
+            appointment.status = MedivetAppointmentStatus.CANCELLED;
+            await this.appointmentRepository.save(appointment);
+        }
 
         return newVacation;
     }
@@ -108,7 +120,33 @@ export class MedivetVacationService {
         vacation.to = to;
         await this.vacationRepository.save(vacation);
 
+        const appointmentsToBeCancelled = await this.getAppointmentsToBeCancelled(
+            from,
+            to,
+            user
+        );
+        for (const appointment of appointmentsToBeCancelled) {
+            appointment.status = MedivetAppointmentStatus.CANCELLED;
+            await this.appointmentRepository.save(appointment);
+        }
+
         return vacation;
+    }
+
+    async getAppointmentsToBeCancelled(
+        dateFrom: Date,
+        dateTo: Date,
+        vet: MedivetUser
+    ): Promise<MedivetAppointment[]> {
+        console.log(dateFrom);
+        return this.appointmentRepository.find({
+            where: {
+                medicalService: { user: { id: vet.id } },
+                date: Between(dateFrom, dateTo)
+            },
+            relations: [ "medicalService", "medicalService.user" ]
+        });
+
     }
 
     private async findAllVacationsForUser(user: MedivetUser): Promise<MedivetVacation[]> {

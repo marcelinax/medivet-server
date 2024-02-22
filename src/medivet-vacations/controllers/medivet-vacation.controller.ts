@@ -98,6 +98,44 @@ export class MedivetVacationController {
       }, status);
   }
 
+  @ApiOperation({ summary: "Gets amount of appointments to be cancelled because of vacation", })
+  @ApiOkResponse({
+      description: "Returns number of appointments to be cancelled",
+      type: Number,
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "from",
+      required: true,
+      type: Date
+  })
+  @ApiQuery({
+      name: "to",
+      required: true,
+      type: Date
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.VET ])
+  @UseGuards(JwtAuthGuard)
+  @Get(PathConstants.APPOINTMENTS_TO_BE_CANCELLED)
+  async getAppointmentCountToBeCancelledBecauseOfVacation(
+    @CurrentUser() user: MedivetUser,
+    @Query("from") from: Date,
+    @Query("to") to: Date,
+  ): Promise<number> {
+      const appointments = await this.vacationService.getAppointmentsToBeCancelled(
+          from,
+          to,
+          user
+      );
+
+      return appointments.length;
+  }
+
   @ApiOperation({ summary: "Gets user's vacation", })
   @ApiOkResponse({
       description: "Returns user's vacation and it's data",
