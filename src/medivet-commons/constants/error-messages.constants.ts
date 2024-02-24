@@ -68,4 +68,6 @@ export class ErrorMessagesConstants {
   public static CANNOT_CANCEL_VACATION_IN_DIFFERENT_STATUS_THAN_ACTIVE = "Cannot cancel vacation in different status than \"ACTIVE\"";
   public static DATE_FROM_CANNOT_BE_LATER_THAN_DATE_TO = "Date from cannot be later than date to.";
   public static VET_IS_ON_VACATION = "Vet is on vacation.";
+  public static PAYMENT_METHOD_WITH_NAME_ALREADY_EXISTS = "Payment method with name already exists.";
+  public static PAYMENT_METHOD_WITH_THIS_ID_DOES_NOT_EXIST = "Payment method with this id does not exist.";
 }

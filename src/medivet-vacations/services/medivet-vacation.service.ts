@@ -28,9 +28,6 @@ export class MedivetVacationService {
         this.checkIfVacationDatesAreProper(from, to);
         await this.checkIfVacationForUserInDateRangeExists(user, from, to);
 
-        // TODO utworzenie/edycja urlopu w dniach w których są umówione wizyty powoduje automatycznie ich odwołanie
-        // TODO przed utworzeniem powinien wykonać się request zwracający ilość umówionych wizyt, które zostaną odwołane
-
         const newVacation = this.vacationRepository.create({
             from,
             to,

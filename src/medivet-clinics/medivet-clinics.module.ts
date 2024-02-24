@@ -8,6 +8,7 @@ import { MedivetClinic } from "@/medivet-clinics/entities/medivet-clinic.entity"
 import { MedivetClinicAssignmentRequest } from "@/medivet-clinics/entities/medivet-clinic-assignment-request.entity";
 import { MedivetClinicAssignmentRequestService } from "@/medivet-clinics/services/medivet-clinic-assignment-requests.service";
 import { MedivetClinicsService } from "@/medivet-clinics/services/medivet-clinics.service";
+import { MedivetPaymentMethod } from "@/medivet-payment-methods/entities/medivet-payment-method.entity";
 import { MedivetVetSpecialization } from "@/medivet-specializations/entities/medivet-vet-specialization.entity";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersModule } from "@/medivet-users/medivet-users.module";
@@ -18,7 +19,8 @@ import { MedivetUsersModule } from "@/medivet-users/medivet-users.module";
             MedivetClinic,
             MedivetUser,
             MedivetVetSpecialization,
-            MedivetClinicAssignmentRequest
+            MedivetClinicAssignmentRequest,
+            MedivetPaymentMethod
         ]),
         forwardRef(() => MedivetUsersModule)
     ],

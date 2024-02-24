@@ -16,4 +16,5 @@ export class ApiTagsConstants {
   public static AVAILABLE_DATES = "available-dates";
   public static APPOINTMENT_DIARIES = "appointment-diaries";
   public static VACATIONS = "vacations";
+  public static PAYMENT_METHODS = "payment-methods";
 }

@@ -18,6 +18,7 @@ export class PathConstants {
   public static APPOINTMENT_DIARIES = "appointment-diaries";
   public static ADMIN = "admin";
   public static VACATIONS = "vacations";
+  public static PAYMENT_METHODS = "payment-methods";
 
   public static LOGIN = "login";
   public static ME = "me";
@@ -33,7 +34,6 @@ export class PathConstants {
   public static UPDATE = "update";
   public static ARCHIVE = "archive";
   public static RESTORE = "restore";
-  public static SEARCH = "search";
   public static MY = "my";
   public static VETS = "vets";
   public static ASSIGNMENT_REQUEST = "assignment-request";

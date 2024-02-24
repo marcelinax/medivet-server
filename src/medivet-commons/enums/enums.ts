@@ -22,7 +22,7 @@ export enum MedivetOpinionSortingModeEnum {
   LOWEST_RATE = "lowest-rate",
 }
 
-export enum MedivetStatusEnum {
+export enum MedivetAnimalStatusEnum {
   ACTIVE = "active",
   ARCHIVED = "archived"
 }
@@ -78,4 +78,9 @@ export enum MedivetOpinionStatus {
 export enum MedivetVacationStatus {
   "ACTIVE" = "ACTIVE",
   "CANCELLED" = "CANCELLED",
+}
+
+export enum MedivetPaymentMethodStatus {
+  "ACTIVE" = "ACTIVE",
+  "INACTIVE" = "INACTIVE",
 }

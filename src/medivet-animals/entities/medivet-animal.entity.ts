@@ -6,7 +6,7 @@ import { MedivetAnimalBreed } from "@/medivet-animals/entities/medivet-animal-br
 import { MedivetAnimalCoatColor } from "@/medivet-animals/entities/medivet-animal-coat-color.entity";
 import { MedivetAnimalType } from "@/medivet-animals/enums/medivet-animal-type.enum";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
-import { MedivetGenderEnum, MedivetStatusEnum } from "@/medivet-commons/enums/enums";
+import { MedivetAnimalStatusEnum, MedivetGenderEnum } from "@/medivet-commons/enums/enums";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 
 const env = envConfig();
@@ -61,9 +61,9 @@ export class MedivetAnimal {
   @ApiProperty()
   @Column({
       type: "enum",
-      enum: MedivetStatusEnum,
-      default: MedivetStatusEnum.ACTIVE,
+      enum: MedivetAnimalStatusEnum,
+      default: MedivetAnimalStatusEnum.ACTIVE,
       nullable: false
   })
-  status: MedivetStatusEnum;
+  status: MedivetAnimalStatusEnum;
 }

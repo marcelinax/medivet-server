@@ -18,4 +18,6 @@ export class SuccessMessageConstants {
   public static VET_CLINIC_PROVIDED_MEDICAL_SERVICE_HAS_BEEN_REMOVED_SUCCESSFULLY = "Vet clinic provided medical service has been removed successfully.";
   public static VET_HAS_BEEN_ADDED_TO_FAVOURITES_SUCCESSFULLY = "Vet has been added to favourites successfully.";
   public static VET_HAS_BEEN_REMOVED_TO_FAVOURITES_SUCCESSFULLY = "Vet has been removed to favourites successfully.";
+  public static PAYMENT_METHOD_HAS_BEEN_REMOVED_SUCCESSFULLY = "Payment method has been removed successfully.";
+
 }

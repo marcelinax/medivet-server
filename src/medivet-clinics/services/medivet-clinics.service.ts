@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import axios from "axios";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 
 import { MedivetCreateClinicDto } from "@/medivet-clinics/dto/medivet-create-clinic.dto";
 import { MedivetSearchAdminClinicDto } from "@/medivet-clinics/dto/medivet-search-admin-clinic.dto";
@@ -12,12 +12,14 @@ import { AddressDto } from "@/medivet-commons/dto/address.dto";
 import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { AddressCoordinates } from "@/medivet-commons/types";
 import { paginateData } from "@/medivet-commons/utils";
+import { MedivetPaymentMethod } from "@/medivet-payment-methods/entities/medivet-payment-method.entity";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 
 @Injectable()
 export class MedivetClinicsService {
     constructor(
-    @InjectRepository(MedivetClinic) private clinicsRepository: Repository<MedivetClinic>
+    @InjectRepository(MedivetClinic) private clinicsRepository: Repository<MedivetClinic>,
+    @InjectRepository(MedivetPaymentMethod) private paymentMethodRepository: Repository<MedivetPaymentMethod>,
     ) {
     }
 
@@ -32,12 +34,17 @@ export class MedivetClinicsService {
         }
 
         const coordinates = await this.getClinicCoordinates(createClinicDto.address);
+        const paymentMethods = await this.paymentMethodRepository.find(
+            { where: { id: In(createClinicDto.paymentMethodIds) } }
+        )
+    ;
 
         const newClinic = this.clinicsRepository.create({
             name: createClinicDto.name,
             address: createClinicDto.address,
             phoneNumber: createClinicDto.phoneNumber,
-            coordinates: coordinates || undefined
+            coordinates: coordinates || undefined,
+            paymentMethods: [ ...paymentMethods ]
         });
         await this.clinicsRepository.save(newClinic);
         return newClinic;
@@ -136,14 +143,16 @@ export class MedivetClinicsService {
 
     async updateClinic(clinicId: number, updateClinicDto: MedivetCreateClinicDto): Promise<MedivetClinic> {
         const clinic = await this.findClinicById(clinicId);
-        const { address, name, phoneNumber } = updateClinicDto;
+        const { address, name, phoneNumber, paymentMethodIds } = updateClinicDto;
         const coordinates = await this.getClinicCoordinates(address);
+        const paymentMethods = await this.paymentMethodRepository.find({ where: { id: In(paymentMethodIds) } });
 
         if (clinic) {
             clinic.address = { ...address };
             clinic.coordinates = coordinates ? { ...coordinates } : undefined;
             clinic.name = name;
             clinic.phoneNumber = phoneNumber;
+            clinic.paymentMethods = [ ...paymentMethods ];
 
             await this.clinicsRepository.save(clinic);
             return clinic;

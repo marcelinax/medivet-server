@@ -3,6 +3,7 @@ import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColum
 
 import { AddressDto } from "@/medivet-commons/dto/address.dto";
 import { AddressCoordinates } from "@/medivet-commons/types";
+import { MedivetPaymentMethod } from "@/medivet-payment-methods/entities/medivet-payment-method.entity";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 
 import { MedivetClinicAssignmentRequest } from "./medivet-clinic-assignment-request.entity";
@@ -43,4 +44,9 @@ export class MedivetClinic {
       nullable: false
   })
   coordinates: AddressCoordinates;
+
+  @ApiProperty()
+  @ManyToMany(() => MedivetClinic)
+  @JoinTable({ name: "medivet-bind-clinic-payment-methods" })
+  paymentMethods: MedivetPaymentMethod[];
 }
