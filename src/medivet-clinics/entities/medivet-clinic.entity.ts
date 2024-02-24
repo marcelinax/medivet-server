@@ -46,7 +46,7 @@ export class MedivetClinic {
   coordinates: AddressCoordinates;
 
   @ApiProperty()
-  @ManyToMany(() => MedivetClinic)
-  @JoinTable({ name: "medivet-bind-clinic-payment-methods" })
+  @ManyToMany(() => MedivetPaymentMethod)
+  @JoinTable({ name: "medivet-bind-clinic-payment-methods", })
   paymentMethods: MedivetPaymentMethod[];
 }
