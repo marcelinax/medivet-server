@@ -76,6 +76,7 @@ export class MedivetFavouriteVetUsersService {
             where: {
                 user: { id: user.id },
                 vet: { id: vetId },
+                isFavourite: true
             },
             relations: [ "user", "vet" ]
         });
@@ -91,7 +92,10 @@ export class MedivetFavouriteVetUsersService {
         const vets = await this.userFavouriteVetRepository.find(
             {
                 relations: include?.split(",") ?? [],
-                where: { user: { id: user.id } }
+                where: {
+                    user: { id: user.id },
+                    isFavourite: true
+                }
             },
         );
 
