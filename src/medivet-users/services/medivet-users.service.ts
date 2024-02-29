@@ -305,6 +305,8 @@ export class MedivetUsersService {
             vet.clinics = [ ...vetClinics ];
         }
 
+        vets = vets.filter(vet => vet.clinics.length > 0);
+
         // TODO to bedzie dla admina
         // if (sortingMode) {
         //     vets = vets.sort((a, b) => {
