@@ -4,27 +4,27 @@ export enum MedivetClinicAssignmentRequestStatus {
 }
 
 export enum MedivetGenderEnum {
-  FEMALE = "female",
-  MALE = "male",
-  UNKNOWN = "unknown"
+  FEMALE = "FEMALE",
+  MALE = "MALE",
+  UNKNOWN = "UNKNOWN"
 }
 
 export enum MedivetSortingModeEnum {
-  DESC = "desc",
-  ASC = "asc",
-  NEAREST_AVAILABILITY = "nearest-availability"
+  DESC = "DESC",
+  ASC = "ASC",
+  NEAREST_AVAILABILITY = "NEAREST-AVAILABILITY"
 }
 
 export enum MedivetOpinionSortingModeEnum {
-  NEWEST = "newest",
-  OLDEST = "oldest",
-  HIGHEST_RATE = "highest-rate",
-  LOWEST_RATE = "lowest-rate",
+  NEWEST = "NEWEST",
+  OLDEST = "OLDEST",
+  HIGHEST_RATE = "HIGHEST-RATE",
+  LOWEST_RATE = "LOWEST-RATE",
 }
 
 export enum MedivetAnimalStatusEnum {
-  ACTIVE = "active",
-  ARCHIVED = "archived"
+  ACTIVE = "ACTIVE",
+  ARCHIVED = "ARCHIVED"
 }
 
 export enum MedivetVetAvailabilityDay {
@@ -83,4 +83,11 @@ export enum MedivetVacationStatus {
 export enum MedivetPaymentMethodStatus {
   "ACTIVE" = "ACTIVE",
   "INACTIVE" = "INACTIVE",
+}
+
+export enum MedivetAnimalType {
+  "DOG" = "DOG",
+  "CAT" = "CAT",
+  "BIRD" = "BIRD",
+  "FUR_ANIMAL" = "FUR_ANIMAL",
 }

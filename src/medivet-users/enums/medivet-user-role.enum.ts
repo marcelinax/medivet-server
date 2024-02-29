@@ -1,6 +1,6 @@
 export enum MedivetUserRole {
-    VET = "vet",
-    PATIENT = "patient",
-    REMOVED = "removed",
-    ADMIN = "admin"
+  VET = "VET",
+  PATIENT = "PATIENT",
+  REMOVED = "REMOVED",
+  ADMIN = "ADMIN"
 }

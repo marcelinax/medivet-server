@@ -31,6 +31,7 @@ import { SuccessMessageConstants } from "@/medivet-commons/constants/success-mes
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
+import { MedivetAnimalType } from "@/medivet-commons/enums/enums";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
 import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
@@ -172,7 +173,7 @@ export class MedivetAnimalBreedsController {
   @ApiQuery({
       name: "animalType",
       required: false,
-      type: String
+      enum: MedivetAnimalType
   })
   @ApiQuery({
       name: "search",
@@ -184,7 +185,7 @@ export class MedivetAnimalBreedsController {
   @Get()
   async getAnimalBreeds(
     @Query("pageSize") pageSize: number, @Query("offset") offset: number,
-    @Query("search") search?: string, @Query("animalType") animalType?: string
+    @Query("search") search?: string, @Query("animalType") animalType?: MedivetAnimalType
   ): Promise<MedivetAnimalBreed[]> {
       return this.animalBreedsSerivce.searchAnimalBreeds({
           search,

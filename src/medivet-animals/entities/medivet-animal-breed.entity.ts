@@ -1,23 +1,23 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-import { MedivetAnimalType } from "../enums/medivet-animal-type.enum";
+import { MedivetAnimalType } from "@/medivet-commons/enums/enums";
 
 @Entity()
 export class MedivetAnimalBreed {
-    @ApiProperty()
-    @PrimaryGeneratedColumn()
-    id: number;
+  @ApiProperty()
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @ApiProperty()
-    @Column({ nullable: false })
-    name: string;
+  @ApiProperty()
+  @Column({ nullable: false })
+  name: string;
 
-    @ApiProperty()
-    @Column({
-        type: "enum",
-        enum: MedivetAnimalType,
-        nullable: false
-    })
-    type: MedivetAnimalType;
+  @ApiProperty()
+  @Column({
+      type: "enum",
+      enum: MedivetAnimalType,
+      nullable: false
+  })
+  type: MedivetAnimalType;
 }

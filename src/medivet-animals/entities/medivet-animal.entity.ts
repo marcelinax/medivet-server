@@ -4,9 +4,8 @@ import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } f
 
 import { MedivetAnimalBreed } from "@/medivet-animals/entities/medivet-animal-breed.entity";
 import { MedivetAnimalCoatColor } from "@/medivet-animals/entities/medivet-animal-coat-color.entity";
-import { MedivetAnimalType } from "@/medivet-animals/enums/medivet-animal-type.enum";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
-import { MedivetAnimalStatusEnum, MedivetGenderEnum } from "@/medivet-commons/enums/enums";
+import { MedivetAnimalStatusEnum, MedivetAnimalType, MedivetGenderEnum } from "@/medivet-commons/enums/enums";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 
 const env = envConfig();
