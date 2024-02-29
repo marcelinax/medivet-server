@@ -22,7 +22,7 @@ export class MedivetAppointment {
   medicalService: MedivetVetProvidedMedicalService;
 
   @ApiProperty()
-  @CreateDateColumn({ nullable: false })
+  @Column({ nullable: false })
   date: Date;
 
   @ApiProperty()
@@ -45,4 +45,8 @@ export class MedivetAppointment {
   @OneToOne(() => MedivetAppointmentDiary, appointmentDiary => appointmentDiary.appointment)
   @JoinColumn({ name: "appointmentId" })
   diary: MedivetAppointmentDiary;
+
+  @ApiProperty()
+  @CreateDateColumn({ nullable: false })
+  createdAt: Date;
 }

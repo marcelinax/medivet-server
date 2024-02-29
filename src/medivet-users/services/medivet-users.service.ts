@@ -366,15 +366,18 @@ export class MedivetUsersService {
             relations: [ "animal", "animal.owner", "medicalService", "medicalService.user", "medicalService.user.specializations" ]
         });
 
-        recentUserAppointments.sort((a, b) => a.date.getTime() - b.date.getTime());
+        recentUserAppointments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-        const recentVets = Object.values(
-            recentUserAppointments.map(appointment => appointment.medicalService.user).reduce((acc, obj) => ({
-                ...acc,
-                [obj.id]: obj
-            }), {})
-        );
+        const uniqueRecentVets = [];
+        const uniqueRecentVetObjects = {};
 
-        return paginateData(recentVets, paginationDto);
+        for (const appointment of recentUserAppointments) {
+            if (!uniqueRecentVetObjects[appointment.medicalService.user.id]) {
+                uniqueRecentVetObjects[appointment.medicalService.user.id] = true;
+                uniqueRecentVets.push(appointment.medicalService.user);
+            }
+        }
+
+        return paginateData(Array.from(uniqueRecentVets), paginationDto);
     }
 }
