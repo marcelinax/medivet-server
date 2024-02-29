@@ -1,6 +1,8 @@
 import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
+import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
+import { MedivetAppointmentsModule } from "@/medivet-appointments/medivet-appointments.module";
 import { MedivetAvailableDatesModule } from "@/medivet-available-dates/medivet-available-dates.module";
 import { MedivetSecurityModule } from "@/medivet-security/medivet-security.module";
 import { MedivetVetSpecialization } from "@/medivet-specializations/entities/medivet-vet-specialization.entity";
@@ -26,11 +28,13 @@ import { MedivetVetProvidedMedicalService } from "@/medivet-vet-provided-medical
             MedivetVetSpecialization,
             MedivetVetSpecializationMedicalService,
             MedivetVetProvidedMedicalService,
-            MedivetUserFavouriteVet
+            MedivetUserFavouriteVet,
+            MedivetAppointment
         ]),
         forwardRef(() => MedivetVetSpecializationsModule),
         forwardRef(() => MedivetSecurityModule),
         forwardRef(() => MedivetAvailableDatesModule),
+        forwardRef(() => MedivetAppointmentsModule),
     ],
     controllers: [ MedivetUsersController, MedivetUsersMeController, MedivetFavouriteVetUsersController ],
     providers: [

@@ -1,9 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
+import moment from "moment";
+import { In, MoreThan, Repository } from "typeorm";
 
+import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
 import { MedivetAvailableDatesService } from "@/medivet-available-dates/services/medivet-available-dates.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetSecurityHashingService } from "@/medivet-security/services/medivet-security-hashing.service";
 import { MedivetVetSpecializationMedicalService } from "@/medivet-specializations/entities/medivet-vet-specialization-medical-service.entity";
@@ -22,6 +25,7 @@ export class MedivetUsersService {
     @InjectRepository(MedivetUser) private usersRepository: Repository<MedivetUser>,
     @InjectRepository(MedivetVetSpecializationMedicalService) private vetSpecializationMedicalServiceRepository: Repository<MedivetVetSpecializationMedicalService>,
     @InjectRepository(MedivetVetProvidedMedicalService) private vetProvidedMedicalServiceRepository: Repository<MedivetVetProvidedMedicalService>,
+    @InjectRepository(MedivetAppointment) private appointmentRepository: Repository<MedivetAppointment>,
     private hashingService: MedivetSecurityHashingService,
     private vetSpecializationsService: MedivetVetSpecializationService,
     private availableDatesService: MedivetAvailableDatesService
@@ -347,5 +351,30 @@ export class MedivetUsersService {
             pageSize: searchVetDto.pageSize,
             offset: searchVetDto.offset
         });
+    }
+
+    async getRecentVets(
+        user: MedivetUser,
+        paginationDto: OffsetPaginationDto,
+    ): Promise<MedivetUser[]> {
+    // TODO czy to jest dobrze? Chodzi o czas utc
+        const recentUserAppointments = await this.appointmentRepository.find({
+            where: {
+                animal: { owner: { id: user.id } },
+                date: MoreThan(moment().utc().subtract(6, "months").toDate()),
+            },
+            relations: [ "animal", "animal.owner", "medicalService", "medicalService.user", "medicalService.user.specializations" ]
+        });
+
+        recentUserAppointments.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        const recentVets = Object.values(
+            recentUserAppointments.map(appointment => appointment.medicalService.user).reduce((acc, obj) => ({
+                ...acc,
+                [obj.id]: obj
+            }), {})
+        );
+
+        return paginateData(recentVets, paginationDto);
     }
 }

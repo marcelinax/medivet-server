@@ -28,6 +28,7 @@ import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-except
 import { ErrorExceptionDto } from "@/medivet-commons/dto/error-exception.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { MedivetAvailableDatesFilter, MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
+import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
 import { Role } from "@/medivet-users/decorators/medivet-role.decorator";
@@ -63,6 +64,45 @@ export class MedivetUsersController {
     createMedivetUser(@Body() body: MedivetCreateUserDto): Promise<MedivetUser> {
         return this.usersService.createUser(body);
     }
+
+  @ApiOperation({
+      summary: "Gets recent vets from 6 months ago",
+      description: "Gets recent vets sorting by the latest appointment date"
+  })
+  @ApiOkResponse({
+      description: "Returns list of all recent vets data",
+      type: MedivetUser,
+      isArray: true
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "offset",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "pageSize",
+      required: false,
+      type: Number
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT ])
+  @UseGuards(JwtAuthGuard)
+  @Get(`${PathConstants.VETS}/${PathConstants.RECENT}`)
+  async getRecentVets(
+    @CurrentUser() user: MedivetUser,
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
+  ): Promise<MedivetUser[]> {
+      return this.usersService.getRecentVets(user, {
+          pageSize,
+          offset,
+      });
+  }
 
   @ApiOperation({
       summary: "Gets vets filterd by queries",
