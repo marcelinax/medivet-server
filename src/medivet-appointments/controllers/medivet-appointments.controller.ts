@@ -17,7 +17,8 @@ import {
     ApiOperation,
     ApiQuery,
     ApiTags,
-    ApiUnauthorizedResponse
+    ApiUnauthorizedResponse,
+    getSchemaPath
 } from "@nestjs/swagger";
 
 import { MedivetCreateAppointmentDto } from "@/medivet-appointments/dto/medivet-create-appointment.dto";
@@ -68,6 +69,35 @@ export class MedivetAppointmentsController {
     ): Promise<MedivetAppointment> {
         return this.appointmentsService.createAppointment(createAppointmentDto);
     }
+
+  @ApiOperation({ summary: "Gets the nearest appointment", })
+  @ApiOkResponse({
+      description: "Returns the nearest appointment and returns it's data",
+      schema: {
+          oneOf: [
+              { $ref: getSchemaPath(MedivetAppointment), },
+              { $ref: getSchemaPath(undefined) }
+          ]
+      },
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "include",
+      required: true,
+      type: String
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get(PathConstants.NEAREST)
+  async getNearestAppointment(
+    @CurrentUser() user: MedivetUser,
+    @Query("include") include: string,
+  ): Promise<MedivetAppointment | undefined> {
+      return this.appointmentsService.getNearestAppointment(user, include);
+  }
 
   @ApiOperation({ summary: "Gets appointment by its id", })
   @ApiOkResponse({

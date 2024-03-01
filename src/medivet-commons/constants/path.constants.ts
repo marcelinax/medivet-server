@@ -56,4 +56,5 @@ export class PathConstants {
   public static APPOINTMENTS_TO_BE_CANCELLED = "appointments-to-be-cancelled";
   public static ACTIVE = "active";
   public static RECENT = "recent";
+  public static NEAREST = "nearest";
 }

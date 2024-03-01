@@ -72,6 +72,16 @@ export class MedivetAppointmentsService {
         });
     }
 
+    async getNearestAppointment(user: MedivetUser, include: string): Promise<MedivetAppointment | undefined> {
+        const allAppointments = await this.appointmentRepository.find({
+            relations: include.split(",") ?? [],
+            where: { status: MedivetAppointmentStatus.IN_PROGRESS }
+        });
+        const userAppointments = this.getAppointmentsDependingOnUserRole(user, allAppointments);
+        userAppointments.sort((a, b) => a.date.getTime() - b.date.getTime());
+        return userAppointments.find(appointment => moment(appointment.date).isAfter(moment()));
+    }
+
     async findAppointmentById(id: number, include?: string): Promise<MedivetAppointment> {
         const appointment = await this.appointmentRepository.findOne({
             where: { id },
