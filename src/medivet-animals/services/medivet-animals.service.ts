@@ -64,7 +64,7 @@ export class MedivetAnimalsService {
         return animal;
     }
 
-    async serachAllAnimalsAssignedToOwner(user: MedivetUser, searchAnimalDto: MedivetSearchAnimalDto): Promise<MedivetAnimal[]> {
+    async searchAllAnimalsAssignedToOwner(user: MedivetUser, searchAnimalDto: MedivetSearchAnimalDto): Promise<MedivetAnimal[]> {
         let animals = await this.findAllAnimalsAssignedToOwner(user, searchAnimalDto?.include);
 
         if (searchAnimalDto.search) {
@@ -83,6 +83,19 @@ export class MedivetAnimalsService {
                         return bName.localeCompare(aName);
                 }
             });
+        }
+
+        if (searchAnimalDto.status) {
+            switch (searchAnimalDto.status) {
+                case MedivetAnimalStatusEnum.ACTIVE:
+                    animals = animals.filter(animal => animal.status === MedivetAnimalStatusEnum.ACTIVE);
+                    break;
+                case MedivetAnimalStatusEnum.ARCHIVED:
+                    animals = animals.filter(animal => animal.status === MedivetAnimalStatusEnum.ARCHIVED);
+                    break;
+                default:
+                    break;
+            }
         }
 
         return paginateData(animals, {

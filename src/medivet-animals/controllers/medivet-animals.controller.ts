@@ -34,7 +34,7 @@ import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
-import { MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
+import { MedivetAnimalStatusEnum, MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
@@ -106,6 +106,11 @@ export class MedivetAnimalsController {
       type: String,
       required: false
   })
+  @ApiQuery({
+      name: "status",
+      enum: MedivetAnimalStatusEnum,
+      required: false
+  })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
   @Role([ MedivetUserRole.PATIENT ])
@@ -118,13 +123,15 @@ export class MedivetAnimalsController {
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
     @Query("include") include?: string,
+    @Query("status") status?: MedivetAnimalStatusEnum,
   ): Promise<MedivetAnimal[]> {
-      return this.animalsService.serachAllAnimalsAssignedToOwner(owner, {
+      return this.animalsService.searchAllAnimalsAssignedToOwner(owner, {
           search,
           sortingMode,
           pageSize,
           offset,
-          include
+          include,
+          status
       });
   }
 
