@@ -99,6 +99,45 @@ export class MedivetAppointmentsController {
       return this.appointmentsService.getNearestAppointment(user, include);
   }
 
+  @ApiOperation({ summary: "Gets vet appointments without diary", })
+  @ApiOkResponse({
+      description: "Returns vet appointments without diary and its data",
+      type: MedivetAppointment
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "offset",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "pageSize",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "include",
+      required: false,
+      type: String
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get(PathConstants.WITHOUT_DIARY)
+  async getAppointmentDiary(
+    @CurrentUser() user: MedivetUser,
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
+    @Query("include") include?: string
+  ): Promise<MedivetAppointment[]> {
+      return this.appointmentsService.getVetIncompleteAppointmentDiaries(user, {
+          pageSize,
+          offset
+      }, include);
+  }
+
   @ApiOperation({ summary: "Gets appointment by its id", })
   @ApiOkResponse({
       description: "Returns appointment with matched id and its data",

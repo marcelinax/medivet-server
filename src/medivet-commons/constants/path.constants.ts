@@ -57,4 +57,5 @@ export class PathConstants {
   public static ACTIVE = "active";
   public static RECENT = "recent";
   public static NEAREST = "nearest";
+  public static WITHOUT_DIARY = "without-diary";
 }

@@ -1,13 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import moment from "moment";
-import { Repository } from "typeorm";
+import { MoreThan, Repository } from "typeorm";
 
 import { MedivetAnimalsService } from "@/medivet-animals/services/medivet-animals.service";
 import { MedivetCreateAppointmentDto } from "@/medivet-appointments/dto/medivet-create-appointment.dto";
 import { MedivetSearchAppointmentDto } from "@/medivet-appointments/dto/medivet-search-appointment.dto";
 import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { MedivetAppointmentStatus, MedivetVacationStatus } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
@@ -155,6 +156,25 @@ export class MedivetAppointmentsService {
             ]);
         }
 
+    }
+
+    async getVetIncompleteAppointmentDiaries(
+        vet: MedivetUser,
+        paginationDto: OffsetPaginationDto,
+        include?: string
+    ): Promise<MedivetAppointment[]> {
+        const relations = [ "medicalService", "medicalService.user", ...(include?.split(",") ?? []) ];
+        const incompleteAppointmentDiaries = await this.appointmentRepository.find({
+            where: {
+                medicalService: { user: { id: vet.id } },
+                diary: null,
+                status: MedivetAppointmentStatus.FINISHED,
+                finishedDate: MoreThan(moment().subtract(24, "h").toDate())
+            },
+            relations
+        });
+
+        return paginateData(incompleteAppointmentDiaries, paginationDto);
     }
 
     private getAppointmentsDependingOnUserRole(user: MedivetUser, appointments: MedivetAppointment[]): MedivetAppointment[] {
