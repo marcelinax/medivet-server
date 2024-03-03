@@ -12,7 +12,6 @@ export enum MedivetGenderEnum {
 export enum MedivetSortingModeEnum {
   DESC = "DESC",
   ASC = "ASC",
-  NEAREST_AVAILABILITY = "NEAREST-AVAILABILITY"
 }
 
 export enum MedivetOpinionSortingModeEnum {

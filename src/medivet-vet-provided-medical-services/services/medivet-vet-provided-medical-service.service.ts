@@ -116,7 +116,7 @@ export class MedivetVetProvidedMedicalServiceService {
 
         if (sorting) {
             switch (sorting) {
-                case MedivetSortingModeEnum.NEAREST_AVAILABILITY: {
+                case MedivetSortingModeEnum.DESC: {
                     const copiedVetProvidedMedicalServices = [ ...vetProvidedMedicalServices ];
                     vetProvidedMedicalServices = await this.getSortedVetProvidedMedicalServicesByNearestAvailability(copiedVetProvidedMedicalServices);
                     break;

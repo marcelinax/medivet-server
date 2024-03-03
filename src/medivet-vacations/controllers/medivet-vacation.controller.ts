@@ -13,7 +13,7 @@ import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
 import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
-import { MedivetVacationStatus } from "@/medivet-commons/enums/enums";
+import { MedivetSortingModeEnum, MedivetVacationStatus } from "@/medivet-commons/enums/enums";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
 import { JwtAuthGuard } from "@/medivet-security/guards/medivet-jwt-auth.guard";
 import { MedivetRoleGuard } from "@/medivet-security/guards/medivet-role.guard";
@@ -81,6 +81,11 @@ export class MedivetVacationController {
       required: false,
       enum: MedivetVacationStatus
   })
+  @ApiQuery({
+      name: "sortingMode",
+      required: false,
+      enum: MedivetSortingModeEnum
+  })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
   @Role([ MedivetUserRole.VET ])
@@ -90,12 +95,15 @@ export class MedivetVacationController {
     @CurrentUser() user: MedivetUser,
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
-    @Query("status") status?: MedivetVacationStatus
+    @Query("status") status?: MedivetVacationStatus,
+    @Query("sortingMode") sortingMode?: MedivetSortingModeEnum,
   ): Promise<MedivetVacation[]> {
       return this.vacationService.searchVacationsForUser(user, {
           pageSize,
           offset,
-      }, status);
+          sortingMode,
+          status
+      });
   }
 
   @ApiOperation({ summary: "Gets amount of appointments to be cancelled because of vacation", })

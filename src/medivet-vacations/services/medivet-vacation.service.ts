@@ -5,11 +5,11 @@ import { Between, Repository } from "typeorm";
 
 import { MedivetAppointment } from "@/medivet-appointments/entities/medivet-appointment.entity";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
-import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
-import { MedivetAppointmentStatus, MedivetVacationStatus } from "@/medivet-commons/enums/enums";
+import { MedivetAppointmentStatus, MedivetSortingModeEnum, MedivetVacationStatus } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetCreateVacationDto } from "@/medivet-vacations/dto/medivet-create-vacation.dto";
+import { MedivetSearchVacationDto } from "@/medivet-vacations/dto/medivet-search-vacation.dto";
 import { MedivetVacation } from "@/medivet-vacations/entities/medivet-vacation.entity";
 
 @Injectable()
@@ -52,16 +52,30 @@ export class MedivetVacationService {
 
     async searchVacationsForUser(
         user: MedivetUser,
-        paginationDto: OffsetPaginationDto,
-        status?: MedivetVacationStatus
+        searchVacationsDto: MedivetSearchVacationDto
     ): Promise<MedivetVacation[]> {
+        const { status, offset, pageSize, sortingMode } = searchVacationsDto;
         let vacations = await this.findAllVacationsForUser(user.id);
 
         if (status) {
             vacations = vacations.filter(vacation => vacation.status === status);
         }
 
-        return paginateData(vacations, paginationDto);
+        if (sortingMode) {
+            switch (sortingMode) {
+                case MedivetSortingModeEnum.DESC:
+                    return vacations.sort((a, b) => b.from.getTime() - a.to.getTime());
+                case MedivetSortingModeEnum.ASC:
+                    return vacations.sort((a, b) => a.from.getTime() - b.to.getTime());
+                default:
+                    return vacations;
+            }
+        }
+
+        return paginateData(vacations, {
+            offset,
+            pageSize
+        });
     }
 
     async getActiveVetVacations(vetId: number): Promise<MedivetVacation[]> {
