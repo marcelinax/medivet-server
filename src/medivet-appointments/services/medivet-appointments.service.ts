@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import moment from "moment";
 import { MoreThan, Repository } from "typeorm";
@@ -22,6 +22,7 @@ export class MedivetAppointmentsService {
     constructor(
     @InjectRepository(MedivetAppointment) private appointmentRepository: Repository<MedivetAppointment>,
     private medicalProvidedServicesService: MedivetVetProvidedMedicalServiceService,
+    @Inject(forwardRef(() => MedivetAnimalsService))
     private animalsService: MedivetAnimalsService,
     private vacationService: MedivetVacationService,
     ) {
@@ -175,6 +176,21 @@ export class MedivetAppointmentsService {
         });
 
         return paginateData(incompleteAppointmentDiaries, paginationDto);
+    }
+
+    async cancelAllAnimalAppointments(animalId: number): Promise<void> {
+        const appointments = await this.appointmentRepository.find({
+            where: { animal: { id: animalId } },
+            relations: [ "animal" ]
+        });
+
+        for (const appointment of appointments) {
+            if (appointment.status === MedivetAppointmentStatus.IN_PROGRESS) {
+                appointment.status = MedivetAppointmentStatus.CANCELLED;
+                await this.appointmentRepository.save(appointment);
+            }
+        }
+
     }
 
     private getAppointmentsDependingOnUserRole(user: MedivetUser, appointments: MedivetAppointment[]): MedivetAppointment[] {

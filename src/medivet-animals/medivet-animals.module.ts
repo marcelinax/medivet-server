@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { MedivetAnimalBreedsController } from "@/medivet-animals/controllers/medivet-animal-breeds.controller";
@@ -11,6 +11,7 @@ import { MedivetAnimalBreedsService } from "@/medivet-animals/services/medivet-a
 import { MedivetAnimalCoatColorsService } from "@/medivet-animals/services/medivet-animal-coat-colors.service";
 import { MedivetAnimalProfilePhotosService } from "@/medivet-animals/services/medivet-animal-profile-photos.service";
 import { MedivetAnimalsService } from "@/medivet-animals/services/medivet-animals.service";
+import { MedivetAppointmentsModule } from "@/medivet-appointments/medivet-appointments.module";
 
 @Module({
     imports: [
@@ -19,9 +20,11 @@ import { MedivetAnimalsService } from "@/medivet-animals/services/medivet-animal
             MedivetAnimalBreed,
             MedivetAnimalCoatColor
         ]),
+        forwardRef(() => MedivetAppointmentsModule),
     ],
     providers: [ MedivetAnimalsService, MedivetAnimalProfilePhotosService, MedivetAnimalBreedsService, MedivetAnimalCoatColorsService ],
     exports: [ MedivetAnimalsService, MedivetAnimalProfilePhotosService, MedivetAnimalBreedsService, MedivetAnimalCoatColorsService ],
     controllers: [ MedivetAnimalsController, MedivetAnimalBreedsController, MedivetAnimalCoatColorsController ]
 })
-export class MedivetAnimalsModule { }
+export class MedivetAnimalsModule {
+}

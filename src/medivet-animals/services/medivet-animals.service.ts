@@ -1,4 +1,11 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import {
+    BadRequestException,
+    forwardRef,
+    Inject,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
@@ -7,6 +14,7 @@ import { MedivetSearchAnimalDto } from "@/medivet-animals/dto/medivet-search-ani
 import { MedivetAnimal } from "@/medivet-animals/entities/medivet-animal.entity";
 import { MedivetAnimalBreedsService } from "@/medivet-animals/services/medivet-animal-breeds.service";
 import { MedivetAnimalCoatColorsService } from "@/medivet-animals/services/medivet-animal-coat-colors.service";
+import { MedivetAppointmentsService } from "@/medivet-appointments/services/medivet-appointments.service";
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { MedivetAnimalStatusEnum, MedivetSortingModeEnum } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
@@ -18,6 +26,8 @@ export class MedivetAnimalsService {
     @InjectRepository(MedivetAnimal) private animalsRepository: Repository<MedivetAnimal>,
     private animalBreedsService: MedivetAnimalBreedsService,
     private animalCoatColorsService: MedivetAnimalCoatColorsService,
+    @Inject(forwardRef(() => MedivetAppointmentsService))
+    private appointmentsService: MedivetAppointmentsService
     ) {
     }
 
@@ -111,6 +121,9 @@ export class MedivetAnimalsService {
 
         animal.status = MedivetAnimalStatusEnum.ARCHIVED;
         await this.animalsRepository.save(animal);
+
+        await this.appointmentsService.cancelAllAnimalAppointments(animal.id);
+
         return animal;
     }
 
