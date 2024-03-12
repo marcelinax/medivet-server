@@ -7,6 +7,7 @@ import { join } from "path";
 import { MedivetAnimalsModule } from "@/medivet-animals/medivet-animals.module";
 import { MedivetAppointmentsModule } from "@/medivet-appointments/medivet-appointments.module";
 import { MedivetAvailableDatesModule } from "@/medivet-available-dates/medivet-available-dates.module";
+import { MedivetCitiesModule } from "@/medivet-cities/medivet-cities.module";
 import { MedivetClinicsModule } from "@/medivet-clinics/medivet-clinics.module";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { MedivetMailerModule } from "@/medivet-mailer/medivet-mailer.module";
@@ -51,7 +52,8 @@ import { MedivetVetProvidedMedicalServiceModule } from "@/medivet-vet-provided-m
         MedivetVetProvidedMedicalServiceModule,
         MedivetAvailableDatesModule,
         MedivetAppointmentsModule,
-        MedivetVacationsModule
+        MedivetVacationsModule,
+        MedivetCitiesModule
     ],
 })
 export class MedivetAppModule {
