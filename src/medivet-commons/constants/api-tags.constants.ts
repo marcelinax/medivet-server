@@ -18,4 +18,5 @@ export class ApiTagsConstants {
   public static VACATIONS = "vacations";
   public static PAYMENT_METHODS = "payment-methods";
   public static CITIES = "cities";
+  public static MESSAGES = "messages";
 }

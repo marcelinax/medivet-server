@@ -90,3 +90,9 @@ export enum MedivetAnimalType {
   "BIRD" = "BIRD",
   "FUR_ANIMAL" = "FUR_ANIMAL",
 }
+
+export enum MedivetMessageStatus {
+  ACTIVE = "ACTIVE",
+  ARCHIVED = "ARCHIVED",
+  REMOVED = "REMOVED",
+}

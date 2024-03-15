@@ -20,6 +20,7 @@ export class PathConstants {
   public static VACATIONS = "vacations";
   public static PAYMENT_METHODS = "payment-methods";
   public static CITIES = "cities";
+  public static MESSAGES = "messages";
 
   public static LOGIN = "login";
   public static ME = "me";

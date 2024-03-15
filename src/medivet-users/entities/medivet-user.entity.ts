@@ -7,6 +7,7 @@ import { MedivetClinicAssignmentRequest } from "@/medivet-clinics/entities/mediv
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { AddressDto } from "@/medivet-commons/dto/address.dto";
 import { MedivetGenderEnum } from "@/medivet-commons/enums/enums";
+import { MedivetMessage } from "@/medivet-messages/entities/medivet-message.entity";
 import { MedivetOpinion } from "@/medivet-opinions/entities/medivet-opinion.entity";
 import { MedivetVetSpecialization } from "@/medivet-specializations/entities/medivet-vet-specialization.entity";
 import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
@@ -91,4 +92,12 @@ export class MedivetUser {
   @ApiProperty({ type: () => MedivetVetAvailability })
   @OneToMany(() => MedivetVetAvailability, availability => availability.user)
   vetAvailabilities: MedivetVetAvailability[];
+
+  @ApiProperty()
+  @OneToMany(() => MedivetMessage, message => message.receiver)
+  receivedMessages: MedivetMessage[];
+
+  @ApiProperty()
+  @OneToMany(() => MedivetMessage, message => message.issuer)
+  sentMessages: MedivetMessage[];
 }

@@ -114,18 +114,16 @@ export class MedivetVetProvidedMedicalServiceService {
             vetProvidedMedicalServices = vetProvidedMedicalServices.filter(vetProvidedMedicalService => medicalServiceIds.includes(vetProvidedMedicalService.medicalService.id));
         }
 
-        if (sorting) {
-            switch (sorting) {
-                case MedivetSortingModeEnum.DESC: {
-                    const copiedVetProvidedMedicalServices = [ ...vetProvidedMedicalServices ];
-                    vetProvidedMedicalServices = await this.getSortedVetProvidedMedicalServicesByNearestAvailability(copiedVetProvidedMedicalServices);
-                    break;
-                }
-                default:
-                    break;
+        switch (sorting) {
+            case MedivetSortingModeEnum.DESC: {
+                const copiedVetProvidedMedicalServices = [ ...vetProvidedMedicalServices ];
+                vetProvidedMedicalServices = await this.getSortedVetProvidedMedicalServicesByNearestAvailability(copiedVetProvidedMedicalServices);
+                break;
             }
+            default:
+                vetProvidedMedicalServices.sort((a, b) => a.medicalService.name.localeCompare(b.medicalService.name));
+                break;
         }
-        vetProvidedMedicalServices.sort((a, b) => a.medicalService.name.localeCompare(b.medicalService.name));
 
         return paginateData(vetProvidedMedicalServices, {
             offset: searchVetProvidedMedicalServiceDto.offset,

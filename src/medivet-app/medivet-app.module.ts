@@ -11,6 +11,7 @@ import { MedivetCitiesModule } from "@/medivet-cities/medivet-cities.module";
 import { MedivetClinicsModule } from "@/medivet-clinics/medivet-clinics.module";
 import { envConfig } from "@/medivet-commons/configurations/env-config";
 import { MedivetMailerModule } from "@/medivet-mailer/medivet-mailer.module";
+import { MedivetMessagesModule } from "@/medivet-messages/medivet-messages.module";
 import { MedivetOpinionsModule } from "@/medivet-opinions/medivet-opinions.module";
 import { MedivetSecurityModule } from "@/medivet-security/medivet-security.module";
 import { MedivetVetSpecializationsModule } from "@/medivet-specializations/medivet-vet-specializations.module";
@@ -53,7 +54,8 @@ import { MedivetVetProvidedMedicalServiceModule } from "@/medivet-vet-provided-m
         MedivetAvailableDatesModule,
         MedivetAppointmentsModule,
         MedivetVacationsModule,
-        MedivetCitiesModule
+        MedivetCitiesModule,
+        MedivetMessagesModule
     ],
 })
 export class MedivetAppModule {

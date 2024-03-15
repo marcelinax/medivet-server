@@ -70,4 +70,6 @@ export class ErrorMessagesConstants {
   public static VET_IS_ON_VACATION = "Vet is on vacation.";
   public static PAYMENT_METHOD_WITH_NAME_ALREADY_EXISTS = "Payment method with name already exists.";
   public static PAYMENT_METHOD_WITH_THIS_ID_DOES_NOT_EXIST = "Payment method with this id does not exist.";
+  public static USER_IS_NOT_VALID = "User is not valid.";
+  public static ISSUER_CANNOT_SEND_MESSAGE_TO_RECEIVER_WITH_THE_SAME_ROLE = "Issuer cannot send message to receiver with the same role.";
 }
