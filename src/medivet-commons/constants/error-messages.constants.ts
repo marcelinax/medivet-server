@@ -72,4 +72,6 @@ export class ErrorMessagesConstants {
   public static PAYMENT_METHOD_WITH_THIS_ID_DOES_NOT_EXIST = "Payment method with this id does not exist.";
   public static USER_IS_NOT_VALID = "User is not valid.";
   public static ISSUER_CANNOT_SEND_MESSAGE_TO_RECEIVER_WITH_THE_SAME_ROLE = "Issuer cannot send message to receiver with the same role.";
+  public static CANNOT_CHANGE_MESSAGE_STATUS_FROM_ACTIVE_TO_REMOVED = "Cannot change message status from \"ACTIVE\" to \"REMOVED\".";
+  public static CANNOT_CHANGE_MESSAGE_STATUS_FROM_REMOVED = "Cannot change message status from \"REMOVED\".";
 }

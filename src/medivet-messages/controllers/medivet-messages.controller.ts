@@ -1,10 +1,32 @@
-import { ClassSerializerInterceptor, Controller, Get, Query, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import {
+    Body,
+    ClassSerializerInterceptor,
+    Controller,
+    Get,
+    Put,
+    Query,
+    UseGuards,
+    UseInterceptors
+} from "@nestjs/common";
+import {
+    ApiBadRequestResponse,
+    ApiBearerAuth,
+    ApiOkResponse,
+    ApiOperation,
+    ApiQuery,
+    ApiTags,
+    ApiUnauthorizedResponse
+} from "@nestjs/swagger";
 
 import { ApiTagsConstants } from "@/medivet-commons/constants/api-tags.constants";
+import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { PathConstants } from "@/medivet-commons/constants/path.constants";
+import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-exception.dto";
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { MedivetMessageStatus } from "@/medivet-commons/enums/enums";
+import { MedivetUpdateMessageDto } from "@/medivet-messages/dto/medivet-update-message.dto";
 import { MedivetMessage } from "@/medivet-messages/entities/medivet-message.entity";
 import { MedivetMessagesService } from "@/medivet-messages/services/medivet-messages.service";
 import { MedivetUserConversation } from "@/medivet-messages/types/types";
@@ -69,4 +91,33 @@ export class MedivetMessagesController {
             status
         });
     }
+
+  @ApiOperation({ summary: "Changes status for all messages with specified user", })
+  @ApiOkResponse({
+      description: SuccessMessageConstants.USER_CONVERSATION_STATUS_HAS_BEEN_CHANGED_SUCCESSFULLY,
+      type: OkMessageDto
+  })
+  @ApiBadRequestResponse({
+      description: ErrorMessagesConstants.CANNOT_CHANGE_MESSAGE_STATUS_FROM_ACTIVE_TO_REMOVED
+      || ErrorMessagesConstants.CANNOT_CHANGE_MESSAGE_STATUS_FROM_REMOVED,
+      type: BadRequestExceptionDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT, MedivetUserRole.VET ])
+  @UseGuards(JwtAuthGuard)
+  @Put()
+  async changeConversationStatus(
+    @CurrentUser() user: MedivetUser,
+    @Body() body: MedivetUpdateMessageDto
+  ): Promise<OkMessageDto> {
+      return this.messagesService.changeConversationStatus(user, {
+          status: body.status,
+          userId: body.userId
+      });
+  }
 }

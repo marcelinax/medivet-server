@@ -4,10 +4,13 @@ import { Socket } from "socket.io";
 import { Repository } from "typeorm";
 
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
+import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { MedivetMessageStatus } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetCreateMessageDto } from "@/medivet-messages/dto/medivet-create-message.dto";
 import { MedivetSearchMessageDto } from "@/medivet-messages/dto/medivet-search-message.dto";
+import { MedivetUpdateMessageDto } from "@/medivet-messages/dto/medivet-update-message.dto";
 import { MedivetMessage } from "@/medivet-messages/entities/medivet-message.entity";
 import { MedivetUserConversation } from "@/medivet-messages/types/types";
 import { MedivetSecurityAuthService } from "@/medivet-security/services/medivet-security-auth.service";
@@ -121,9 +124,6 @@ export class MedivetMessagesService {
             case MedivetMessageStatus.ARCHIVED:
                 conversations = conversations.filter(message => message.status == MedivetMessageStatus.ARCHIVED);
                 break;
-            case MedivetMessageStatus.REMOVED:
-                conversations = conversations.filter(message => message.status == MedivetMessageStatus.REMOVED);
-                break;
             case MedivetMessageStatus.ACTIVE:
             default:
                 conversations = conversations.filter(message => message.status == MedivetMessageStatus.ACTIVE);
@@ -134,6 +134,71 @@ export class MedivetMessagesService {
             pageSize,
             offset
         });
+    }
+
+    async changeConversationStatus(
+        user: MedivetUser,
+        updateMessageDto: MedivetUpdateMessageDto,
+    ): Promise<OkMessageDto> {
+        const { status, userId } = updateMessageDto;
+        const sentMessages = await this.messagesRepository.find({
+            where: {
+                receiver: { id: userId },
+                issuer: { id: user.id }
+            },
+            relations: [ "issuer", "receiver" ]
+        });
+
+        await this.validateConversationStatus(sentMessages, true, status);
+
+        for (const sentMessage of sentMessages) {
+            sentMessage.issuerStatus = status;
+            await this.messagesRepository.save(sentMessage);
+        }
+
+        const receivedMessages = await this.messagesRepository.find({
+            where: {
+                receiver: { id: user.id },
+                issuer: { id: userId }
+            },
+            relations: [ "issuer", "receiver" ]
+        });
+
+        await this.validateConversationStatus(receivedMessages, false, status);
+
+        for (const receivedMessage of receivedMessages) {
+            receivedMessage.receiverStatus = status;
+            await this.messagesRepository.save(receivedMessage);
+        }
+
+        return { message: SuccessMessageConstants.USER_CONVERSATION_STATUS_HAS_BEEN_CHANGED_SUCCESSFULLY };
+    }
+
+    private validateConversationStatus(
+        messages: MedivetMessage[],
+        asIssuer: boolean,
+        newStatus: MedivetMessageStatus
+    ): Promise<void> {
+        if (messages.length === 0) return;
+
+        const messageStatus = asIssuer ? messages[0].issuerStatus : messages[0].receiverStatus;
+
+        if (messageStatus === MedivetMessageStatus.ACTIVE && newStatus === MedivetMessageStatus.REMOVED) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.CANNOT_CHANGE_MESSAGE_STATUS_FROM_ACTIVE_TO_REMOVED,
+                    property: "all"
+                }
+            ]);
+        }
+        if (messageStatus === MedivetMessageStatus.REMOVED) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.CANNOT_CHANGE_MESSAGE_STATUS_FROM_REMOVED,
+                    property: "all"
+                }
+            ]);
+        }
     }
 
 }
