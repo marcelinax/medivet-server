@@ -3,6 +3,7 @@ import {
     ClassSerializerInterceptor,
     Controller,
     Get,
+    Param,
     Put,
     Query,
     UseGuards,
@@ -27,7 +28,6 @@ import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { MedivetMessageStatus } from "@/medivet-commons/enums/enums";
 import { MedivetUpdateMessageDto } from "@/medivet-messages/dto/medivet-update-message.dto";
-import { MedivetMessage } from "@/medivet-messages/entities/medivet-message.entity";
 import { MedivetMessagesService } from "@/medivet-messages/services/medivet-messages.service";
 import { MedivetUserConversation } from "@/medivet-messages/types/types";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
@@ -52,7 +52,7 @@ export class MedivetMessagesController {
   })
   @ApiOkResponse({
       description: "Returns array of all user conversations filtered by status",
-      type: MedivetMessage,
+      type: MedivetUserConversation,
       isArray: true
   })
   @ApiUnauthorizedResponse({
@@ -91,6 +91,45 @@ export class MedivetMessagesController {
             status
         });
     }
+
+  @ApiOperation({
+      summary: "Gets conversation with specified user",
+      description: "Returns all messages with specified user from newest to oldest"
+  })
+  @ApiOkResponse({
+      description: "Returns all messages with specified user",
+      type: MedivetUserConversation,
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiQuery({
+      name: "offset",
+      required: false,
+      type: Number
+  })
+  @ApiQuery({
+      name: "pageSize",
+      required: false,
+      type: Number
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT, MedivetUserRole.VET ])
+  @UseGuards(JwtAuthGuard)
+  @Get(PathConstants.ID_PARAM)
+  async getConversationWithUser(
+    @Param("id") correspondingUserId: number,
+    @CurrentUser() user: MedivetUser,
+    @Query("pageSize") pageSize?: number,
+    @Query("offset") offset?: number,
+  ): Promise<MedivetUserConversation> {
+      return this.messagesService.getConversationWithUser(user, correspondingUserId, {
+          pageSize,
+          offset
+      });
+  }
 
   @ApiOperation({ summary: "Changes status for all messages with specified user", })
   @ApiOkResponse({

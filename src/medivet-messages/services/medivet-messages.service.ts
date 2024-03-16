@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
+import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { MedivetMessageStatus } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
@@ -174,6 +175,40 @@ export class MedivetMessagesService {
         return { message: SuccessMessageConstants.USER_CONVERSATION_STATUS_HAS_BEEN_CHANGED_SUCCESSFULLY };
     }
 
+    async getConversationWithUser(
+        user: MedivetUser,
+        correspondingUserId: number,
+        paginationDto: OffsetPaginationDto,
+    ): Promise<MedivetUserConversation> {
+        const relations = [ "issuer", "receiver" ];
+        const correspondingUser = await this.usersService.findOneById(correspondingUserId);
+
+        const sentMessages = await this.messagesRepository.find({
+            relations,
+            where: {
+                issuer: { id: user.id },
+                receiver: { id: correspondingUserId }
+            }
+        });
+        const receivedMessages = await this.messagesRepository.find({
+            relations,
+            where: {
+                receiver: { id: user.id },
+                issuer: { id: correspondingUserId }
+            }
+        });
+        const allMessages = [ ...sentMessages, ...receivedMessages ];
+
+        allMessages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+        return {
+            user: correspondingUser,
+            messages: paginateData(allMessages, paginationDto),
+            lastUpdate: allMessages[allMessages.length - 1].createdAt,
+            status: sentMessages[0].issuerStatus
+        };
+    }
+
     private validateConversationStatus(
         messages: MedivetMessage[],
         asIssuer: boolean,
@@ -200,5 +235,4 @@ export class MedivetMessagesService {
             ]);
         }
     }
-
 }
