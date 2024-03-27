@@ -41,4 +41,8 @@ export class MedivetMessage {
   @ApiProperty()
   @Column({ nullable: false })
   message: string;
+
+  @ApiProperty()
+  @Column({ nullable: false })
+  read: boolean;
 }

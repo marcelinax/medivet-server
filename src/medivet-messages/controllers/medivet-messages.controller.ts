@@ -28,6 +28,8 @@ import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { MedivetMessageStatus } from "@/medivet-commons/enums/enums";
 import { MedivetUpdateMessageDto } from "@/medivet-messages/dto/medivet-update-message.dto";
+import { MedivetUserConversationDto } from "@/medivet-messages/dto/medivet-user-conversation.dto";
+import { MedivetMessage } from "@/medivet-messages/entities/medivet-message.entity";
 import { MedivetMessagesService } from "@/medivet-messages/services/medivet-messages.service";
 import { MedivetUserConversation } from "@/medivet-messages/types/types";
 import { CurrentUser } from "@/medivet-security/decorators/medivet-current-user.decorator";
@@ -52,7 +54,7 @@ export class MedivetMessagesController {
   })
   @ApiOkResponse({
       description: "Returns array of all user conversations filtered by status",
-      type: MedivetUserConversation,
+      type: MedivetUserConversationDto,
       isArray: true
   })
   @ApiUnauthorizedResponse({
@@ -98,7 +100,7 @@ export class MedivetMessagesController {
   })
   @ApiOkResponse({
       description: "Returns all messages with specified user",
-      type: MedivetUserConversation,
+      type: MedivetUserConversationDto,
   })
   @ApiUnauthorizedResponse({
       description: "Bad authorization",
@@ -124,8 +126,8 @@ export class MedivetMessagesController {
     @CurrentUser() user: MedivetUser,
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
-  ): Promise<MedivetUserConversation> {
-      return this.messagesService.getConversationWithUser(user, correspondingUserId, {
+  ): Promise<MedivetMessage[]> {
+      return this.messagesService.getMessagesWithUser(user, correspondingUserId, {
           pageSize,
           offset
       });

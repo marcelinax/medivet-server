@@ -42,6 +42,7 @@ export class MedivetMessagesService {
             receiverStatus: MedivetMessageStatus.ACTIVE,
             issuer,
             issuerStatus: MedivetMessageStatus.ACTIVE,
+            read: false
         });
         await this.messagesRepository.save(newMessage);
 
@@ -51,20 +52,6 @@ export class MedivetMessagesService {
     async getUserFromSocket(socket: Socket): Promise<MedivetUser> {
         const { token } = socket.handshake.auth;
         return this.authService.findUserByAuthToken(token);
-    }
-
-    async checkIfIssuerCanSendMessageToReceiverBasedOnUserRole(
-        issuer: MedivetUser,
-        receiver: MedivetUser
-    ): Promise<void> {
-        if (issuer.role === receiver.role) {
-            throw new BadRequestException([
-                {
-                    message: ErrorMessagesConstants.ISSUER_CANNOT_SEND_MESSAGE_TO_RECEIVER_WITH_THE_SAME_ROLE,
-                    property: "all"
-                }
-            ]);
-        }
     }
 
     async searchAllUserConversations(
@@ -175,10 +162,11 @@ export class MedivetMessagesService {
         return { message: SuccessMessageConstants.USER_CONVERSATION_STATUS_HAS_BEEN_CHANGED_SUCCESSFULLY };
     }
 
+    // TODO jeżeli ktos znowu do nas napisze po usunięciu to co wtedy?
     async getConversationWithUser(
         user: MedivetUser,
         correspondingUserId: number,
-        paginationDto: OffsetPaginationDto,
+        paginationDto?: OffsetPaginationDto,
     ): Promise<MedivetUserConversation> {
         const relations = [ "issuer", "receiver" ];
         const correspondingUser = await this.usersService.findOneById(correspondingUserId);
@@ -207,6 +195,69 @@ export class MedivetMessagesService {
             lastUpdate: allMessages[allMessages.length - 1].createdAt,
             status: sentMessages[0].issuerStatus
         };
+    }
+
+    async getMessagesWithUser(
+        user: MedivetUser,
+        correspondingUserId: number,
+        paginationDto?: OffsetPaginationDto,
+    ): Promise<MedivetMessage[]> {
+        const relations = [ "issuer", "receiver" ];
+
+        const sentMessages = await this.messagesRepository.find({
+            relations,
+            where: {
+                issuer: { id: user.id },
+                receiver: { id: correspondingUserId }
+            }
+        });
+        const receivedMessages = await this.messagesRepository.find({
+            relations,
+            where: {
+                receiver: { id: user.id },
+                issuer: { id: correspondingUserId }
+            }
+        });
+        const allMessages = [ ...sentMessages, ...receivedMessages ];
+
+        allMessages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+        return paginateData(allMessages, paginationDto);
+    }
+
+    async markConversationAsRead(
+        user: MedivetUser,
+        correspondingUserId: number,
+    ): Promise<MedivetMessage[]> {
+        const unreadMessages = await this.messagesRepository.find({
+            where: {
+                read: false,
+                receiver: { id: user.id },
+                issuer: { id: correspondingUserId }
+            },
+            relations: [ "issuer", "receiver" ]
+        });
+
+        for (const unreadMessage of unreadMessages) {
+            unreadMessage.read = true;
+            await this.messagesRepository.save(unreadMessage);
+        }
+
+        return unreadMessages;
+    }
+
+    private async checkIfIssuerCanSendMessageToReceiverBasedOnUserRole(
+        issuer: MedivetUser,
+        receiver: MedivetUser
+    ): Promise<void> {
+        if (issuer.role === receiver.role) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.ISSUER_CANNOT_SEND_MESSAGE_TO_RECEIVER_WITH_THE_SAME_ROLE,
+                    property: "all"
+                }
+            ]);
+        }
     }
 
     private validateConversationStatus(
