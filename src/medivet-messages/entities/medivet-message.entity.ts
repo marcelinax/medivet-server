@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 import { MedivetMessageStatus } from "@/medivet-commons/enums/enums";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
@@ -10,11 +10,11 @@ export class MedivetMessage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => MedivetUser })
   @ManyToOne(() => MedivetUser, user => user.receivedMessages)
   receiver: MedivetUser;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => MedivetUser })
   @ManyToOne(() => MedivetUser, user => user.sentMessages)
   issuer: MedivetUser;
 
@@ -45,4 +45,8 @@ export class MedivetMessage {
   @ApiProperty()
   @Column({ nullable: false })
   read: boolean;
+
+  @ApiProperty()
+  @UpdateDateColumn({ nullable: true })
+  lastUpdate: Date;
 }

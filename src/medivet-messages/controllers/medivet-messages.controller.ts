@@ -4,6 +4,7 @@ import {
     Controller,
     Get,
     Param,
+    Post,
     Put,
     Query,
     UseGuards,
@@ -27,6 +28,7 @@ import { BadRequestExceptionDto } from "@/medivet-commons/dto/bad-request-except
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { UnauthorizedExceptionDto } from "@/medivet-commons/dto/unauthorized-exception.dto";
 import { MedivetMessageStatus } from "@/medivet-commons/enums/enums";
+import { MedivetCreateMessageDto } from "@/medivet-messages/dto/medivet-create-message.dto";
 import { MedivetUpdateMessageDto } from "@/medivet-messages/dto/medivet-update-message.dto";
 import { MedivetUserConversationDto } from "@/medivet-messages/dto/medivet-user-conversation.dto";
 import { MedivetMessage } from "@/medivet-messages/entities/medivet-message.entity";
@@ -76,6 +78,11 @@ export class MedivetMessagesController {
       required: false,
       type: Number
   })
+  @ApiQuery({
+      name: "lastUpdate",
+      required: false,
+      type: String
+  })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
   @Role([ MedivetUserRole.PATIENT, MedivetUserRole.VET ])
@@ -86,11 +93,13 @@ export class MedivetMessagesController {
     @Query("status") status?: MedivetMessageStatus,
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
+    @Query("lastUpdate") lastUpdate?: string,
     ): Promise<MedivetUserConversation[]> {
         return this.messagesService.searchAllUserConversations(user, {
             offset,
             pageSize,
-            status
+            status,
+            lastUpdate
         });
     }
 
@@ -116,6 +125,11 @@ export class MedivetMessagesController {
       required: false,
       type: Number
   })
+  @ApiQuery({
+      name: "lastUpdate",
+      required: false,
+      type: Date
+  })
   @ApiBearerAuth()
   @UseGuards(MedivetRoleGuard)
   @Role([ MedivetUserRole.PATIENT, MedivetUserRole.VET ])
@@ -126,10 +140,12 @@ export class MedivetMessagesController {
     @CurrentUser() user: MedivetUser,
     @Query("pageSize") pageSize?: number,
     @Query("offset") offset?: number,
+    @Query("lastUpdate") lastUpdate?: string,
   ): Promise<MedivetMessage[]> {
       return this.messagesService.getMessagesWithUser(user, correspondingUserId, {
           pageSize,
-          offset
+          offset,
+          lastUpdate
       });
   }
 
@@ -160,5 +176,52 @@ export class MedivetMessagesController {
           status: body.status,
           userId: body.userId
       });
+  }
+
+  @ApiOperation({ summary: "Creates new message with corresponding user and returns it" })
+  @ApiOkResponse({
+      description: "Message has been created successfully",
+      type: MedivetMessage
+  })
+  @ApiBadRequestResponse({
+      description: ErrorMessagesConstants.ISSUER_CANNOT_SEND_MESSAGE_TO_RECEIVER_WITH_THE_SAME_ROLE,
+      type: BadRequestExceptionDto
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT, MedivetUserRole.VET ])
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  async createMessage(
+    @CurrentUser() user: MedivetUser,
+    @Body() body: MedivetCreateMessageDto
+  ): Promise<MedivetMessage> {
+      return this.messagesService.createMessage(user, body);
+  }
+
+  @ApiOperation({ summary: "Marks all unread messages of conversation as read and returns its" })
+  @ApiOkResponse({
+      description: "Messages have been read",
+      type: MedivetMessage,
+      isArray: true
+  })
+  @ApiUnauthorizedResponse({
+      description: "Bad authorization",
+      type: UnauthorizedExceptionDto
+  })
+  @ApiBearerAuth()
+  @UseGuards(MedivetRoleGuard)
+  @Role([ MedivetUserRole.PATIENT, MedivetUserRole.VET ])
+  @UseGuards(JwtAuthGuard)
+  @Put(`/${PathConstants.READ}${PathConstants.ID_PARAM}`)
+  async markConversationAsRead(
+    @CurrentUser() user: MedivetUser,
+    @Param("id") correspondingUserId: number
+  ): Promise<MedivetMessage[]> {
+      return this.messagesService.markConversationAsRead(user, correspondingUserId);
   }
 }

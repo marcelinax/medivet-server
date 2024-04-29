@@ -1,20 +1,19 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Socket } from "socket.io";
-import { Repository } from "typeorm";
+import moment from "moment";
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from "typeorm";
 
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
-import { OffsetPaginationDto } from "@/medivet-commons/dto/offset-pagination.dto";
 import { OkMessageDto } from "@/medivet-commons/dto/ok-message.dto";
 import { MedivetMessageStatus } from "@/medivet-commons/enums/enums";
 import { paginateData } from "@/medivet-commons/utils";
 import { MedivetCreateMessageDto } from "@/medivet-messages/dto/medivet-create-message.dto";
+import { MedivetSearchConversationDto } from "@/medivet-messages/dto/medivet-search-conversation.dto";
 import { MedivetSearchMessageDto } from "@/medivet-messages/dto/medivet-search-message.dto";
 import { MedivetUpdateMessageDto } from "@/medivet-messages/dto/medivet-update-message.dto";
 import { MedivetMessage } from "@/medivet-messages/entities/medivet-message.entity";
 import { MedivetUserConversation } from "@/medivet-messages/types/types";
-import { MedivetSecurityAuthService } from "@/medivet-security/services/medivet-security-auth.service";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
 
@@ -23,7 +22,6 @@ export class MedivetMessagesService {
     constructor(
     @InjectRepository(MedivetMessage) private messagesRepository: Repository<MedivetMessage>,
     private usersService: MedivetUsersService,
-    private authService: MedivetSecurityAuthService
     ) {
     }
 
@@ -42,28 +40,23 @@ export class MedivetMessagesService {
             receiverStatus: MedivetMessageStatus.ACTIVE,
             issuer,
             issuerStatus: MedivetMessageStatus.ACTIVE,
-            read: false
+            read: false,
         });
         await this.messagesRepository.save(newMessage);
 
         return newMessage;
     }
 
-    async getUserFromSocket(socket: Socket): Promise<MedivetUser> {
-        const { token } = socket.handshake.auth;
-        return this.authService.findUserByAuthToken(token);
-    }
-
     async searchAllUserConversations(
         user: MedivetUser,
-        searchDto: MedivetSearchMessageDto
+        searchDto: MedivetSearchConversationDto
     ): Promise<MedivetUserConversation[]> {
         const relations = [ "issuer", "receiver" ];
-        const { status, offset, pageSize } = searchDto;
+        const { status, offset, pageSize, lastUpdate } = searchDto;
 
         const sentMessages = await this.messagesRepository.find({
             relations,
-            where: { issuer: { id: user.id }, }
+            where: { issuer: { id: user.id } }
         });
         const receivedMessages = await this.messagesRepository.find({
             relations,
@@ -81,7 +74,7 @@ export class MedivetMessagesService {
                     user: receiver,
                     messages: [ sentMessage ],
                     status: sentMessage.issuerStatus,
-                    lastUpdate: sentMessage.createdAt
+                    lastUpdate: sentMessage.lastUpdate
                 });
             }
         });
@@ -96,7 +89,7 @@ export class MedivetMessagesService {
                     user: issuer,
                     messages: [ receivedMessage ],
                     status: receivedMessage.receiverStatus,
-                    lastUpdate: receivedMessage.createdAt
+                    lastUpdate: receivedMessage.lastUpdate
                 });
             }
         });
@@ -105,8 +98,13 @@ export class MedivetMessagesService {
             conversation.messages.sort((a, b) => {
                 return b.createdAt.getTime() - a.createdAt.getTime();
             });
-            conversation.lastUpdate = conversation.messages[conversation.messages.length - 1].createdAt;
+            conversation.lastUpdate = conversation.messages[0].lastUpdate;
         });
+
+        if (lastUpdate) {
+            conversations = conversations.filter(conversation =>
+                moment(conversation.lastUpdate).isAfter(moment(lastUpdate)));
+        }
 
         switch (status) {
             case MedivetMessageStatus.ARCHIVED:
@@ -162,67 +160,38 @@ export class MedivetMessagesService {
         return { message: SuccessMessageConstants.USER_CONVERSATION_STATUS_HAS_BEEN_CHANGED_SUCCESSFULLY };
     }
 
-    // TODO jeżeli ktos znowu do nas napisze po usunięciu to co wtedy?
-    async getConversationWithUser(
-        user: MedivetUser,
-        correspondingUserId: number,
-        paginationDto?: OffsetPaginationDto,
-    ): Promise<MedivetUserConversation> {
-        const relations = [ "issuer", "receiver" ];
-        const correspondingUser = await this.usersService.findOneById(correspondingUserId);
-
-        const sentMessages = await this.messagesRepository.find({
-            relations,
-            where: {
-                issuer: { id: user.id },
-                receiver: { id: correspondingUserId }
-            }
-        });
-        const receivedMessages = await this.messagesRepository.find({
-            relations,
-            where: {
-                receiver: { id: user.id },
-                issuer: { id: correspondingUserId }
-            }
-        });
-        const allMessages = [ ...sentMessages, ...receivedMessages ];
-
-        allMessages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-        return {
-            user: correspondingUser,
-            messages: paginateData(allMessages, paginationDto),
-            lastUpdate: allMessages[allMessages.length - 1].createdAt,
-            status: sentMessages[0].issuerStatus
-        };
-    }
-
     async getMessagesWithUser(
         user: MedivetUser,
         correspondingUserId: number,
-        paginationDto?: OffsetPaginationDto,
+        searchDto: MedivetSearchMessageDto
     ): Promise<MedivetMessage[]> {
+        const { offset, pageSize, lastUpdate } = searchDto;
         const relations = [ "issuer", "receiver" ];
 
         const sentMessages = await this.messagesRepository.find({
             relations,
             where: {
                 issuer: { id: user.id },
-                receiver: { id: correspondingUserId }
+                receiver: { id: correspondingUserId },
+                lastUpdate: lastUpdate ? MoreThanOrEqual(new Date(lastUpdate)) : LessThanOrEqual(new Date())
             }
         });
+
         const receivedMessages = await this.messagesRepository.find({
             relations,
             where: {
                 receiver: { id: user.id },
-                issuer: { id: correspondingUserId }
+                issuer: { id: correspondingUserId },
+                lastUpdate: lastUpdate ? MoreThanOrEqual(new Date(lastUpdate)) : LessThanOrEqual(new Date())
             }
         });
         const allMessages = [ ...sentMessages, ...receivedMessages ];
-
         allMessages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-        return paginateData(allMessages, paginationDto);
+        return paginateData(allMessages, {
+            offset,
+            pageSize
+        });
     }
 
     async markConversationAsRead(
