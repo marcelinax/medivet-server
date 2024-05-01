@@ -98,12 +98,13 @@ export class MedivetMessagesService {
             conversation.messages.sort((a, b) => {
                 return b.createdAt.getTime() - a.createdAt.getTime();
             });
+
             conversation.lastUpdate = conversation.messages[0].lastUpdate;
         });
 
         if (lastUpdate) {
             conversations = conversations.filter(conversation =>
-                moment(conversation.lastUpdate).isAfter(moment(lastUpdate)));
+                moment(conversation.lastUpdate).isSameOrAfter(moment(lastUpdate)));
         }
 
         switch (status) {
@@ -115,6 +116,11 @@ export class MedivetMessagesService {
                 conversations = conversations.filter(message => message.status == MedivetMessageStatus.ACTIVE);
                 break;
         }
+
+        conversations.sort(
+            (a, b) =>
+                b.messages[0].createdAt.getTime() - a.messages[0].createdAt.getTime()
+        );
 
         return paginateData(conversations, {
             pageSize,
