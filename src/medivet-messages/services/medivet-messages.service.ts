@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import moment from "moment";
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from "typeorm";
+import { Equal, LessThanOrEqual, MoreThanOrEqual, Not, Repository } from "typeorm";
 
 import { ErrorMessagesConstants } from "@/medivet-commons/constants/error-messages.constants";
 import { SuccessMessageConstants } from "@/medivet-commons/constants/success-message.constants";
@@ -56,11 +56,17 @@ export class MedivetMessagesService {
 
         const sentMessages = await this.messagesRepository.find({
             relations,
-            where: { issuer: { id: user.id } }
+            where: {
+                issuer: { id: user.id },
+                issuerStatus: Not(Equal(MedivetMessageStatus.REMOVED))
+            }
         });
         const receivedMessages = await this.messagesRepository.find({
             relations,
-            where: { receiver: { id: user.id }, }
+            where: {
+                receiver: { id: user.id },
+                receiverStatus: Not(Equal(MedivetMessageStatus.REMOVED))
+            }
         });
         let conversations: MedivetUserConversation[] = [];
 
@@ -136,7 +142,8 @@ export class MedivetMessagesService {
         const sentMessages = await this.messagesRepository.find({
             where: {
                 receiver: { id: userId },
-                issuer: { id: user.id }
+                issuer: { id: user.id },
+                issuerStatus: Not(Equal(MedivetMessageStatus.REMOVED))
             },
             relations: [ "issuer", "receiver" ]
         });
@@ -151,7 +158,8 @@ export class MedivetMessagesService {
         const receivedMessages = await this.messagesRepository.find({
             where: {
                 receiver: { id: user.id },
-                issuer: { id: userId }
+                issuer: { id: userId },
+                receiverStatus: Not(Equal(MedivetMessageStatus.REMOVED))
             },
             relations: [ "issuer", "receiver" ]
         });
@@ -179,7 +187,8 @@ export class MedivetMessagesService {
             where: {
                 issuer: { id: user.id },
                 receiver: { id: correspondingUserId },
-                lastUpdate: lastUpdate ? MoreThanOrEqual(new Date(lastUpdate)) : LessThanOrEqual(new Date())
+                lastUpdate: lastUpdate ? MoreThanOrEqual(new Date(lastUpdate)) : LessThanOrEqual(new Date()),
+                issuerStatus: Not(Equal(MedivetMessageStatus.REMOVED))
             }
         });
 
@@ -188,7 +197,8 @@ export class MedivetMessagesService {
             where: {
                 receiver: { id: user.id },
                 issuer: { id: correspondingUserId },
-                lastUpdate: lastUpdate ? MoreThanOrEqual(new Date(lastUpdate)) : LessThanOrEqual(new Date())
+                lastUpdate: lastUpdate ? MoreThanOrEqual(new Date(lastUpdate)) : LessThanOrEqual(new Date()),
+                receiverStatus: Not(Equal(MedivetMessageStatus.REMOVED))
             }
         });
         const allMessages = [ ...sentMessages, ...receivedMessages ];
@@ -208,7 +218,8 @@ export class MedivetMessagesService {
             where: {
                 read: false,
                 receiver: { id: user.id },
-                issuer: { id: correspondingUserId }
+                issuer: { id: correspondingUserId },
+                receiverStatus: Not(Equal(MedivetMessageStatus.REMOVED))
             },
             relations: [ "issuer", "receiver" ]
         });
