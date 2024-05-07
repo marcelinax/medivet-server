@@ -15,6 +15,7 @@ import { MedivetUpdateMessageDto } from "@/medivet-messages/dto/medivet-update-m
 import { MedivetMessage } from "@/medivet-messages/entities/medivet-message.entity";
 import { MedivetUserConversation } from "@/medivet-messages/types/types";
 import { MedivetUser } from "@/medivet-users/entities/medivet-user.entity";
+import { MedivetUserRole } from "@/medivet-users/enums/medivet-user-role.enum";
 import { MedivetUsersService } from "@/medivet-users/services/medivet-users.service";
 
 @Injectable()
@@ -32,6 +33,7 @@ export class MedivetMessagesService {
         const { message, receiverId } = createMessageDto;
         const receiver = await this.usersService.findOneById(receiverId);
 
+        this.checkIfCorrespondingUserIsAvailable(receiver);
         await this.checkIfIssuerCanSendMessageToReceiverBasedOnUserRole(issuer, receiver);
 
         const newMessage = this.messagesRepository.create({
@@ -240,6 +242,17 @@ export class MedivetMessagesService {
             throw new BadRequestException([
                 {
                     message: ErrorMessagesConstants.ISSUER_CANNOT_SEND_MESSAGE_TO_RECEIVER_WITH_THE_SAME_ROLE,
+                    property: "all"
+                }
+            ]);
+        }
+    }
+
+    private checkIfCorrespondingUserIsAvailable(receiver: MedivetUser): void {
+        if (receiver.role === MedivetUserRole.REMOVED) {
+            throw new BadRequestException([
+                {
+                    message: ErrorMessagesConstants.CANNOT_SEND_MESSAGE_TO_REMOVED_USER,
                     property: "all"
                 }
             ]);

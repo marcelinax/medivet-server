@@ -137,23 +137,4 @@ export class MedivetSecurityAuthService {
         await this.usersService.forceUpdateUserPassword(user, await this.securityHashingService.hashValue(newPassword));
         await this.resetPasswordTokenRepository.remove(resetPasswordTokenObj);
     }
-
-    async findUserByAuthToken(token: string, include?: string): Promise<MedivetUser> {
-        const relations = [ ...(include?.split(",") ?? []), "user" ];
-        const user = await this.authTokenRepository.findOne({
-            where: { token: `Bearer ${token}` },
-            relations
-        });
-
-        if (!user) {
-            throw new BadRequestException([
-                {
-                    message: ErrorMessagesConstants.USER_IS_NOT_VALID,
-                    property: "all"
-                }
-            ]);
-        }
-
-        return user.user;
-    }
 }
